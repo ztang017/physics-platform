@@ -1,0 +1,133 @@
+.container {
+  padding: var(--space-3) var(--space-4);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  backdrop-filter: var(--glass-blur);
+  transition: background var(--duration-fast);
+}
+
+.container.flash {
+  animation: xp-flash 0.7s ease-out;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.levelBadge {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
+}
+
+.levelNum {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.levelLabel {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.05em;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.xpLabel {
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+}
+
+.xpCurrent {
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.xpSep {
+  color: var(--text-muted);
+}
+
+.totalXP {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.track {
+  height: 6px;
+  background: var(--bg-base);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+  border-radius: var(--radius-full);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+}
+
+/* Compact variant */
+.compactBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.compactLevel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-violet);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.compactXP {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.trackCompact {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.fillCompact {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+  border-radius: var(--radius-full);
+  transition: width 0.6s var(--ease-out);
+}

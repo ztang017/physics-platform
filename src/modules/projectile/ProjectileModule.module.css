@@ -1,0 +1,16 @@
+.module, .moduleHeader { display: flex; flex-direction: column; }
+.moduleHeader { padding: var(--space-6) var(--space-8); border-bottom: 1px solid var(--border-subtle); background: var(--bg-surface); }
+.moduleHeader h2 { color: var(--text-primary); }
+.moduleHeader p  { font-size: 0.9rem; }
+.predictWrap, .observeWrap { display: flex; flex-direction: column; gap: var(--space-5); }
+.storyCard { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-4); background: var(--bg-elevated); border-left: 4px solid var(--accent-amber); border-radius: var(--radius-md); }
+.storyIcon { font-size: 1.75rem; flex-shrink: 0; }
+.storyCard h4 { margin-bottom: 2px; } .storyCard p { font-size: 0.875rem; }
+.sliders { display: flex; flex-direction: column; gap: var(--space-4); }
+.hint { font-size: 0.85rem; color: var(--text-muted); }
+.canvas { width: 100%; height: auto; display: block; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); cursor: crosshair; }
+.readouts { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.readout { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3) var(--space-4); background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); flex: 1; min-width: 100px; }
+.readout span { font-size: 0.75rem; color: var(--text-muted); }
+.readout strong { font-family: var(--font-mono); font-size: 1rem; }
+@media (max-width: 640px) { .moduleHeader { padding: var(--space-4); } }

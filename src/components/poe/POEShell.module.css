@@ -1,0 +1,291 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.phaseBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.phaseStep {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all var(--duration-base) var(--ease-out);
+  position: relative;
+}
+
+.phaseStep.active {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-active);
+  color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
+}
+
+.phaseStep.done {
+  color: var(--accent-green);
+  opacity: 0.7;
+}
+
+.phaseIcon { font-size: 1rem; }
+.phaseLabel { white-space: nowrap; }
+
+.check {
+  color: var(--accent-green);
+  font-size: 0.75rem;
+  margin-left: var(--space-1);
+}
+
+.connector {
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+  min-width: var(--space-4);
+  transition: background var(--duration-base);
+}
+
+.connectorDone { background: rgba(16, 185, 129, 0.3); }
+
+.content {
+  flex: 1;
+  padding: var(--space-6);
+}
+
+.phaseContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  animation: fadeInUp var(--duration-slow) var(--ease-out);
+}
+
+.phaseHero {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--accent-cyan);
+}
+
+.heroIcon { font-size: 1.75rem; flex-shrink: 0; }
+.phaseHero h3 { color: var(--text-primary); margin-bottom: 2px; }
+.phaseHero p  { font-size: 0.875rem; color: var(--text-secondary); }
+
+.observeFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: var(--space-4);
+  min-height: 42px; /* prevent layout shift when button appears */
+}
+
+.observeWait {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1;   }
+}
+
+/* Explain */
+.explainWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  animation: fadeInUp var(--duration-slow) var(--ease-out);
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.questionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.questionNum {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.questionTrack {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.questionDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-default);
+  transition: all var(--duration-base);
+}
+
+.dotDone { background: var(--accent-green); }
+.dotActive { background: var(--accent-cyan); box-shadow: 0 0 6px rgba(0, 212, 255, 0.5); }
+
+.questionText {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.optionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  transition: all var(--duration-fast) var(--ease-out);
+  min-height: 52px;
+  font-family: var(--font-sans);
+}
+
+.option:hover:not(:disabled) {
+  border-color: var(--accent-cyan);
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
+.optionSelected {
+  border-color: var(--accent-cyan);
+  color: var(--text-primary);
+  background: rgba(0, 212, 255, 0.08);
+}
+
+.optionCorrect {
+  border-color: var(--accent-green) !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: var(--accent-green) !important;
+  animation: glow-pulse 1s ease-in-out;
+}
+
+.optionWrong {
+  border-color: var(--accent-red) !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: var(--accent-red) !important;
+}
+
+.optionLetter {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.optionCheck, .optionX { margin-left: auto; font-size: 1rem; }
+.optionCheck { color: var(--accent-green); }
+.optionX     { color: var(--accent-red); }
+
+.feedback {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  animation: fadeInUp var(--duration-base) var(--ease-out);
+}
+
+.feedbackCorrect {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.feedbackWrong {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.feedback p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Complete */
+.completeWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: var(--space-8);
+}
+
+.completeCard {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-8);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  backdrop-filter: var(--glass-blur);
+  max-width: 480px;
+  width: 100%;
+  animation: scaleIn var(--duration-slow) var(--ease-spring);
+}
+
+.completeEmoji {
+  font-size: 4rem;
+  animation: badge-pop 0.8s var(--ease-spring);
+}
+
+.completeActions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 768px) {
+  .phaseBar { padding: var(--space-2) var(--space-4); }
+  .content  { padding: var(--space-4); }
+  .phaseStep { padding: var(--space-2) var(--space-3); font-size: 0.78rem; }
+  .connector { min-width: var(--space-2); }
+}
