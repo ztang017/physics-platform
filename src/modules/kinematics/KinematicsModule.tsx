@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import {
   type KinematicsParams,
   generateTimeSeries,
@@ -8,10 +8,13 @@ import {
   type GraphShape,
 } from '../../core/physics/kinematics';
 import { useAnimationLoop } from '../../components/canvas/useAnimationLoop';
+import { useHiDPICanvas } from '../../components/canvas/useHiDPICanvas';
 import { POEShell } from '../../components/poe/POEShell';
 import { FormulaPanel } from '../../components/ui/FormulaPanel';
 import { useGameStore } from '../../core/store/gameStore';
 import { useSessionStore, type ExplainQuestion } from '../../core/store/sessionStore';
+import { ConceptNotes } from '../../components/concepts/ConceptNotes';
+import { KINEMATICS_CONCEPTS } from './kinematicsConcepts';
 import styles from './KinematicsModule.module.css';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -22,17 +25,21 @@ const GRAPH_W = 280;
 const GRAPH_H = 160;
 const TRACK_MARGIN = 60;
 
-// Colour tokens (matching CSS variables, duplicated for Canvas use)
+// Fixed hidden target for the Graph-Match challenge (never changes at runtime).
+const MATCH_TARGET_PARAMS: KinematicsParams = { x0: 0, v0: 3, a: -1.5 };
+
+// Colour tokens for the light "whiteboard" canvas surface (kept separate from
+// CSS variables since canvas fills can't reference custom properties).
 const COLOR = {
-  particle:   '#00d4ff',
-  track:      '#1a2440',
-  trackLine:  '#2a3555',
-  velocity:   '#10b981',
-  accel:      '#f59e0b',
-  position:   '#00d4ff',
-  gridLine:   'rgba(255,255,255,0.04)',
-  axisLine:   'rgba(255,255,255,0.15)',
-  text:       'rgba(255,255,255,0.5)',
+  particle:   '#4f46e5',
+  track:      '#e2e5ee',
+  trackLine:  '#c7ccdb',
+  velocity:   '#16a34a',
+  accel:      '#b45309',
+  position:   '#4f46e5',
+  gridLine:   'rgba(23,27,38,0.06)',
+  axisLine:   'rgba(23,27,38,0.28)',
+  text:       'rgba(23,27,38,0.6)',
 };
 
 // ─── Explain Questions ─────────────────────────────────────────────────────────
@@ -47,8 +54,9 @@ const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
       'The speed at the start',
     ],
     correctIndex: 1,
+    hint: 'Think about what a slope measures in general: change in the vertical axis (velocity) divided by change in the horizontal axis (time). What quantity is defined that way?',
     explanation:
-      'Correct! The slope of a v-t graph is Δv/Δt, which is the definition of acceleration. A steeper slope means greater acceleration.',
+      'The slope of a v-t graph is Δv/Δt, which is the definition of acceleration. A steeper slope means greater acceleration.',
   },
   {
     id: 'zero-accel',
@@ -60,8 +68,9 @@ const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
       'The object must be at the origin',
     ],
     correctIndex: 2,
+    hint: 'Acceleration is the RATE OF CHANGE of velocity. If that rate is zero, is velocity changing at all — in either direction?',
     explanation:
-      'Exactly! Zero acceleration means no change in velocity — the object continues at whatever speed it had. This directly contradicts "impetus theory," which would incorrectly predict the object slows down.',
+      'Zero acceleration means no change in velocity — the object continues at whatever speed it had. This directly contradicts "impetus theory," which would incorrectly predict the object slows down.',
   },
   {
     id: 'xt-curvature',
@@ -73,8 +82,9 @@ const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
       'Sinusoidal wave',
     ],
     correctIndex: 2,
+    hint: 'Look at the position equation: x = x₀ + v₀t + ½at². The t² term is the giveaway — what shape does a squared term trace out?',
     explanation:
-      'Right! Since x = x₀ + v₀t + ½at², the t² term makes it a parabola when acceleration is non-zero. Only constant velocity (a=0) gives a straight diagonal line.',
+      'Since x = x₀ + v₀t + ½at², the t² term makes it a parabola when acceleration is non-zero. Only constant velocity (a=0) gives a straight diagonal line.',
   },
 ];
 
@@ -83,23 +93,43 @@ function SimulationCanvas({
   params,
   running,
   onDataUpdate,
+  targetSeries,
 }: {
   params: KinematicsParams;
   running: boolean;
   onDataUpdate: (point: KinematicsDataPoint, elapsed: number) => void;
+  /** Optional reference v-t curve (Graph-Match challenge) drawn as a dashed overlay. */
+  targetSeries?: KinematicsDataPoint[];
 }) {
   const simCanvasRef = useRef<HTMLCanvasElement>(null);
   const graphCanvasRef = useRef<HTMLCanvasElement>(null);
   const historyRef = useRef<KinematicsDataPoint[]>([]);
   const fullSeriesRef = useRef(generateTimeSeries(params, SIM_DURATION));
   const elapsedRef = useRef(0);
+  // Axis ranges computed once per parameter set from the FULL trajectory, so
+  // the graph never clips a still-rising curve into a false "plateau" and
+  // never rescales mid-animation.
+  const rangesRef = useRef({ x: 60, v: 20, a: 10 });
+
+  useHiDPICanvas(simCanvasRef, CANVAS_W, CANVAS_H);
+  useHiDPICanvas(graphCanvasRef, GRAPH_W * 3 + 20, GRAPH_H);
 
   // Regenerate series when params change
   useEffect(() => {
-    fullSeriesRef.current = generateTimeSeries(params, SIM_DURATION);
+    const series = generateTimeSeries(params, SIM_DURATION);
+    fullSeriesRef.current = series;
     historyRef.current = [];
     elapsedRef.current = 0;
-  }, [params.v0, params.a, params.x0]);
+
+    const maxAbs = (key: 'x' | 'v' | 'a', pts: KinematicsDataPoint[]) =>
+      pts.reduce((m, pt) => Math.max(m, Math.abs(pt[key])), 0);
+    const targetVMax = targetSeries ? maxAbs('v', targetSeries) : 0;
+    rangesRef.current = {
+      x: maxAbs('x', series) * 1.15 || 5,
+      v: Math.max(maxAbs('v', series), targetVMax) * 1.15 || 2,
+      a: maxAbs('a', series) * 1.15 || 1,
+    };
+  }, [params.v0, params.a, params.x0, targetSeries]);
 
   const drawSimulation = useCallback((elapsed: number) => {
     const canvas = simCanvasRef.current;
@@ -165,7 +195,7 @@ function SimulationCanvas({
     ctx.fillText('0', originX, CANVAS_H - 8);
 
     // Time readout
-    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillStyle = 'rgba(23,27,38,0.75)';
     ctx.font = 'bold 12px JetBrains Mono, monospace';
     ctx.textAlign = 'left';
     ctx.fillText(`t = ${t.toFixed(2)}s`, 8, 20);
@@ -182,17 +212,19 @@ function SimulationCanvas({
     const history = historyRef.current;
     ctx.clearRect(0, 0, GRAPH_W * 3 + 20, GRAPH_H);
 
+    const ranges = rangesRef.current;
     const configs = [
-      { key: 'x' as const, label: 'x-t', color: COLOR.position, unit: 'm', range: 60 },
-      { key: 'v' as const, label: 'v-t', color: COLOR.velocity,  unit: 'm/s', range: 20 },
-      { key: 'a' as const, label: 'a-t', color: COLOR.accel,     unit: 'm/s²', range: 10 },
+      { key: 'x' as const, label: 'x-t', color: COLOR.position, unit: 'm', range: ranges.x },
+      { key: 'v' as const, label: 'v-t', color: COLOR.velocity,  unit: 'm/s', range: ranges.v },
+      { key: 'a' as const, label: 'a-t', color: COLOR.accel,     unit: 'm/s²', range: ranges.a },
     ];
 
     configs.forEach((cfg, i) => {
       const ox = i * (GRAPH_W + 10);
-      drawGraph(ctx, history, cfg.key, cfg.label, cfg.color, cfg.unit, cfg.range, ox, 0, GRAPH_W, GRAPH_H);
+      const overlay = cfg.key === 'v' ? targetSeries : undefined;
+      drawGraph(ctx, history, cfg.key, cfg.label, cfg.color, cfg.unit, cfg.range, ox, 0, GRAPH_W, GRAPH_H, overlay);
     });
-  }, []);
+  }, [targetSeries]);
 
   const { stop } = useAnimationLoop({
     running,
@@ -220,8 +252,6 @@ function SimulationCanvas({
     <div className={styles.simWrap}>
       <canvas
         ref={simCanvasRef}
-        width={CANVAS_W}
-        height={CANVAS_H}
         className={styles.simCanvas}
         aria-label="Physics particle simulation on a 1D track"
         role="img"
@@ -229,8 +259,6 @@ function SimulationCanvas({
       <div className={styles.graphRow}>
         <canvas
           ref={graphCanvasRef}
-          width={GRAPH_W * 3 + 20}
-          height={GRAPH_H}
           className={styles.graphCanvas}
           aria-label="Synchronized position, velocity, and acceleration graphs"
           role="img"
@@ -279,15 +307,16 @@ function drawGraph(
   _unit: string,
   valueRange: number,
   ox: number, oy: number,
-  w: number, h: number
+  w: number, h: number,
+  overlay?: KinematicsDataPoint[]
 ) {
   const pad = { l: 32, r: 8, t: 18, b: 24 };
   const gx = ox + pad.l, gy = oy + pad.t;
   const gw = w - pad.l - pad.r, gh = h - pad.t - pad.b;
 
   // Background
-  ctx.fillStyle = 'rgba(15, 22, 41, 0.8)';
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = 'rgba(23,27,38,0.1)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.roundRect(ox, oy, w, h, 8);
@@ -321,24 +350,47 @@ function drawGraph(
   ctx.fillStyle = COLOR.text;
   ctx.font = '9px JetBrains Mono, monospace';
   ctx.textAlign = 'right';
-  ctx.fillText(`+${valueRange}`, gx - 2, gy + 4);
-  ctx.fillText(`-${valueRange}`, gx - 2, gy + gh);
+  const rangeLabel = valueRange >= 10 ? Math.round(valueRange) : Math.round(valueRange * 10) / 10;
+  ctx.fillText(`+${rangeLabel}`, gx - 2, gy + 4);
+  ctx.fillText(`-${rangeLabel}`, gx - 2, gy + gh);
+
+  const toPoint = (pt: KinematicsDataPoint) => ({
+    px: gx + (pt.t / SIM_DURATION) * gw,
+    py: Math.max(gy, Math.min(gy + gh, zeroY - (pt[key] / valueRange) * (gh / 2))),
+  });
+
+  // Target overlay (Graph-Match challenge) — dashed, drawn under the live trace
+  if (overlay && overlay.length >= 2) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(23,27,38,0.45)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    overlay.forEach((pt, i) => {
+      const { px, py } = toPoint(pt);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.fillStyle = 'rgba(23,27,38,0.55)';
+    ctx.font = '9px JetBrains Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('- - target', gx + gw - 2, gy + 12);
+  }
 
   // Plot data
   if (history.length < 2) return;
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
-  ctx.shadowBlur = 6;
+  ctx.shadowBlur = 4;
   ctx.shadowColor = color;
   ctx.beginPath();
 
   history.forEach((pt, i) => {
-    const val = pt[key];
-    const px = gx + (pt.t / SIM_DURATION) * gw;
-    const py = zeroY - (val / valueRange) * (gh / 2);
-    const clampedPy = Math.max(gy, Math.min(gy + gh, py));
-    if (i === 0) ctx.moveTo(px, clampedPy);
-    else ctx.lineTo(px, clampedPy);
+    const { px, py } = toPoint(pt);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
   });
 
   ctx.stroke();
@@ -380,7 +432,7 @@ function GraphShapePicker({
           >
             <svg viewBox="0 0 100 100" className={styles.shapeSvg} aria-hidden="true">
               <line x1="10" y1="50" x2="90" y2="50" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-              <path d={opt.svgPath} fill="none" stroke={value === opt.id ? '#00d4ff' : 'rgba(255,255,255,0.4)'} strokeWidth="3" strokeLinecap="round" />
+              <path d={opt.svgPath} fill="none" stroke={value === opt.id ? '#2dd4bf' : 'rgba(255,255,255,0.4)'} strokeWidth="3" strokeLinecap="round" />
             </svg>
             <span>{opt.label}</span>
           </button>
@@ -418,11 +470,13 @@ export function KinematicsModule() {
 
   // ─── Graph Match ──────────────────────────────────────────────────────────────
   const [matchScore, setMatchScore] = useState<number | null>(null);
-  const targetParamsRef = useRef<KinematicsParams>({ x0: 0, v0: 3, a: -1.5 });
   const studentSeriesRef = useRef<KinematicsDataPoint[]>([]);
+  const targetSeries = useMemo(
+    () => generateTimeSeries(MATCH_TARGET_PARAMS, SIM_DURATION),
+    []
+  );
 
   const handleRunMatch = () => {
-    const targetSeries = generateTimeSeries(targetParamsRef.current, SIM_DURATION);
     const studentSeries = generateTimeSeries({ x0: 0, v0, a }, SIM_DURATION);
     const result = scoreGraphMatch(targetSeries, studentSeries);
     setMatchScore(result.score);
@@ -517,6 +571,7 @@ export function KinematicsModule() {
           setLivePoint(pt);
           studentSeriesRef.current.push(pt);
         }}
+        targetSeries={targetSeries}
       />
 
       <div className={styles.controlRow}>
@@ -570,7 +625,11 @@ export function KinematicsModule() {
           <span className={styles.matchIcon}>🎮</span>
           <div>
             <h4>Graph-Match Challenge</h4>
-            <p>Adjust sliders so your particle matches the <span className="text-amber">target velocity curve</span>. Score: precision matters!</p>
+            <p>
+              The dashed gray line on the <strong>v-t graph</strong> above is a hidden target curve.
+              Adjust <strong>Initial Velocity</strong> and <strong>Acceleration</strong> above so your
+              solid line traces over it as closely as possible, then check your score.
+            </p>
           </div>
         </div>
         <button className="btn btn--secondary" onClick={handleRunMatch}>
@@ -596,6 +655,14 @@ export function KinematicsModule() {
           <h2>📈 Vector Kinematics Grapher</h2>
           <p>Explore 1D constant-acceleration motion through synchronized real-time graphs.</p>
         </div>
+      </div>
+
+      <div className={styles.conceptWrap}>
+        <ConceptNotes
+          title="Vector Kinematics"
+          intro="Position, velocity, acceleration — and how to read their graphs."
+          sections={KINEMATICS_CONCEPTS}
+        />
       </div>
 
       <POEShell

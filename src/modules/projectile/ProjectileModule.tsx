@@ -3,10 +3,13 @@ import {
   type ProjectileParams, generateTrajectory, evaluateMission,
   type WallMissionParams, getRange, getMaxHeight,
 } from '../../core/physics/projectile';
+import { useHiDPICanvas } from '../../components/canvas/useHiDPICanvas';
 import { POEShell } from '../../components/poe/POEShell';
 import { FormulaPanel } from '../../components/ui/FormulaPanel';
 import { useGameStore } from '../../core/store/gameStore';
 import { useSessionStore, type ExplainQuestion } from '../../core/store/sessionStore';
+import { ConceptNotes } from '../../components/concepts/ConceptNotes';
+import { PROJECTILE_CONCEPTS } from './projectileConcepts';
 import styles from './ProjectileModule.module.css';
 
 const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
@@ -15,21 +18,24 @@ const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     question: 'What force acts on the projectile in the horizontal direction (ignoring air resistance)?',
     options: ['Gravity', 'The launch force', 'No force — horizontal velocity is constant', 'Friction'],
     correctIndex: 2,
-    explanation: 'Correct! With no air resistance, no horizontal force acts on the projectile. This is why horizontal velocity remains constant throughout the flight — it is unchanged from the moment of launch.',
+    hint: 'Gravity always pulls straight down — it has no sideways component at all. With nothing else pushing or pulling sideways, what happens to a velocity that never gets a force applied to it?',
+    explanation: 'With no air resistance, no horizontal force acts on the projectile. This is why horizontal velocity remains constant throughout the flight — it is unchanged from the moment of launch.',
   },
   {
     id: 'why-fell-short',
     question: 'If your package fell short of the target, which parameter would MOST directly fix this?',
     options: ['Decrease launch angle to 0°', 'Increase initial speed v₀', 'Add more mass to the package', 'Increase gravity'],
     correctIndex: 1,
-    explanation: 'Correct! Range = v₀²sin(2θ)/g — increasing v₀ quadratically increases the range. You could also optimize the angle toward 45° for maximum range at a given speed.',
+    hint: 'Look at the range formula: R = v₀²sin(2θ)/g. Mass doesn\'t even appear in it, and gravity isn\'t something you control. Which of the remaining options directly increases R?',
+    explanation: 'Range = v₀²sin(2θ)/g — increasing v₀ quadratically increases the range. You could also optimize the angle toward 45° for maximum range at a given speed.',
   },
   {
     id: 'max-range-angle',
     question: 'At what launch angle is the range maximized (on flat ground)?',
     options: ['30°', '45°', '60°', '90°'],
     correctIndex: 1,
-    explanation: 'Exactly! 45° maximizes range because sin(2θ) = sin(90°) = 1, which is its maximum value. At 30° and 60° you get the same range as each other, but less than at 45°.',
+    hint: 'Range depends on sin(2θ). sin() reaches its largest possible value, 1, when its input is 90°. What value of θ makes 2θ equal 90°?',
+    explanation: '45° maximizes range because sin(2θ) = sin(90°) = 1, which is its maximum value. At 30° and 60° you get the same range as each other, but less than at 45°.',
   },
 ];
 
@@ -60,6 +66,8 @@ function ProjectileCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
 
+  useHiDPICanvas(canvasRef, W, H);
+
   const worldToCanvas = (wx: number, wy: number) => ({
     cx: ORIGIN_X + wx * SCALE,
     cy: ORIGIN_Y - wy * SCALE,
@@ -72,28 +80,28 @@ function ProjectileCanvas({
 
     ctx.clearRect(0, 0, W, H);
 
-    // Sky gradient
+    // Sky wash
     const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, 'rgba(7, 12, 28, 0.9)');
-    grad.addColorStop(1, 'rgba(15, 22, 41, 0.6)');
+    grad.addColorStop(0, 'rgba(79, 70, 229, 0.06)');
+    grad.addColorStop(1, 'rgba(79, 70, 229, 0.01)');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
 
     // Ground
-    ctx.fillStyle = '#1a2440';
+    ctx.fillStyle = '#e2e5ee';
     ctx.fillRect(0, ORIGIN_Y, W, H - ORIGIN_Y);
-    ctx.strokeStyle = '#2a3555';
+    ctx.strokeStyle = '#8890a3';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0, ORIGIN_Y); ctx.lineTo(W, ORIGIN_Y); ctx.stroke();
 
     // Wall
     const wall = worldToCanvas(MISSION.wallX, MISSION.wallHeight);
-    ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
-    ctx.strokeStyle = '#ef4444';
+    ctx.fillStyle = 'rgba(220, 38, 38, 0.18)';
+    ctx.strokeStyle = '#dc2626';
     ctx.lineWidth = 2;
     ctx.fillRect(wall.cx - 4, wall.cy, 8, ORIGIN_Y - wall.cy);
     ctx.strokeRect(wall.cx - 4, wall.cy, 8, ORIGIN_Y - wall.cy);
-    ctx.fillStyle = '#ef4444';
+    ctx.fillStyle = '#dc2626';
     ctx.font = 'bold 10px JetBrains Mono, monospace';
     ctx.textAlign = 'center';
     ctx.fillText(`${MISSION.wallHeight}m`, wall.cx, wall.cy - 6);
@@ -101,21 +109,20 @@ function ProjectileCanvas({
     // Target zone
     const targetStart = worldToCanvas(MISSION.targetX - MISSION.targetTolerance, 0);
     const targetEnd = worldToCanvas(MISSION.targetX + MISSION.targetTolerance, 0);
-    ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
-    ctx.strokeStyle = '#10b981';
+    ctx.fillStyle = 'rgba(22, 163, 74, 0.15)';
+    ctx.strokeStyle = '#16a34a';
     ctx.lineWidth = 2;
     ctx.fillRect(targetStart.cx, ORIGIN_Y - 12, targetEnd.cx - targetStart.cx, 12);
     ctx.strokeRect(targetStart.cx, ORIGIN_Y - 12, targetEnd.cx - targetStart.cx, 12);
-    ctx.fillStyle = '#10b981';
+    ctx.fillStyle = '#16a34a';
     ctx.fillText('TARGET', worldToCanvas(MISSION.targetX, 0).cx, ORIGIN_Y - 16);
 
     // Trajectory (if fired)
     if (fired) {
       const traj = generateTrajectory(params);
-      ctx.strokeStyle = '#00d4ff';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#4f46e5';
+      ctx.lineWidth = 2.5;
       ctx.setLineDash([]);
-      ctx.shadowBlur = 8; ctx.shadowColor = '#00d4ff';
       ctx.beginPath();
       traj.forEach((pt, i) => {
         const { cx, cy } = worldToCanvas(pt.x, pt.y);
@@ -123,30 +130,29 @@ function ProjectileCanvas({
         else ctx.lineTo(cx, cy);
       });
       ctx.stroke();
-      ctx.shadowBlur = 0;
 
       // Landing point
       const land = traj[traj.length - 1];
       const { cx } = worldToCanvas(land.x, land.y);
       ctx.beginPath(); ctx.arc(cx, ORIGIN_Y, 6, 0, Math.PI * 2);
-      ctx.fillStyle = '#f59e0b';
+      ctx.fillStyle = '#b45309';
       ctx.fill();
     }
 
     // Crosshair (predict mode)
     if (crosshair && !fired) {
       const { x: cx, y: cy } = crosshair;
-      ctx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
+      ctx.strokeStyle = 'rgba(180, 83, 9, 0.7)';
       ctx.setLineDash([4, 4]);
       ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(cx - 20, cy); ctx.lineTo(cx + 20, cy); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(cx, cy - 20); ctx.lineTo(cx, cy + 20); ctx.stroke();
       ctx.setLineDash([]);
       ctx.beginPath(); ctx.arc(cx, cy, 8, 0, Math.PI * 2);
-      ctx.strokeStyle = '#f59e0b';
+      ctx.strokeStyle = '#b45309';
       ctx.lineWidth = 2;
       ctx.stroke();
-      ctx.fillStyle = '#f59e0b';
+      ctx.fillStyle = '#b45309';
       ctx.font = '10px JetBrains Mono';
       ctx.textAlign = 'left';
       ctx.fillText(`${((cx - ORIGIN_X) / SCALE).toFixed(0)}m`, cx + 12, cy - 4);
@@ -154,7 +160,7 @@ function ProjectileCanvas({
 
     // Axis labels
     ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.fillStyle = 'rgba(23,27,38,0.4)';
     ctx.font = '10px JetBrains Mono';
     for (let x = 0; x <= 120; x += 20) {
       const { cx } = worldToCanvas(x, 0);
@@ -175,7 +181,6 @@ function ProjectileCanvas({
   return (
     <canvas
       ref={canvasRef}
-      width={W} height={H}
       className={styles.canvas}
       onMouseMove={!fired ? handleMouseMove : undefined}
       onClick={!fired ? onFire : undefined}
@@ -301,6 +306,15 @@ export function ProjectileModule() {
         <h2>🚀 Projectile Motion Sandbox</h2>
         <p>Launch relief packages, explore the independence of orthogonal motion components.</p>
       </div>
+
+      <div className={styles.conceptWrap}>
+        <ConceptNotes
+          title="Projectile Motion"
+          intro="Why horizontal and vertical motion never interfere with each other."
+          sections={PROJECTILE_CONCEPTS}
+        />
+      </div>
+
       <POEShell
         moduleId="projectile"
         predictComponent={PredictPhase}

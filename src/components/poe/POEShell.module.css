@@ -31,7 +31,7 @@
   background: var(--bg-elevated);
   border: 1px solid var(--border-active);
   color: var(--accent-cyan);
-  box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
+  box-shadow: 0 0 12px rgba(79, 70, 229, 0.15);
 }
 
 .phaseStep.done {
@@ -56,7 +56,7 @@
   transition: background var(--duration-base);
 }
 
-.connectorDone { background: rgba(16, 185, 129, 0.3); }
+.connectorDone { background: rgba(22, 163, 74, 0.3); }
 
 .content {
   flex: 1;
@@ -143,7 +143,7 @@
 }
 
 .dotDone { background: var(--accent-green); }
-.dotActive { background: var(--accent-cyan); box-shadow: 0 0 6px rgba(0, 212, 255, 0.5); }
+.dotActive { background: var(--accent-cyan); box-shadow: 0 0 6px rgba(79, 70, 229, 0.5); }
 
 .questionText {
   font-size: 1.1rem;
@@ -189,19 +189,19 @@
 .optionSelected {
   border-color: var(--accent-cyan);
   color: var(--text-primary);
-  background: rgba(0, 212, 255, 0.08);
+  background: rgba(79, 70, 229, 0.08);
 }
 
 .optionCorrect {
   border-color: var(--accent-green) !important;
-  background: rgba(16, 185, 129, 0.12) !important;
+  background: rgba(22, 163, 74, 0.12) !important;
   color: var(--accent-green) !important;
   animation: glow-pulse 1s ease-in-out;
 }
 
 .optionWrong {
   border-color: var(--accent-red) !important;
-  background: rgba(239, 68, 68, 0.1) !important;
+  background: rgba(220, 38, 38, 0.1) !important;
   color: var(--accent-red) !important;
 }
 
@@ -232,13 +232,18 @@
 }
 
 .feedbackCorrect {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(22, 163, 74, 0.1);
+  border: 1px solid rgba(22, 163, 74, 0.3);
 }
 
 .feedbackWrong {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
+.feedbackHint {
+  background: rgba(180, 83, 9, 0.08);
+  border: 1px solid rgba(180, 83, 9, 0.25);
 }
 
 .feedback p {
@@ -279,9 +284,14 @@
 
 .completeActions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-3);
   margin-top: var(--space-2);
+  width: 100%;
 }
+
+.completeActions > * { flex: 1 1 auto; }
 
 @media (max-width: 768px) {
   .phaseBar { padding: var(--space-2) var(--space-4); }

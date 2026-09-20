@@ -1,9 +1,12 @@
 import { useRef, useState, useEffect } from 'react';
 import { type CollisionParams, solveCollision, interpolateCollision } from '../../core/physics/collision';
+import { useHiDPICanvas } from '../../components/canvas/useHiDPICanvas';
 import { POEShell } from '../../components/poe/POEShell';
 import { FormulaPanel } from '../../components/ui/FormulaPanel';
 import { useGameStore } from '../../core/store/gameStore';
 import { useSessionStore, type ExplainQuestion } from '../../core/store/sessionStore';
+import { ConceptNotes } from '../../components/concepts/ConceptNotes';
+import { COLLISION_CONCEPTS } from './collisionConcepts';
 import styles from './CollisionModule.module.css';
 
 const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
@@ -12,14 +15,16 @@ const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     question: 'After the collision, total momentum is:',
     options: ['Less than before (some is lost)', 'Greater than before', 'The same as before', 'Always zero'],
     correctIndex: 2,
-    explanation: 'Correct! Momentum is always conserved in a closed system. This is Newton\'s Third Law in action — the impulse cart 1 exerts on cart 2 is equal and opposite to what cart 2 exerts on cart 1.',
+    hint: 'This holds for EVERY collision in a closed system, no matter how bouncy or how mismatched the masses are — what\'s the one quantity in this chapter that\'s always conserved, without exception?',
+    explanation: 'Momentum is always conserved in a closed system. This is Newton\'s Third Law in action — the impulse cart 1 exerts on cart 2 is equal and opposite to what cart 2 exerts on cart 1.',
   },
   {
     id: 'elastic-vs-inelastic',
     question: 'In a perfectly inelastic collision (e = 0), what is special about the carts afterward?',
     options: ['They bounce apart at equal speeds', 'They stick together and move as one', 'All kinetic energy is converted to momentum', 'Momentum is lost'],
     correctIndex: 1,
-    explanation: 'Exactly! In a perfectly inelastic collision, the coefficient of restitution e = 0. The relative velocity after impact is zero, so the objects stick together. Maximum kinetic energy is lost (converted to heat/sound).',
+    hint: 'e = 0 means the "separation speed" after impact is zero — the two objects aren\'t moving apart from each other at all afterward. What does zero relative velocity between two touching objects actually look like?',
+    explanation: 'In a perfectly inelastic collision, the coefficient of restitution e = 0. The relative velocity after impact is zero, so the objects stick together. Maximum kinetic energy is lost (converted to heat/sound).',
   },
   {
     id: 'action-reaction',
@@ -31,7 +36,8 @@ const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
       'They depend on the coefficient of restitution',
     ],
     correctIndex: 2,
-    explanation: 'Correct! Newton\'s Third Law: action-reaction pairs are always equal and opposite, regardless of mass or speed. This is why a truck colliding with a small car exerts the same force on the car as the car exerts on the truck — the difference in damage is due to the difference in mass, not force.',
+    hint: 'This is one of Newton\'s three laws, and it applies to EVERY pair of interacting objects regardless of their mass or speed — not just collisions. Which law describes force pairs?',
+    explanation: 'Newton\'s Third Law: action-reaction pairs are always equal and opposite, regardless of mass or speed. This is why a truck colliding with a small car exerts the same force on the car as the car exerts on the truck — the difference in damage is due to the difference in mass, not force.',
   },
 ];
 
@@ -48,6 +54,8 @@ function CollisionCanvas({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  useHiDPICanvas(canvasRef, TRACK_W, TRACK_H);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -59,9 +67,9 @@ function CollisionCanvas({
     const SCALE = TRACK_W / 11; // pixels per meter
 
     // Track
-    ctx.fillStyle = '#1a2440';
+    ctx.fillStyle = '#e2e5ee';
     ctx.fillRect(0, trackY + 16, TRACK_W, 8);
-    ctx.strokeStyle = '#2a3555';
+    ctx.strokeStyle = '#c7ccdb';
     ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(0, trackY + 16); ctx.lineTo(TRACK_W, trackY + 16); ctx.stroke();
 
@@ -70,30 +78,26 @@ function CollisionCanvas({
     const c2x = state.x2 * SCALE;
     const cartH = 28, cartW = 44;
 
-    // Cart 1 (cyan)
-    ctx.fillStyle = 'rgba(0, 212, 255, 0.25)';
-    ctx.strokeStyle = '#00d4ff';
-    ctx.lineWidth = 2;
-    ctx.shadowBlur = 10; ctx.shadowColor = '#00d4ff';
+    // Cart 1 (indigo)
+    ctx.fillStyle = 'rgba(79, 70, 229, 0.15)';
+    ctx.strokeStyle = '#4f46e5';
+    ctx.lineWidth = 2.5;
     ctx.fillRect(c1x - cartW / 2, trackY - cartH, cartW, cartH);
     ctx.strokeRect(c1x - cartW / 2, trackY - cartH, cartW, cartH);
-    ctx.shadowBlur = 0;
 
     // Cart 1 label
-    ctx.fillStyle = '#00d4ff';
+    ctx.fillStyle = '#4f46e5';
     ctx.font = 'bold 10px JetBrains Mono';
     ctx.textAlign = 'center';
     ctx.fillText(`${params.m1}kg`, c1x, trackY - cartH - 4);
     ctx.fillText(`${state.v1.toFixed(1)}m/s`, c1x, trackY + 14);
 
     // Cart 2 (violet)
-    ctx.fillStyle = 'rgba(124, 58, 237, 0.25)';
+    ctx.fillStyle = 'rgba(124, 58, 237, 0.15)';
     ctx.strokeStyle = '#7c3aed';
-    ctx.lineWidth = 2;
-    ctx.shadowBlur = 10; ctx.shadowColor = '#7c3aed';
+    ctx.lineWidth = 2.5;
     ctx.fillRect(c2x - cartW / 2, trackY - cartH, cartW, cartH);
     ctx.strokeRect(c2x - cartW / 2, trackY - cartH, cartW, cartH);
-    ctx.shadowBlur = 0;
 
     ctx.fillStyle = '#7c3aed';
     ctx.fillText(`${params.m2}kg`, c2x, trackY - cartH - 4);
@@ -104,7 +108,7 @@ function CollisionCanvas({
     if (Math.abs(state.v1) > 0.1) {
       const dir = state.v1 > 0 ? 1 : -1;
       const len = Math.min(Math.abs(state.v1) * arrowScale * params.m1 / 5, 80);
-      drawArrow(ctx, c1x, trackY - cartH - 18, c1x + dir * len, trackY - cartH - 18, '#00d4ff', `p=${(params.m1 * state.v1).toFixed(0)}`);
+      drawArrow(ctx, c1x, trackY - cartH - 18, c1x + dir * len, trackY - cartH - 18, '#4f46e5', `p=${(params.m1 * state.v1).toFixed(0)}`);
     }
     if (Math.abs(state.v2) > 0.1) {
       const dir = state.v2 > 0 ? 1 : -1;
@@ -113,15 +117,15 @@ function CollisionCanvas({
     }
 
     // Phase label
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = '11px JetBrains Mono';
+    ctx.fillStyle = 'rgba(23,27,38,0.55)';
+    ctx.font = 'bold 11px JetBrains Mono';
     ctx.textAlign = 'left';
     const phaseMap: Record<string, string> = { approach: '→ Approaching...', collision: '💥 COLLISION!', separation: '← Separating...' };
     ctx.fillText(phaseMap[state.phase] ?? '', 8, 20);
   }, [params, tNorm, result]);
 
   return (
-    <canvas ref={canvasRef} width={TRACK_W} height={TRACK_H}
+    <canvas ref={canvasRef}
       className={styles.canvas}
       aria-label="Collision simulation showing two carts on a track with momentum vectors"
       role="img"
@@ -215,7 +219,7 @@ export function CollisionModule() {
       <div className={styles.questionCard}>
         <p className={styles.questionText}>Cart 1 ({m1}kg at {v1}m/s) hits Cart 2 ({m2}kg at {v2}m/s). Which cart will move faster after the collision?</p>
         <div className={styles.predOptions}>
-          {['Cart 1 (cyan)', 'Cart 2 (violet)', 'They move at the same speed', 'Both stop'].map((opt, i) => (
+          {['Cart 1 (indigo)', 'Cart 2 (violet)', 'They move at the same speed', 'Both stop'].map((opt, i) => (
             <button
               key={i}
               className={`${styles.predBtn} ${predicted === opt ? styles.predBtnActive : ''}`}
@@ -313,6 +317,15 @@ export function CollisionModule() {
         <h2>💥 1D Elastic & Inelastic Collisions</h2>
         <p>Explore momentum conservation and the coefficient of restitution.</p>
       </div>
+
+      <div className={styles.conceptWrap}>
+        <ConceptNotes
+          title="Momentum & Collisions"
+          intro="What momentum means, why it's always conserved, and what 'elastic' means."
+          sections={COLLISION_CONCEPTS}
+        />
+      </div>
+
       <POEShell
         moduleId="collision"
         predictComponent={PredictPhase}

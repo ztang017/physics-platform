@@ -9,6 +9,11 @@ export interface ExplainQuestion {
   question: string;
   options: string[];
   correctIndex: number;
+  /** Shown after a WRONG first attempt — a nudge, not the answer, so the student can try again. */
+  hint: string;
+  /** Shown once the question is resolved (answered correctly, or a second wrong attempt) —
+   *  written as a neutral statement of fact, not "Correct!"/"Right!", since the UI supplies
+   *  that framing itself depending on how the question was resolved. */
   explanation: string;
 }
 

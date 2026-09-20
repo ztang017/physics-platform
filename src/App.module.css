@@ -86,3 +86,13 @@
   min-height: 60vh;
   text-align: center;
 }
+
+@media (max-width: 480px) {
+  .moduleNav {
+    padding: var(--space-3) var(--space-4);
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+    justify-content: center;
+  }
+  .navRight { width: 100%; justify-content: center; }
+}

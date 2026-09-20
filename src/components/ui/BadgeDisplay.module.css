@@ -18,14 +18,14 @@
 }
 
 .unlocked {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(0, 212, 255, 0.05));
-  border-color: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.1), rgba(79, 70, 229, 0.05));
+  border-color: rgba(22, 163, 74, 0.3);
   cursor: default;
 }
 
 .unlocked:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 4px 15px rgba(22, 163, 74, 0.2);
 }
 
 .locked {
@@ -84,11 +84,11 @@
   align-items: center;
   gap: var(--space-3);
   background: var(--glass-bg);
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  border: 1px solid rgba(22, 163, 74, 0.4);
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);
   backdrop-filter: var(--glass-blur);
-  box-shadow: var(--shadow-lg), 0 0 20px rgba(16, 185, 129, 0.2);
+  box-shadow: var(--shadow-lg), 0 0 20px rgba(22, 163, 74, 0.2);
   animation: slide-in-right var(--duration-slow) var(--ease-spring) forwards;
   z-index: 1000;
   max-width: 320px;

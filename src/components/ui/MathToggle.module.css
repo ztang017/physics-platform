@@ -34,5 +34,5 @@
 .pillActive {
   background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
   color: #fff;
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
 }
