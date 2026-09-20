@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Link, useParams } from 'react-router-dom';
+import { HashRouter, Routes, Route, Link, useParams } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
 import { KinematicsModule } from './modules/kinematics/KinematicsModule';
 import { ProjectileModule } from './modules/projectile/ProjectileModule';
@@ -61,7 +61,7 @@ function LoadingFallback() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
@@ -69,6 +69,6 @@ export default function App() {
         </Routes>
       </Suspense>
       <FormulaSheet />
-    </BrowserRouter>
+    </HashRouter>
   );
 }
