@@ -1,6 +1,7 @@
 # PhysicsLab 🔬
 
 An interactive physics learning platform for introductory college and advanced high school students.
+https://ztang017.github.io/physics-platform/#/
 
 ## Overview
 
