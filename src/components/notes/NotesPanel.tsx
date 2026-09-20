@@ -17,7 +17,7 @@ const TABS: { id: NotesSection; label: string; icon: string }[] = [
  *  Incline doesn't get buried under one from Kinematics. */
 export function NotesPanel() {
   const { notesOpen, notesActiveSection, openNotes, closeNotes } = useUIStore();
-  const { notes, setNote, clearNote } = useNotesStore();
+  const { notes, hasHydrated, setNote, clearNote } = useNotesStore();
 
   useEffect(() => {
     if (!notesOpen) return;
@@ -73,15 +73,16 @@ export function NotesPanel() {
         <div className={styles.body}>
           <textarea
             className={styles.textarea}
-            value={activeText}
+            value={hasHydrated ? activeText : ''}
             onChange={(e) => setNote(activeTab.id, e.target.value)}
-            placeholder={`Write your ${activeTab.label.toLowerCase()} notes here…`}
+            placeholder={hasHydrated ? `Write your ${activeTab.label.toLowerCase()} notes here…` : 'Loading your notes…'}
             aria-label={`${activeTab.label} notes`}
+            disabled={!hasHydrated}
             autoFocus
           />
           <div className={styles.footer}>
             <span className={styles.savedHint}>💾 Autosaved to this browser</span>
-            <button className={styles.clearBtn} onClick={handleClear} disabled={!activeText.trim()}>
+            <button className={styles.clearBtn} onClick={handleClear} disabled={!hasHydrated || !activeText.trim()}>
               Clear
             </button>
           </div>

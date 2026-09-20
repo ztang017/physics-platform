@@ -1,3 +1,7 @@
+.wrap {
+  position: relative;
+}
+
 .toggle {
   display: flex;
   padding: 4px;
@@ -24,6 +28,7 @@
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-muted);
+  opacity: 0.55;
   transition: all var(--duration-base) var(--ease-out);
   white-space: nowrap;
   min-height: 32px;
@@ -32,7 +37,37 @@
 }
 
 .pillActive {
+  opacity: 1;
   background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
   color: #fff;
   box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
+  transform: scale(1.03);
+}
+
+.toast {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 200;
+  width: max(260px, 100%);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-base);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  animation: toastIn var(--duration-fast) var(--ease-spring);
+}
+
+.toast strong { color: var(--text-primary); }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .toast { right: auto; left: 0; width: max(220px, 100%); }
 }

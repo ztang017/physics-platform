@@ -40,3 +40,6 @@ yarn-error.log*
 
 # Testing
 coverage/
+
+# Cloudflare Worker local state
+worker/.wrangler/

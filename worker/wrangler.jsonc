@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "physicslab-feedback",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-01-01",
+  "workers_dev": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "physicslab-feedback",
+      "database_id": "b3838d2a-fbf8-4bfd-aab8-327d8a543d60"
+    }
+  ],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://ztang017.github.io,http://localhost:5173,http://localhost:4173"
+  }
+}
