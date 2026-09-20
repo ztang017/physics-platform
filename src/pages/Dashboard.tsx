@@ -4,6 +4,8 @@ import { useGameStore, MODULE_ORDER, type ModuleId, BADGE_DEFINITIONS } from '..
 import { XPBar } from '../components/ui/XPBar';
 import { MathToggle } from '../components/ui/MathToggle';
 import { BadgeDisplay } from '../components/ui/BadgeDisplay';
+import { FormulaSheetButton } from '../components/formulaSheet/FormulaSheetButton';
+import { PHYSICS_TIDBITS } from './physicsFacts';
 import styles from './Dashboard.module.css';
 
 interface ModuleCard {
@@ -46,7 +48,7 @@ const MODULE_CARDS: ModuleCard[] = [
     gradient: 'linear-gradient(135deg, rgba(52,211,153,0.12), rgba(52,211,153,0.04))',
     borderColor: 'rgba(52,211,153,0.3)',
     path: '/module/incline',
-    description: 'Place force vectors on a tilted surface. See live decomposition of gravity as the angle changes.',
+    description: 'Predict whether a block will slide, then verify against the real force vectors as the angle changes.',
   },
   {
     id: 'collision',
@@ -64,6 +66,7 @@ export function Dashboard() {
   const { studentName, setStudentName, unlockedBadges, completedModules, xp, level } = useGameStore();
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(studentName);
+  const [tidbit] = useState(() => PHYSICS_TIDBITS[Math.floor(Math.random() * PHYSICS_TIDBITS.length)]);
 
   const handleNameSubmit = () => {
     if (nameInput.trim()) setStudentName(nameInput.trim());
@@ -98,6 +101,7 @@ export function Dashboard() {
           </div>
         </div>
         <div className={styles.headerRight}>
+          <FormulaSheetButton />
           <MathToggle />
           <XPBar compact />
         </div>
@@ -138,10 +142,22 @@ export function Dashboard() {
               )}
             </div>
 
-            <p className={styles.heroSubtitle}>
-              You're at <strong className="text-violet">Level {level}</strong> with <strong className="text-cyan">{xp} XP</strong> total.
-              {' '}{completedModules.length}/4 modules completed.
-            </p>
+            <p className={styles.heroSubtitle}>Pick up where you left off, or start a new module below.</p>
+
+            <div className={styles.statRow}>
+              <span className={styles.statChip}>
+                <span className={styles.statChipIcon}>🏆</span>
+                Level <strong className="text-violet">{level}</strong>
+              </span>
+              <span className={styles.statChip}>
+                <span className={styles.statChipIcon}>⚡</span>
+                <strong className="text-cyan">{xp}</strong> XP total
+              </span>
+              <span className={styles.statChip}>
+                <span className={styles.statChipIcon}>✅</span>
+                <strong className="text-green">{completedModules.length}/4</strong> modules
+              </span>
+            </div>
           </div>
 
           <div className={styles.heroXP}>
@@ -175,6 +191,30 @@ export function Dashboard() {
           </div>
         </section>
 
+        {/* About / Purpose */}
+        <section className={styles.section}>
+          <div className={`card ${styles.aboutCard}`}>
+            <h2 className={styles.aboutTitle}>About PhysicsLab</h2>
+            <p>
+              PhysicsLab is an interactive companion for learning introductory mechanics.
+              Each module walks you through a <strong>Predict → Observe → Explain</strong> cycle:
+              you commit to a prediction first, watch the real simulation play out, then explain
+              the gap between what you expected and what happened. That struggle is where the
+              learning actually happens — it's a far stickier way to build intuition than reading
+              a worked example.
+            </p>
+            <div className={styles.disclaimer}>
+              <span className={styles.disclaimerIcon} aria-hidden="true">⚠️</span>
+              <p>
+                <strong>Disclaimer:</strong> PhysicsLab is a supplementary practice tool, not a
+                substitute for your <strong>CY1308</strong> lectures, tutorials, or official course
+                materials. Always defer to your course notes and instructor for anything that
+                affects your grades or assessments.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Module Cards */}
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -198,7 +238,7 @@ export function Dashboard() {
                   onClick={(e) => { if (!isUnlocked) e.preventDefault(); }}
                 >
                   <div className={styles.cardTop}>
-                    <span className={styles.cardEmoji}>{card.emoji}</span>
+                    <span className={styles.cardIconBadge} aria-hidden="true">{card.emoji}</span>
                     <div className={styles.cardBadges}>
                       {isComplete && <span className={styles.completeBadge}>✅ Complete</span>}
                       {!isUnlocked && <span className={styles.lockedBadge}>🔒 Locked</span>}
@@ -208,10 +248,10 @@ export function Dashboard() {
                   <h3 className={styles.cardTitle}>{card.title}</h3>
                   <p className={styles.cardDesc}>{card.description}</p>
                   {isUnlocked && !isComplete && (
-                    <div className={styles.cardCta}>Start Module →</div>
+                    <div className={styles.cardCta}>Start Module <span aria-hidden="true">→</span></div>
                   )}
                   {isComplete && (
-                    <div className={styles.cardCta} style={{ color: 'var(--accent-green)' }}>Review Module →</div>
+                    <div className={styles.cardCta} style={{ color: 'var(--accent-green)' }}>Review Module <span aria-hidden="true">→</span></div>
                   )}
                 </Link>
               );
@@ -249,10 +289,25 @@ export function Dashboard() {
             ))}
           </div>
         </section>
+
+        {/* Physics Fun Fact / Quote of the session */}
+        <section className={styles.section}>
+          <div className={`card ${styles.tidbitCard}`}>
+            <span className={styles.mIcon} aria-hidden="true">{tidbit.type === 'quote' ? '💬' : '🔭'}</span>
+            <div>
+              <div className={styles.tidbitLabel}>{tidbit.type === 'quote' ? 'Quote of the Session' : 'Physics Fun Fact'}</div>
+              <p className={styles.tidbitText}>
+                “{tidbit.text}”
+                {tidbit.author && <span className={styles.tidbitAuthor}> — {tidbit.author}</span>}
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
 
       <footer className={styles.footer}>
         <p>PhysicsLab MVP · Phase 1 · Built with Antigravity 2.0</p>
+        <p>Designed by computer engineering student <strong>Tang Zong Nan</strong>, with the help of Claude, Gemini, and Antigravity.</p>
       </footer>
     </div>
   );

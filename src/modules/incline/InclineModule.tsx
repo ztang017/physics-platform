@@ -51,7 +51,13 @@ const W = 420, H = 300;
 // Vector colors — also used by the HTML legend so the two stay in sync.
 const VEC_COLOR = { weight: '#dc2626', normal: '#4f46e5', friction: '#16a34a', angle: '#b45309' };
 
-function drawIncline(ctx: CanvasRenderingContext2D, angleDeg: number, forces: ReturnType<typeof computeInclineForces>, validated: boolean) {
+function drawIncline(
+  ctx: CanvasRenderingContext2D,
+  angleDeg: number,
+  forces: ReturnType<typeof computeInclineForces>,
+  validated: boolean,
+  slideT: number
+) {
   ctx.clearRect(0, 0, W, H);
 
   const angle = (angleDeg * Math.PI) / 180;
@@ -78,9 +84,21 @@ function drawIncline(ctx: CanvasRenderingContext2D, angleDeg: number, forces: Re
   ctx.lineTo(baseX + hyp * Math.cos(angle), baseY - hyp * Math.sin(angle));
   ctx.stroke();
 
-  // Block position (midway up incline), resting ON the surface line
-  const bx = baseX + (hyp * 0.45) * Math.cos(angle);
-  const by = baseY - (hyp * 0.45) * Math.sin(angle);
+  // Block position along the incline. A stationary block sits still at the
+  // 48% mark; a sliding block visibly travels down the slope over time, using
+  // a quadratic ease-in (position ∝ t²) to read as "starting from rest and
+  // accelerating" without needing a literal meters-per-pixel scale — this
+  // canvas is a schematic diagram, not a distance-accurate simulation.
+  let travelFrac = 0.48;
+  if (validated && !forces.isStationary) {
+    const REFERENCE_ACCEL = 4; // m/s² — tuned so a "typical" case slides in ~2.2s
+    const loopDuration = 2.6 * Math.sqrt(REFERENCE_ACCEL / Math.max(forces.acceleration, 0.5));
+    const loopT = slideT % loopDuration;
+    const progress = Math.min(1, (loopT / loopDuration) ** 2);
+    travelFrac = 0.48 - progress * 0.42; // slides from 48% down to 6% up the ramp
+  }
+  const bx = baseX + (hyp * travelFrac) * Math.cos(angle);
+  const by = baseY - (hyp * travelFrac) * Math.sin(angle);
   // Vectors are drawn from the block's geometric centre, not its surface contact point
   const cx = bx - Math.sin(angle) * 15;
   const cy = by - Math.cos(angle) * 15;
@@ -97,8 +115,14 @@ function drawIncline(ctx: CanvasRenderingContext2D, angleDeg: number, forces: Re
   ctx.strokeRect(-bSize / 2, -bSize, bSize, bSize);
   ctx.restore();
 
-  // Force vectors (always show weight; the rest appear once the FBD is verified)
-  const scale = 4;
+  // Force vectors (always show weight; the rest appear once the FBD is verified).
+  // Scale is derived from the CURRENT weight (the largest of the three forces,
+  // since N ≤ W and f ≤ N) so the longest arrow is always a fixed, sane pixel
+  // length — a literal fixed scale previously sent the weight arrow (up to
+  // mg ≈ 196 N at max mass) hundreds of pixels past the bottom of the canvas,
+  // so its arrowhead and label never actually appeared on screen.
+  const MAX_ARROW_LEN = 70;
+  const scale = MAX_ARROW_LEN / Math.max(forces.weight, 1);
 
   // Weight: mg, straight down — always vertical regardless of incline angle
   drawVector(ctx, cx, cy, 0, forces.weight * scale, VEC_COLOR.weight, 'W');
@@ -176,23 +200,56 @@ function InclineCanvas({
   validated: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number>(0);
+  const [slideT, setSlideT] = useState(0);
 
   useHiDPICanvas(canvasRef, W, H);
+
+  const isSliding = validated && !forces.isStationary;
+
+  // Animate the block sliding down the ramp whenever the verified FBD says it
+  // should move. A stationary block never gets this loop, so it visibly stays
+  // put — answering "is the block supposed to move?" unambiguously either way.
+  useEffect(() => {
+    setSlideT(0);
+    if (!isSliding) return;
+    let start: number | null = null;
+    const tick = (now: number) => {
+      if (start === null) start = now;
+      setSlideT((now - start) / 1000);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+    // forces/mass/muStatic intentionally omitted from deps: restarting the
+    // loop only needs to happen when sliding starts/stops or the ramp angle
+    // changes (which resets the block's visual position); reacting to every
+    // recomputed `forces` object would restart the animation on each render.
+  }, [isSliding, angleDeg]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
-    drawIncline(ctx, angleDeg, forces, validated);
-  }, [angleDeg, forces, validated]);
+    drawIncline(ctx, angleDeg, forces, validated, slideT);
+  }, [angleDeg, forces, validated, slideT]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className={styles.canvas}
-      aria-label="Free body diagram of block on incline showing force vectors"
-      role="img"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={styles.canvas}
+        aria-label="Free body diagram of block on incline showing force vectors"
+        role="img"
+      />
+      {validated && (
+        <p className={styles.motionStatus}>
+          {isSliding
+            ? '⚡ Sliding: friction can\'t hold it — the block accelerates down the slope.'
+            : '✓ Static: friction fully cancels the down-slope pull — the block stays put.'}
+        </p>
+      )}
+    </>
   );
 }
 
@@ -214,9 +271,21 @@ export function InclineModule() {
       unlockBadge('force-whisperer');
       setFirstAttempt(false);
     }
+    // Only award XP the first time this specific attempt is verified — if the
+    // student uses Back to revisit Predict and re-verifies, this is a no-op.
+    if (!validated) addXP(25);
     setValidated(true);
-    addXP(25);
     setPOEPhase('observe');
+  };
+
+  // "Try Again" resets the attempt so re-verifying can't re-award XP for the
+  // same click; firstAttempt is intentionally left alone since that badge is
+  // meant to be earned once, ever, not once per retry.
+  const handleTryAgain = () => {
+    setAngleDeg(30);
+    setMuStatic(0.4);
+    setMass(5);
+    setValidated(false);
   };
 
   const handleComplete = (score: number) => {
@@ -314,6 +383,8 @@ export function InclineModule() {
         observeComponent={ObservePhase}
         explainQuestions={EXPLAIN_QUESTIONS}
         onComplete={handleComplete}
+        onTryAgain={handleTryAgain}
+        predictHint="Before reading the 'Block will...' readout below, try comparing the two numbers just above it yourself: the ∥ component (pulling the block down the slope) versus the Max Static Friction (the most grip the surface can offer). Whichever one is bigger wins."
       />
     </div>
   );

@@ -14,8 +14,8 @@ export default defineConfig({
         name: 'PhysicsLab Interactive',
         short_name: 'PhysicsLab',
         description: 'Interactive Physics Learning Platform',
-        theme_color: '#070c1c',
-        background_color: '#070c1c',
+        theme_color: '#f6f7fb',
+        background_color: '#f6f7fb',
         display: 'standalone',
         icons: [
           {
