@@ -7,6 +7,8 @@ import { InclineModule } from './modules/incline/InclineModule';
 import { CollisionModule } from './modules/collision/CollisionModule';
 import { MathToggle } from './components/ui/MathToggle';
 import { XPBar } from './components/ui/XPBar';
+import { FormulaSheet } from './components/formulaSheet/FormulaSheet';
+import { FormulaSheetButton } from './components/formulaSheet/FormulaSheetButton';
 import styles from './App.module.css';
 
 const MODULE_MAP: Record<string, React.ReactElement> = {
@@ -36,6 +38,7 @@ function ModuleLayout() {
           ← Dashboard
         </Link>
         <div className={styles.navRight}>
+          <FormulaSheetButton />
           <MathToggle />
           <XPBar compact />
         </div>
@@ -65,6 +68,7 @@ export default function App() {
           <Route path="/module/:moduleId" element={<ModuleLayout />} />
         </Routes>
       </Suspense>
+      <FormulaSheet />
     </BrowserRouter>
   );
 }

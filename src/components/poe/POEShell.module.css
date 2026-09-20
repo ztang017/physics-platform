@@ -60,7 +60,7 @@
 
 .content {
   flex: 1;
-  padding: var(--space-6);
+  padding: var(--space-8) var(--space-6);
 }
 
 .phaseContent {
@@ -70,19 +70,46 @@
   animation: fadeInUp var(--duration-slow) var(--ease-out);
 }
 
+.backLink {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-4);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.backLink:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+.backLink:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
 .phaseHero {
   display: flex;
   align-items: flex-start;
   gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-5);
   background: var(--bg-elevated);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   border-left: 4px solid var(--accent-cyan);
 }
 
 .heroIcon { font-size: 1.75rem; flex-shrink: 0; }
-.phaseHero h3 { color: var(--text-primary); margin-bottom: 2px; }
-.phaseHero p  { font-size: 0.875rem; color: var(--text-secondary); }
+.phaseHero h3 { color: var(--text-primary); margin-bottom: 3px; }
+.phaseHero p  { font-size: 0.9rem; line-height: 1.5; color: var(--text-secondary); }
 
 .observeFooter {
   display: flex;
@@ -244,6 +271,41 @@
 .feedbackHint {
   background: rgba(180, 83, 9, 0.08);
   border: 1px solid rgba(180, 83, 9, 0.25);
+}
+
+.hintBox {
+  background: rgba(180, 83, 9, 0.06);
+  border: 1px solid rgba(180, 83, 9, 0.2);
+  border-radius: var(--radius-md);
+}
+
+.hintBox p {
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.hintToggle {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-amber);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.hintToggle:hover { background: rgba(180, 83, 9, 0.08); }
+
+.hintToggle:focus-visible {
+  outline: 2px solid var(--accent-amber);
+  outline-offset: -2px;
 }
 
 .feedback p {

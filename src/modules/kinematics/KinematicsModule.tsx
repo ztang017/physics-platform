@@ -431,8 +431,8 @@ function GraphShapePicker({
             title={opt.label}
           >
             <svg viewBox="0 0 100 100" className={styles.shapeSvg} aria-hidden="true">
-              <line x1="10" y1="50" x2="90" y2="50" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-              <path d={opt.svgPath} fill="none" stroke={value === opt.id ? '#2dd4bf' : 'rgba(255,255,255,0.4)'} strokeWidth="3" strokeLinecap="round" />
+              <line x1="10" y1="50" x2="90" y2="50" stroke="rgba(23,27,38,0.15)" strokeWidth="1" />
+              <path d={opt.svgPath} fill="none" stroke={value === opt.id ? '#4f46e5' : 'rgba(23,27,38,0.4)'} strokeWidth="3" strokeLinecap="round" />
             </svg>
             <span>{opt.label}</span>
           </button>
@@ -455,6 +455,13 @@ export function KinematicsModule() {
   const [predictedXShape, setPredictedXShape] = useState<GraphShape | null>(null);
   const [predictSubmitted, setPredictSubmitted] = useState(false);
   const [livePoint, setLivePoint] = useState<KinematicsDataPoint>({ t: 0, x: 0, v: v0, a });
+  const restartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clear any pending restart timer on unmount so it can't call setState after
+  // the component is gone (and so rapid clicking doesn't stack timers).
+  useEffect(() => () => {
+    if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current);
+  }, []);
 
   const params: KinematicsParams = { x0: 0, v0, a };
   const correctVShape = predictVelocityShape(params);
@@ -462,14 +469,17 @@ export function KinematicsModule() {
   // ─── Predict Submission ──────────────────────────────────────────────────────
   const handlePredictSubmit = () => {
     if (!predictedVShape || !predictedXShape) return;
+    // Only award XP the first time — if the student uses Back to revisit
+    // Predict and re-submits, this must stay a no-op for scoring purposes.
+    if (!predictSubmitted) addXP(10);
     setPredictSubmitted(true);
-    addXP(10);
     setPOEPhase('observe');
     setSimRunning(true);
   };
 
   // ─── Graph Match ──────────────────────────────────────────────────────────────
   const [matchScore, setMatchScore] = useState<number | null>(null);
+  const bestMatchScoreRef = useRef(0);
   const studentSeriesRef = useRef<KinematicsDataPoint[]>([]);
   const targetSeries = useMemo(
     () => generateTimeSeries(MATCH_TARGET_PARAMS, SIM_DURATION),
@@ -480,7 +490,11 @@ export function KinematicsModule() {
     const studentSeries = generateTimeSeries({ x0: 0, v0, a }, SIM_DURATION);
     const result = scoreGraphMatch(targetSeries, studentSeries);
     setMatchScore(result.score);
-    addXP(Math.round(result.score * 0.5));
+    // Only reward genuine improvement — otherwise re-clicking with unchanged
+    // sliders would re-award XP for the same score indefinitely.
+    const improvement = Math.max(0, result.score - bestMatchScoreRef.current);
+    bestMatchScoreRef.current = Math.max(bestMatchScoreRef.current, result.score);
+    addXP(Math.round(improvement * 0.5));
     if (result.isPerfect) {
       unlockBadge('graph-whisperer');
     }
@@ -491,6 +505,21 @@ export function KinematicsModule() {
     addXP(50 + score);
     unlockBadge('motion-maestro');
     completeModule('kinematics');
+  };
+
+  // Resets everything "Try Again" should hand back to a fresh attempt —
+  // without this, stale predictSubmitted/matchScore/bestMatchScore state would
+  // let a student replay already-scored interactions for repeat XP.
+  const handleTryAgain = () => {
+    setV0(5);
+    setA(2);
+    setSimRunning(false);
+    setPredictedVShape(null);
+    setPredictedXShape(null);
+    setPredictSubmitted(false);
+    setMatchScore(null);
+    bestMatchScoreRef.current = 0;
+    studentSeriesRef.current = [];
   };
 
   // ─── Predict Phase ────────────────────────────────────────────────────────────
@@ -577,7 +606,11 @@ export function KinematicsModule() {
       <div className={styles.controlRow}>
         <button
           className="btn btn--secondary"
-          onClick={() => { setSimRunning(false); setTimeout(() => setSimRunning(true), 100); }}
+          onClick={() => {
+            setSimRunning(false);
+            if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current);
+            restartTimeoutRef.current = setTimeout(() => setSimRunning(true), 100);
+          }}
         >
           ↺ Restart
         </button>
@@ -627,11 +660,40 @@ export function KinematicsModule() {
             <h4>Graph-Match Challenge</h4>
             <p>
               The dashed gray line on the <strong>v-t graph</strong> above is a hidden target curve.
-              Adjust <strong>Initial Velocity</strong> and <strong>Acceleration</strong> above so your
-              solid line traces over it as closely as possible, then check your score.
+              Adjust the sliders below so your solid line traces over it as closely as possible,
+              then check your score. (These are the same sliders as the simulation above — changing
+              them updates both.)
             </p>
           </div>
         </div>
+
+        <div className={styles.sliders}>
+          <div className="slider-wrap">
+            <label className="slider-label" htmlFor="match-v0">
+              Initial Velocity (v₀)
+              <span className="value">{v0 >= 0 ? '+' : ''}{v0} m/s</span>
+            </label>
+            <input
+              id="match-v0"
+              type="range" min="-15" max="15" step="0.5"
+              value={v0} onChange={(e) => setV0(parseFloat(e.target.value))}
+              aria-label={`Initial velocity: ${v0} meters per second`}
+            />
+          </div>
+          <div className="slider-wrap">
+            <label className="slider-label" htmlFor="match-a">
+              Acceleration (a)
+              <span className="value">{a >= 0 ? '+' : ''}{a} m/s²</span>
+            </label>
+            <input
+              id="match-a"
+              type="range" min="-8" max="8" step="0.25"
+              value={a} onChange={(e) => setA(parseFloat(e.target.value))}
+              aria-label={`Acceleration: ${a} meters per second squared`}
+            />
+          </div>
+        </div>
+
         <button className="btn btn--secondary" onClick={handleRunMatch}>
           📊 Score My Match
         </button>
@@ -671,6 +733,8 @@ export function KinematicsModule() {
         observeComponent={ObservePhase}
         explainQuestions={EXPLAIN_QUESTIONS}
         onComplete={handleComplete}
+        onTryAgain={handleTryAgain}
+        predictHint="Look at the SIGN of your acceleration slider compared to your initial velocity. Do they match (same sign) or oppose each other? That tells you whether the object is speeding up or slowing down, which shapes the v-t line. Separately: is acceleration exactly zero, or not? A non-zero, constant acceleration always curves the x-t graph — it can never be a straight line."
       />
     </div>
   );

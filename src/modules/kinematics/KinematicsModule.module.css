@@ -150,7 +150,15 @@
 .graphCanvas {
   display: block;
   height: auto;
-  min-width: 300px;
+  /* Fixed intended design width (3 graphs × 280px + gaps) — must be an
+     explicit width, not just min-width: the Hi-DPI sizing hook measures this
+     canvas's own rendered width to decide its backing-store resolution, so
+     without an explicit width it has nothing stable to measure against and
+     the graphs collapse toward the browser's unstyled canvas default instead
+     of their intended size. Horizontal scroll (via .graphRow) handles narrow
+     viewports. */
+  width: 860px;
+  min-width: 860px;
 }
 
 .controlRow {

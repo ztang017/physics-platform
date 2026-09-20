@@ -178,16 +178,56 @@ function ProjectileCanvas({
     onCrosshairMove({ x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY });
   };
 
+  // Keyboard alternative to mouse-aiming: focus the canvas, nudge the
+  // crosshair with arrow keys, confirm with Enter/Space. Without this, a
+  // keyboard-only student could never complete this module's Predict phase.
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
+    if (fired) return;
+    const STEP = SCALE; // one on-screen step ≈ 1 world meter
+    const current = crosshair ?? { x: ORIGIN_X + 100, y: ORIGIN_Y - 100 };
+
+    const moves: Record<string, { x: number; y: number }> = {
+      ArrowRight: { x: current.x + STEP, y: current.y },
+      ArrowLeft:  { x: current.x - STEP, y: current.y },
+      ArrowUp:    { x: current.x, y: current.y - STEP },
+      ArrowDown:  { x: current.x, y: current.y + STEP },
+    };
+
+    if (moves[e.key]) {
+      e.preventDefault();
+      onCrosshairMove({
+        x: Math.max(ORIGIN_X, Math.min(W, moves[e.key].x)),
+        y: Math.max(0, Math.min(ORIGIN_Y, moves[e.key].y)),
+      });
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!crosshair) onCrosshairMove(current);
+      onFire();
+    }
+  };
+
+  const aimMeters = crosshair ? ((crosshair.x - ORIGIN_X) / SCALE).toFixed(0) : null;
+
   return (
-    <canvas
-      ref={canvasRef}
-      className={styles.canvas}
-      onMouseMove={!fired ? handleMouseMove : undefined}
-      onClick={!fired ? onFire : undefined}
-      aria-label="Projectile motion simulation canvas — click to set predicted landing spot"
-      role="img"
-      tabIndex={0}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={styles.canvas}
+        onMouseMove={!fired ? handleMouseMove : undefined}
+        onClick={!fired ? onFire : undefined}
+        onKeyDown={!fired ? handleKeyDown : undefined}
+        aria-label={
+          fired
+            ? 'Projectile motion simulation showing the fired trajectory'
+            : `Projectile aiming canvas. Use arrow keys to aim, Enter to fire. Current aim: ${aimMeters ?? 'not set'} meters.`
+        }
+        role="img"
+        tabIndex={0}
+      />
+      <span className="sr-only" role="status" aria-live="polite">
+        {!fired && crosshair ? `Aiming at ${aimMeters} meters` : ''}
+      </span>
+    </>
   );
 }
 
@@ -207,8 +247,10 @@ export function ProjectileModule() {
   const maxH = getMaxHeight(params);
 
   const handleCrosshairFire = () => {
+    // Only award XP the first time — if the student uses Back to revisit
+    // Predict and re-aims, this must stay a no-op for scoring purposes.
+    if (!predictFired) addXP(10);
     setPredictFired(true);
-    addXP(10);
     setPOEPhase('observe');
   };
 
@@ -229,6 +271,19 @@ export function ProjectileModule() {
     addXP(50 + score);
     unlockBadge('trajectory-ace');
     completeModule('projectile');
+  };
+
+  // Without this, "Try Again" only reset POE/session state — predictFired and
+  // simFired stayed true, and the Predict-phase canvas is always clickable
+  // (fired is hardcoded false there), so a student could replay the crosshair
+  // click for repeat +10 XP indefinitely.
+  const handleTryAgain = () => {
+    setV0(20);
+    setAngleDeg(45);
+    setCrosshair(null);
+    setPredictFired(false);
+    setSimFired(false);
+    setConsecutiveHits(0);
   };
 
   const PredictPhase = (
@@ -256,7 +311,10 @@ export function ProjectileModule() {
         </div>
       </div>
 
-      <p className={styles.hint}>📍 <strong>Click on the canvas</strong> to place your predicted landing spot, then submit.</p>
+      <p className={styles.hint}>
+        📍 <strong>Click on the canvas</strong> to place your predicted landing spot, then submit.
+        {' '}Keyboard users: focus the canvas, aim with the arrow keys, then press Enter.
+      </p>
 
       <ProjectileCanvas
         params={params}
@@ -265,7 +323,7 @@ export function ProjectileModule() {
         onFire={handleCrosshairFire}
         fired={false}
       />
-      {!predictFired && <p className={styles.hint}>Click canvas to lock in your prediction.</p>}
+      {!predictFired && <p className={styles.hint}>Click canvas (or use arrow keys + Enter) to lock in your prediction.</p>}
     </div>
   );
 
@@ -321,6 +379,8 @@ export function ProjectileModule() {
         observeComponent={ObservePhase}
         explainQuestions={EXPLAIN_QUESTIONS}
         onComplete={handleComplete}
+        onTryAgain={handleTryAgain}
+        predictHint="You don't need to click exactly right — think in two separate pieces. How FAR it can travel sideways depends on v₀ and the angle together; how LONG it stays airborne depends mostly on the vertical piece of the launch (v₀·sinθ). A higher, steeper shot spends longer in the air but may not travel as far sideways."
       />
     </div>
   );

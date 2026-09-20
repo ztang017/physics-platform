@@ -13,6 +13,7 @@
 .predBtn:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
 .predBtnActive { border-color: var(--accent-cyan) !important; background: rgba(79,70,229,0.08) !important; color: var(--accent-cyan) !important; }
 .canvas { width: 100%; height: auto; display: block; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+.notApproachingNotice { padding: var(--space-4); background: rgba(180, 83, 9, 0.08); border: 1px solid rgba(180, 83, 9, 0.3); border-radius: var(--radius-md); color: var(--accent-amber); font-size: 0.9rem; line-height: 1.5; }
 .playRow { display: flex; gap: var(--space-3); margin-bottom: var(--space-2); }
 .scrubberWrap { display: flex; flex-direction: column; gap: var(--space-2); }
 .scrubMarkers { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); }

@@ -10,6 +10,16 @@ interface POEShellProps {
   explainQuestions: ExplainQuestion[];
   onComplete: (score: number) => void;
   predictCorrect?: boolean; // parent sets this when prediction is evaluated
+  /** Optional scaffolding shown in the Predict phase behind a "Need a hint?"
+   *  reveal — unlike the Explain-phase hint (only shown after a wrong guess),
+   *  this is available any time, since Predict has no pass/fail attempt to be
+   *  wrong about yet. Should nudge toward the reasoning, not give the answer. */
+  predictHint?: string;
+  /** Called when the student clicks "Try Again" on the Complete screen, so the
+   *  parent module can reset its own local state (sliders, fired/predicted
+   *  flags, etc.) — without this, stale state from the previous run can let
+   *  a student replay an already-scored interaction for repeat XP. */
+  onTryAgain?: () => void;
 }
 
 const PHASE_LABELS: Record<POEPhase, { icon: string; label: string }> = {
@@ -27,6 +37,8 @@ export function POEShell({
   observeComponent,
   explainQuestions,
   onComplete,
+  onTryAgain,
+  predictHint,
 }: POEShellProps) {
   const { poePhase, setPOEPhase, answerExplainQuestion, sessionScore, addScore, resetSession, setModule } =
     useSessionStore();
@@ -38,6 +50,7 @@ export function POEShell({
   const [attemptCount, setAttemptCount] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [observeReady, setObserveReady] = useState(false);
+  const [predictHintOpen, setPredictHintOpen] = useState(false);
 
   // Reset on mount if a different module is loaded
   React.useEffect(() => {
@@ -47,6 +60,7 @@ export function POEShell({
     setShowFeedback(false);
     setAttemptCount(0);
     setRevealed(false);
+    setPredictHintOpen(false);
   }, [moduleId]);
 
   // Delay the Observe→Explain button so students must spend time observing
@@ -127,6 +141,9 @@ export function POEShell({
 
     return (
       <div className={styles.explainWrap}>
+        <button className={styles.backLink} onClick={() => setPOEPhase('observe')}>
+          ← Back to Observe
+        </button>
         <div className={styles.questionHeader}>
           <span className={styles.questionNum}>
             Question {currentQuestionIdx + 1} of {explainQuestions.length}
@@ -212,7 +229,15 @@ export function POEShell({
           <h2>Module Complete!</h2>
           <p>You scored <strong className="text-cyan">{sessionScore} points</strong> in this session.</p>
           <div className={styles.completeActions}>
-            <button className="btn btn--secondary" onClick={() => { resetSession(); setModule(moduleId); setCurrentQuestionIdx(0); }}>
+            <button
+              className="btn btn--secondary"
+              onClick={() => {
+                resetSession();
+                setModule(moduleId);
+                setCurrentQuestionIdx(0);
+                onTryAgain?.();
+              }}
+            >
               🔄 Try Again
             </button>
             <Link to="/" className="btn btn--primary">
@@ -227,6 +252,9 @@ export function POEShell({
   return (
     <div className={styles.shell}>
       <PhaseBar />
+      <span className="sr-only" role="status" aria-live="polite">
+        {PHASE_LABELS[poePhase].label} phase
+      </span>
 
       <div className={styles.content}>
         {poePhase === 'predict' && (
@@ -238,12 +266,28 @@ export function POEShell({
                 <p>Before running the simulation, commit to what you think will happen.</p>
               </div>
             </div>
+
+            {predictHint && (
+              <div className={styles.hintBox}>
+                {predictHintOpen ? (
+                  <p><span aria-hidden="true">💡</span> {predictHint}</p>
+                ) : (
+                  <button className={styles.hintToggle} onClick={() => setPredictHintOpen(true)}>
+                    💡 Not sure where to start? Reveal a hint
+                  </button>
+                )}
+              </div>
+            )}
+
             {predictComponent}
           </div>
         )}
 
         {poePhase === 'observe' && (
           <div className={styles.phaseContent}>
+            <button className={styles.backLink} onClick={() => setPOEPhase('predict')}>
+              ← Back to Predict
+            </button>
             <div className={styles.phaseHero}>
               <span className={styles.heroIcon}>👁️</span>
               <div>

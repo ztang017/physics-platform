@@ -108,12 +108,12 @@ function CollisionCanvas({
     if (Math.abs(state.v1) > 0.1) {
       const dir = state.v1 > 0 ? 1 : -1;
       const len = Math.min(Math.abs(state.v1) * arrowScale * params.m1 / 5, 80);
-      drawArrow(ctx, c1x, trackY - cartH - 18, c1x + dir * len, trackY - cartH - 18, '#4f46e5', `p=${(params.m1 * state.v1).toFixed(0)}`);
+      drawArrow(ctx, c1x, trackY - cartH - 18, c1x + dir * len, trackY - cartH - 18, '#4f46e5', `p=${(params.m1 * state.v1).toFixed(1)}`);
     }
     if (Math.abs(state.v2) > 0.1) {
       const dir = state.v2 > 0 ? 1 : -1;
       const len = Math.min(Math.abs(state.v2) * arrowScale * params.m2 / 5, 80);
-      drawArrow(ctx, c2x, trackY - cartH - 18, c2x + dir * len, trackY - cartH - 18, '#7c3aed', `p=${(params.m2 * state.v2).toFixed(0)}`);
+      drawArrow(ctx, c2x, trackY - cartH - 18, c2x + dir * len, trackY - cartH - 18, '#7c3aed', `p=${(params.m2 * state.v2).toFixed(1)}`);
     }
 
     // Phase label
@@ -155,6 +155,7 @@ export function CollisionModule() {
   const [e, setE] = useState(1);
   const [tNorm, setTNorm] = useState(0);
   const [predicted, setPredicted] = useState<string | null>(null);
+  const [predictionLocked, setPredictionLocked] = useState(false);
   const [playing, setPlaying] = useState(false);
   const animRef = useRef<number>(0);
 
@@ -182,14 +183,41 @@ export function CollisionModule() {
     setTNorm(0);
   }, [m1, v1, m2, e]);
 
+  // Cancel any in-flight animation frame on unmount — without this, a RAF
+  // callback already queued when the student navigates away (e.g. clicking
+  // "Dashboard" mid-play) still fires once more and calls setState on an
+  // unmounted component.
+  useEffect(() => () => cancelAnimationFrame(animRef.current), []);
+
   const params: CollisionParams = { m1, v1, m2, v2, e };
   const result = solveCollision(params);
+  // Cart 1 only actually catches up to (and collides with) cart 2 if it's
+  // closing the gap; otherwise the "approach → collision" animation would be
+  // fictitious (the physics engine still plays it via a floor value so the
+  // demo never stalls — see interpolateCollision — but presenting that as a
+  // real collision here would be misleading).
+  const isApproaching = v1 > v2;
 
   const handleComplete = (score: number) => {
     addXP(50 + score);
     if (result.isEnergyConserved) unlockBadge('conservationist');
     unlockBadge('momentum-guardian');
     completeModule('collision');
+  };
+
+  // "Try Again" resets every input and any in-flight animation — without
+  // this, stale `predicted`/`tNorm`/`playing` state would carry into the next
+  // attempt, and re-selecting a prediction would still be re-awardable.
+  const handleTryAgain = () => {
+    cancelAnimationFrame(animRef.current);
+    setM1(3);
+    setV1(5);
+    setM2(1);
+    setE(1);
+    setTNorm(0);
+    setPlaying(false);
+    setPredicted(null);
+    setPredictionLocked(false);
   };
 
   const PredictPhase = (
@@ -223,14 +251,24 @@ export function CollisionModule() {
             <button
               key={i}
               className={`${styles.predBtn} ${predicted === opt ? styles.predBtnActive : ''}`}
-              onClick={() => { setPredicted(opt); addXP(10); }}
+              onClick={() => setPredicted(opt)}
             >
               {opt}
             </button>
           ))}
         </div>
         {predicted && (
-          <button className="btn btn--primary" onClick={() => { addXP(10); setPOEPhase('observe'); }}>🔮 Lock In Prediction</button>
+          <button
+            className="btn btn--primary"
+            onClick={() => {
+              // Only award XP the first time — if the student uses Back to
+              // revisit Predict and re-locks, this must stay a no-op.
+              if (!predictionLocked) { addXP(10); setPredictionLocked(true); }
+              setPOEPhase('observe');
+            }}
+          >
+            🔮 Lock In Prediction
+          </button>
         )}
       </div>
     </div>
@@ -238,6 +276,13 @@ export function CollisionModule() {
 
   const ObservePhase = (
     <div className={styles.observeWrap}>
+      {!isApproaching && (
+        <div className={styles.notApproachingNotice} role="alert">
+          ⚠️ Cart 1 isn't moving faster than Cart 2, so it never actually catches up — there's no real
+          collision here. Go back and increase Cart 1's velocity above {v2} m/s to see a genuine impact.
+        </div>
+      )}
+
       <CollisionCanvas params={params} tNorm={tNorm} result={result} />
 
       <div className={styles.scrubberWrap}>
@@ -248,6 +293,7 @@ export function CollisionModule() {
               if (playing) { cancelAnimationFrame(animRef.current); setPlaying(false); }
               else { playAnimation(); }
             }}
+            disabled={!isApproaching}
             aria-label={playing ? 'Pause animation' : 'Play collision animation'}
           >
             {playing ? '⏸ Pause' : '▶ Play'}
@@ -264,6 +310,7 @@ export function CollisionModule() {
           id="scrubber"
           type="range" min="0" max="1" step="0.01"
           value={tNorm} onChange={(e) => setTNorm(+e.target.value)}
+          disabled={!isApproaching}
           aria-label="Scrub through collision timeline"
         />
         <div className={styles.scrubMarkers}>
@@ -332,6 +379,8 @@ export function CollisionModule() {
         observeComponent={ObservePhase}
         explainQuestions={EXPLAIN_QUESTIONS}
         onComplete={handleComplete}
+        onTryAgain={handleTryAgain}
+        predictHint="Total momentum before the collision must equal total momentum after — that's the one rule that never breaks. Think about a heavy cart hitting a much lighter one: for momentum (mass × velocity) to balance out, what does that usually mean for how fast the lighter cart ends up moving?"
       />
     </div>
   );
