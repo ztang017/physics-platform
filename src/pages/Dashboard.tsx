@@ -7,8 +7,32 @@ import { BadgeDisplay } from '../components/ui/BadgeDisplay';
 import { FormulaSheetButton } from '../components/formulaSheet/FormulaSheetButton';
 import { NotesButton } from '../components/notes/NotesButton';
 import { StudyBuddyButton } from '../components/studyBuddy/StudyBuddyButton';
-import { PHYSICS_TIDBITS } from './physicsFacts';
+import { FeedbackForm } from '../components/feedback/FeedbackForm';
+import { PHYSICS_TIDBITS, type PhysicsTidbit } from './physicsFacts';
 import styles from './Dashboard.module.css';
+
+const TIDBIT_ICONS: Record<PhysicsTidbit['type'], string> = {
+  fact: '🔭',
+  quote: '💬',
+  myth: '🤔',
+};
+
+const TIDBIT_LABELS: Record<PhysicsTidbit['type'], string> = {
+  fact: 'Physics Fun Fact',
+  quote: 'Quote',
+  myth: 'Common Misconception',
+};
+
+/** Fisher-Yates shuffle, then take the first n — used to pick a fresh,
+ *  non-repeating handful of tidbits each time the Dashboard mounts. */
+function pickRandom<T>(items: T[], n: number): T[] {
+  const pool = [...items];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, n);
+}
 
 interface ModuleCard {
   id: ModuleId;
@@ -68,7 +92,7 @@ export function Dashboard() {
   const { studentName, setStudentName, unlockedBadges, completedModules, xp, level } = useGameStore();
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(studentName);
-  const [tidbit] = useState(() => PHYSICS_TIDBITS[Math.floor(Math.random() * PHYSICS_TIDBITS.length)]);
+  const [tidbits] = useState(() => pickRandom(PHYSICS_TIDBITS, 3));
 
   const handleNameSubmit = () => {
     if (nameInput.trim()) setStudentName(nameInput.trim());
@@ -274,44 +298,48 @@ export function Dashboard() {
           </div>
         </section>
 
-        {/* Misconceptions Reminder */}
+        {/* Physics Corner: fun facts, quotes, and misconceptions — a fresh,
+            varied mix each visit instead of one static fact and a separate,
+            easy-to-skip misconceptions list. */}
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2>Common Misconceptions We Target</h2>
+            <h2>🔭 Physics Corner</h2>
+            <p>A fresh mix of facts, quotes, and myths we bust — new picks every visit.</p>
           </div>
-          <div className={styles.misconceptionGrid}>
-            {[
-              { icon: '🏃', title: 'Impetus Theory', desc: 'Motion does NOT require a continuous force. Objects keep moving forever unless a force stops them.' },
-              { icon: '📊', title: 'v vs. a Confusion', desc: 'Velocity and acceleration are different quantities. You can have velocity without acceleration, and vice versa.' },
-              { icon: '💥', title: 'Action-Reaction', desc: 'In a collision, both objects exert equal and opposite forces — regardless of mass.' },
-            ].map((m) => (
-              <div key={m.title} className={`card ${styles.misconceptionCard}`}>
-                <span className={styles.mIcon}>{m.icon}</span>
-                <h4>{m.title}</h4>
-                <p>{m.desc}</p>
+          <div className={styles.tidbitGrid}>
+            {tidbits.map((t, i) => (
+              <div key={i} className={`card ${styles.tidbitCard}`} data-type={t.type}>
+                <span className={styles.mIcon} aria-hidden="true">{TIDBIT_ICONS[t.type]}</span>
+                <div>
+                  <div className={styles.tidbitLabel}>{TIDBIT_LABELS[t.type]}</div>
+                  {t.type === 'myth' ? (
+                    <>
+                      <p className={styles.tidbitText}><strong>Myth:</strong> {t.text}</p>
+                      <p className={styles.tidbitReality}><strong>Reality:</strong> {t.reality}</p>
+                    </>
+                  ) : (
+                    <p className={styles.tidbitText}>
+                      “{t.text}”
+                      {t.author && <span className={styles.tidbitAuthor}> — {t.author}</span>}
+                    </p>
+                  )}
+                </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Physics Fun Fact / Quote of the session */}
+        {/* Feedback */}
         <section className={styles.section}>
-          <div className={`card ${styles.tidbitCard}`}>
-            <span className={styles.mIcon} aria-hidden="true">{tidbit.type === 'quote' ? '💬' : '🔭'}</span>
-            <div>
-              <div className={styles.tidbitLabel}>{tidbit.type === 'quote' ? 'Quote of the Session' : 'Physics Fun Fact'}</div>
-              <p className={styles.tidbitText}>
-                “{tidbit.text}”
-                {tidbit.author && <span className={styles.tidbitAuthor}> — {tidbit.author}</span>}
-              </p>
-            </div>
+          <div className={styles.sectionHeader}>
+            <h2>Got Feedback?</h2>
           </div>
+          <FeedbackForm />
         </section>
       </main>
 
       <footer className={styles.footer}>
-        <p>PhysicsLab MVP · Phase 1 · Built with Antigravity 2.0</p>
-        <p>Designed by computer engineering student <strong>Tang Zong Nan</strong>, with the help of Claude, Gemini, and Antigravity.</p>
+        <p>Designed and built with Antigravity 2.0, Claude Code and Google Gemini by Tang Zong Nan.</p>
       </footer>
     </div>
   );

@@ -4,7 +4,12 @@
   gap: var(--space-3);
 }
 
+.badgeWrap {
+  position: relative;
+}
+
 .badge {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,12 +20,18 @@
   text-align: center;
   transition: all var(--duration-base) var(--ease-out);
   position: relative;
+  font-family: var(--font-sans);
+  cursor: pointer;
+}
+
+.badge:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
 }
 
 .unlocked {
   background: linear-gradient(135deg, rgba(22, 163, 74, 0.1), rgba(79, 70, 229, 0.05));
   border-color: rgba(22, 163, 74, 0.3);
-  cursor: default;
 }
 
 .unlocked:hover {
@@ -30,8 +41,13 @@
 
 .locked {
   background: var(--bg-surface);
-  opacity: 0.45;
+  opacity: 0.55;
   filter: grayscale(1);
+}
+
+.locked:hover {
+  opacity: 0.85;
+  border-color: var(--border-active);
 }
 
 .emoji {
@@ -52,6 +68,77 @@
   right: 6px;
   font-size: 0.7rem;
   opacity: 0.5;
+}
+
+/* Click-to-inspect popover, video-game style */
+.popover {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  width: max(220px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--bg-base);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  animation: popoverIn var(--duration-fast) var(--ease-spring);
+}
+
+@keyframes popoverIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-4px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+.popover::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: var(--bg-base);
+  border-left: 1px solid var(--border-active);
+  border-top: 1px solid var(--border-active);
+}
+
+.popoverEmoji { font-size: 1.75rem; }
+
+.popoverName {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.popoverDesc {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.popoverStatus {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  margin-top: var(--space-1);
+}
+
+.popoverStatus[data-status='unlocked'] {
+  color: var(--accent-green);
+  background: rgba(22, 163, 74, 0.12);
+}
+
+.popoverStatus[data-status='locked'] {
+  color: var(--text-muted);
+  background: var(--bg-elevated);
 }
 
 /* Compact */

@@ -34,6 +34,7 @@ export function FormulaPanel({ title = 'Equations', formulas }: FormulaPanelProp
       <h4 className={styles.title}>
         <span className={styles.icon}>∑</span>
         {title}
+        <span className={styles.mathModeTag}>Math Mode</span>
       </h4>
       <div className={styles.formulaList}>
         {formulas.map((f, i) => (
