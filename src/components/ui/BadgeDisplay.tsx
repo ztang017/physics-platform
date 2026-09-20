@@ -31,7 +31,7 @@ export function BadgeToast({ badge, onDismiss }: { badge: Badge; onDismiss: () =
 function formatUnlockedDate(iso?: string): string | null {
   if (!iso) return null;
   try {
-    return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   } catch {
     return null;
   }
