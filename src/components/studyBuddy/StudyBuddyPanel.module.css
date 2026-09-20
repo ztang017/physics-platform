@@ -1,0 +1,222 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 27, 38, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeIn var(--duration-base) var(--ease-out);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+.panel {
+  width: min(440px, 100vw);
+  height: 100dvh;
+  background: var(--bg-base);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  animation: slideIn var(--duration-slow) var(--ease-out);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6) 0;
+}
+
+.header h2 { font-size: 1.25rem; }
+
+.closeBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.closeBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.closeBtn:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+
+.subtitle {
+  padding: var(--space-1) var(--space-6) var(--space-4);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--space-6) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.askRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.askInput {
+  flex: 1;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.askInput:focus { border-color: var(--border-active); }
+
+.noMatch {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: rgba(217, 119, 6, 0.08);
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.topicListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-top: var(--space-2);
+}
+
+.scopeToggle {
+  background: none;
+  border: none;
+  color: var(--accent-cyan);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  padding: 0;
+}
+
+.topicList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.topicBtn {
+  width: 100%;
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.topicBtn:hover {
+  border-color: var(--accent-cyan);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+.topicBtn:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.backLink {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--accent-cyan);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.flowQuestion {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.promptList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-left: var(--space-5);
+}
+
+.promptItem {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.principleBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: rgba(79, 70, 229, 0.08);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  border-radius: var(--radius-md);
+}
+
+.principleLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-violet);
+}
+
+.principleBox p {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.flowCta {
+  font-weight: 600;
+  color: var(--text-primary) !important;
+}
+
+@media (max-width: 480px) {
+  .panel { width: 100vw; }
+}

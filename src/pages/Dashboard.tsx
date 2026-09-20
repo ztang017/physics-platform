@@ -5,6 +5,8 @@ import { XPBar } from '../components/ui/XPBar';
 import { MathToggle } from '../components/ui/MathToggle';
 import { BadgeDisplay } from '../components/ui/BadgeDisplay';
 import { FormulaSheetButton } from '../components/formulaSheet/FormulaSheetButton';
+import { NotesButton } from '../components/notes/NotesButton';
+import { StudyBuddyButton } from '../components/studyBuddy/StudyBuddyButton';
 import { PHYSICS_TIDBITS } from './physicsFacts';
 import styles from './Dashboard.module.css';
 
@@ -101,6 +103,8 @@ export function Dashboard() {
           </div>
         </div>
         <div className={styles.headerRight}>
+          <StudyBuddyButton />
+          <NotesButton />
           <FormulaSheetButton />
           <MathToggle />
           <XPBar compact />

@@ -1,7 +1,7 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import {
   type ProjectileParams, generateTrajectory, evaluateMission,
-  type WallMissionParams, getRange, getMaxHeight,
+  type WallMissionParams, getRange, getMaxHeight, getTimeOfFlight, getX, getY,
 } from '../../core/physics/projectile';
 import { useHiDPICanvas } from '../../components/canvas/useHiDPICanvas';
 import { POEShell } from '../../components/poe/POEShell';
@@ -50,6 +50,11 @@ const MISSION: WallMissionParams = {
   targetX: 60, targetTolerance: 5,
 };
 
+// How long (real ms) the flight animation takes to play, regardless of the
+// simulated time of flight — a lobbed 8s-hangtime shot and a flat 0.1s shot
+// both animate over the same wall-clock duration so neither feels broken.
+const FLIGHT_ANIM_MS = 1400;
+
 function ProjectileCanvas({
   params,
   crosshair,
@@ -64,9 +69,29 @@ function ProjectileCanvas({
   fired: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animRef = useRef<number>(0);
+  const rafRef = useRef<number>(0);
+  const [animProgress, setAnimProgress] = useState(0); // 0..1 of flight played back
 
   useHiDPICanvas(canvasRef, W, H);
+
+  const fullTrajectory = useMemo(() => generateTrajectory(params), [params]);
+  const totalFlightT = useMemo(() => getTimeOfFlight(params), [params]);
+
+  // Play the trajectory back over time instead of drawing the whole parabola
+  // at once, so students can actually watch the horizontal/vertical motion
+  // unfold together rather than only seeing the finished line.
+  useEffect(() => {
+    if (!fired) { setAnimProgress(0); return; }
+    let start: number | null = null;
+    const tick = (now: number) => {
+      if (start === null) start = now;
+      const frac = Math.min(1, (now - start) / FLIGHT_ANIM_MS);
+      setAnimProgress(frac);
+      if (frac < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [fired]);
 
   const worldToCanvas = (wx: number, wy: number) => ({
     cx: ORIGIN_X + wx * SCALE,
@@ -117,30 +142,48 @@ function ProjectileCanvas({
     ctx.fillStyle = '#16a34a';
     ctx.fillText('TARGET', worldToCanvas(MISSION.targetX, 0).cx, ORIGIN_Y - 16);
 
-    // Trajectory (if fired)
+    // Trajectory (if fired) — played back over time rather than drawn whole,
+    // so the horizontal/vertical motion is actually visible as it happens.
     if (fired) {
-      const traj = generateTrajectory(params);
+      const simT = animProgress * totalFlightT;
+      const traveled = fullTrajectory.filter((pt) => pt.t <= simT);
+
       ctx.strokeStyle = '#4f46e5';
       ctx.lineWidth = 2.5;
       ctx.setLineDash([]);
       ctx.beginPath();
-      traj.forEach((pt, i) => {
+      traveled.forEach((pt, i) => {
         const { cx, cy } = worldToCanvas(pt.x, pt.y);
         if (i === 0) ctx.moveTo(cx, cy);
         else ctx.lineTo(cx, cy);
       });
       ctx.stroke();
 
-      // Landing point
-      const land = traj[traj.length - 1];
-      const { cx } = worldToCanvas(land.x, land.y);
-      ctx.beginPath(); ctx.arc(cx, ORIGIN_Y, 6, 0, Math.PI * 2);
-      ctx.fillStyle = '#b45309';
-      ctx.fill();
+      if (animProgress < 1) {
+        // The package itself, mid-flight
+        const curX = getX(params, simT);
+        const curY = Math.max(0, getY(params, simT));
+        const { cx, cy } = worldToCanvas(curX, curY);
+        ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+        ctx.fillStyle = '#4f46e5';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      } else {
+        // Landing point, once the flight has finished playing out
+        const land = fullTrajectory[fullTrajectory.length - 1];
+        const { cx } = worldToCanvas(land.x, land.y);
+        ctx.beginPath(); ctx.arc(cx, ORIGIN_Y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#b45309';
+        ctx.fill();
+      }
     }
 
-    // Crosshair (predict mode)
-    if (crosshair && !fired) {
+    // Crosshair — kept visible through Observe (not just Predict) so the
+    // student's guess stays on screen to compare against the real landing
+    // spot, instead of vanishing the moment they fire.
+    if (crosshair) {
       const { x: cx, y: cy } = crosshair;
       ctx.strokeStyle = 'rgba(180, 83, 9, 0.7)';
       ctx.setLineDash([4, 4]);
@@ -155,7 +198,10 @@ function ProjectileCanvas({
       ctx.fillStyle = '#b45309';
       ctx.font = '10px JetBrains Mono';
       ctx.textAlign = 'left';
-      ctx.fillText(`${((cx - ORIGIN_X) / SCALE).toFixed(0)}m`, cx + 12, cy - 4);
+      ctx.fillText(
+        fired ? 'Your prediction' : `${((cx - ORIGIN_X) / SCALE).toFixed(0)}m`,
+        cx + 12, cy - 4,
+      );
     }
 
     // Axis labels
@@ -168,8 +214,7 @@ function ProjectileCanvas({
       ctx.fillText(`${x}m`, cx - 8, ORIGIN_Y + 16);
     }
 
-    return () => cancelAnimationFrame(animRef.current);
-  }, [params, crosshair, fired]);
+  }, [params, crosshair, fired, animProgress, fullTrajectory, totalFlightT]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
@@ -331,13 +376,16 @@ export function ProjectileModule() {
     <div className={styles.observeWrap}>
       <ProjectileCanvas
         params={params}
-        crosshair={null}
+        crosshair={crosshair}
         onCrosshairMove={() => {}}
         onFire={handleFire}
         fired={simFired}
       />
 
       <div className={styles.readouts}>
+        {crosshair && (
+          <div className={styles.readout}><span>Your Prediction</span><strong className="text-amber">{((crosshair.x - ORIGIN_X) / SCALE).toFixed(1)} m</strong></div>
+        )}
         <div className={styles.readout}><span>Range</span><strong className="text-cyan">{range.toFixed(1)} m</strong></div>
         <div className={styles.readout}><span>Max Height</span><strong className="text-green">{maxH.toFixed(1)} m</strong></div>
         <div className={styles.readout}><span>Angle</span><strong className="text-amber">{angleDeg}°</strong></div>
