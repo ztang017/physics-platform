@@ -9,6 +9,12 @@ import { MathToggle } from './components/ui/MathToggle';
 import { XPBar } from './components/ui/XPBar';
 import { FormulaSheet } from './components/formulaSheet/FormulaSheet';
 import { FormulaSheetButton } from './components/formulaSheet/FormulaSheetButton';
+import { NotesPanel } from './components/notes/NotesPanel';
+import { NotesButton } from './components/notes/NotesButton';
+import { StudyBuddyPanel } from './components/studyBuddy/StudyBuddyPanel';
+import { StudyBuddyButton } from './components/studyBuddy/StudyBuddyButton';
+import type { NotesSection } from './core/store/notesStore';
+import type { ModuleId } from './core/store/gameStore';
 import styles from './App.module.css';
 
 const MODULE_MAP: Record<string, React.ReactElement> = {
@@ -38,6 +44,8 @@ function ModuleLayout() {
           ← Dashboard
         </Link>
         <div className={styles.navRight}>
+          <StudyBuddyButton moduleId={moduleId as ModuleId} />
+          <NotesButton section={moduleId as NotesSection} />
           <FormulaSheetButton />
           <MathToggle />
           <XPBar compact />
@@ -69,6 +77,8 @@ export default function App() {
         </Routes>
       </Suspense>
       <FormulaSheet />
+      <NotesPanel />
+      <StudyBuddyPanel />
     </HashRouter>
   );
 }
