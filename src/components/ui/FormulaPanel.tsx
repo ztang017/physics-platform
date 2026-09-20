@@ -1,8 +1,6 @@
-import { useEffect, useRef } from 'react';
-import katex from 'katex';
-import 'katex/dist/katex.min.css';
 import styles from './FormulaPanel.module.css';
 import { useGameStore } from '../../core/store/gameStore';
+import { Katex } from './Katex';
 
 export interface FormulaEntry {
   /** LaTeX string for the formula, e.g. "v = v_0 + at" */
@@ -18,24 +16,6 @@ export interface FormulaEntry {
 interface FormulaPanelProps {
   title?: string;
   formulas: FormulaEntry[];
-}
-
-function KatexSpan({ latex }: { latex: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    if (ref.current) {
-      try {
-        katex.render(latex, ref.current, {
-          throwOnError: false,
-          displayMode: false,
-          output: 'mathml', // MathML for screen reader support
-        });
-      } catch {
-        if (ref.current) ref.current.textContent = latex;
-      }
-    }
-  }, [latex]);
-  return <span ref={ref} aria-label={latex} />;
 }
 
 const accentVarMap: Record<string, string> = {
@@ -64,7 +44,7 @@ export function FormulaPanel({ title = 'Equations', formulas }: FormulaPanelProp
           >
             <span className={styles.label}>{f.label}</span>
             <span className={styles.formula}>
-              <KatexSpan latex={f.latex} />
+              <Katex latex={f.latex} />
             </span>
             {f.liveValue && (
               <span className={styles.liveValue}>{f.liveValue}</span>

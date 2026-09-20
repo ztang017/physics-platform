@@ -13,6 +13,10 @@
 .moduleHeader h2 { color: var(--text-primary); }
 .moduleHeader p  { color: var(--text-secondary); font-size: 0.9rem; }
 
+.conceptWrap {
+  padding: var(--space-5) var(--space-8) 0;
+}
+
 /* Predict Phase */
 .predictWrap {
   display: flex;
@@ -90,9 +94,9 @@
 
 .shapeBtnActive {
   border-color: var(--accent-cyan) !important;
-  background: rgba(0, 212, 255, 0.08);
+  background: rgba(79, 70, 229, 0.08);
   color: var(--accent-cyan) !important;
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.2);
 }
 
 .shapeSvg {
@@ -156,8 +160,8 @@
 
 /* Graph Match */
 .matchCard {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(0, 212, 255, 0.04));
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.06), rgba(79, 70, 229, 0.04));
+  border: 1px solid rgba(180, 83, 9, 0.2);
   border-radius: var(--radius-md);
   padding: var(--space-5);
   display: flex;
@@ -180,7 +184,8 @@
   color: var(--text-muted);
   font-family: var(--font-mono);
   padding: var(--space-2) var(--space-3);
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
 }
 
@@ -200,9 +205,9 @@
   border-radius: var(--radius-md);
 }
 
-.matchPerfect { background: rgba(16, 185, 129, 0.12); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
-.matchGood    { background: rgba(0, 212, 255, 0.08);  color: var(--accent-cyan);  border: 1px solid rgba(0,212,255,0.2); }
-.matchTry     { background: rgba(245, 158, 11, 0.08); color: var(--accent-amber); border: 1px solid rgba(245,158,11,0.2); }
+.matchPerfect { background: rgba(22, 163, 74, 0.12); color: var(--accent-green); border: 1px solid rgba(22,163,74,0.3); }
+.matchGood    { background: rgba(79, 70, 229, 0.08);  color: var(--accent-cyan);  border: 1px solid rgba(79,70,229,0.2); }
+.matchTry     { background: rgba(180, 83, 9, 0.08); color: var(--accent-amber); border: 1px solid rgba(180,83,9,0.2); }
 
 .scoreNum {
   font-size: 2rem;
@@ -219,5 +224,6 @@
 
 @media (max-width: 640px) {
   .moduleHeader { padding: var(--space-4); }
+  .conceptWrap { padding: var(--space-4) var(--space-4) 0; }
   .predictGraphs { grid-template-columns: 1fr; }
 }

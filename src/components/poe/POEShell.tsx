@@ -1,4 +1,5 @@
 import React, { type ReactNode, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useSessionStore, type ExplainQuestion, type POEPhase } from '../../core/store/sessionStore';
 import styles from './POEShell.module.css';
 
@@ -33,6 +34,9 @@ export function POEShell({
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  // Wrong answers get one retry before the correct answer is revealed.
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [revealed, setRevealed] = useState(false);
   const [observeReady, setObserveReady] = useState(false);
 
   // Reset on mount if a different module is loaded
@@ -41,6 +45,8 @@ export function POEShell({
     setCurrentQuestionIdx(0);
     setSelectedAnswer(null);
     setShowFeedback(false);
+    setAttemptCount(0);
+    setRevealed(false);
   }, [moduleId]);
 
   // Delay the Observe→Explain button so students must spend time observing
@@ -78,19 +84,39 @@ export function POEShell({
     const q = explainQuestions[currentQuestionIdx];
     if (!q) return null;
 
+    const isCorrectAnswer = selectedAnswer !== null && selectedAnswer === q.correctIndex;
+    const hasRetryLeft = attemptCount === 0;
+
     const handleSelect = (idx: number) => {
       if (showFeedback) return;
       setSelectedAnswer(idx);
       setShowFeedback(true);
-      answerExplainQuestion(q.id, idx);
+
       if (idx === q.correctIndex) {
+        answerExplainQuestion(q.id, idx);
         addScore(Math.round(100 / explainQuestions.length));
+        setRevealed(true);
+      } else if (hasRetryLeft) {
+        // First miss: nudge only, let them try again — don't record or reveal yet.
+        setAttemptCount(1);
+        setRevealed(false);
+      } else {
+        // Second miss: record it and reveal the correct answer.
+        answerExplainQuestion(q.id, idx);
+        setRevealed(true);
       }
+    };
+
+    const handleTryAgain = () => {
+      setShowFeedback(false);
+      setSelectedAnswer(null);
     };
 
     const handleNext = () => {
       setShowFeedback(false);
       setSelectedAnswer(null);
+      setAttemptCount(0);
+      setRevealed(false);
       if (currentQuestionIdx + 1 >= explainQuestions.length) {
         setPOEPhase('complete');
         onComplete(sessionScore);
@@ -122,10 +148,14 @@ export function POEShell({
           {q.options.map((opt, idx) => {
             const isCorrect = idx === q.correctIndex;
             const isSelected = selectedAnswer === idx;
+            // Never mark the correct option until the question is actually
+            // resolved — otherwise a wrong first guess would give it away.
             let optClass = styles.option;
-            if (showFeedback) {
+            if (showFeedback && revealed) {
               if (isCorrect) optClass += ` ${styles.optionCorrect}`;
               else if (isSelected) optClass += ` ${styles.optionWrong}`;
+            } else if (showFeedback && isSelected) {
+              optClass += ` ${styles.optionWrong}`;
             } else if (isSelected) {
               optClass += ` ${styles.optionSelected}`;
             }
@@ -142,16 +172,28 @@ export function POEShell({
               >
                 <span className={styles.optionLetter}>{String.fromCharCode(65 + idx)}</span>
                 <span>{opt}</span>
-                {showFeedback && isCorrect && <span className={styles.optionCheck} aria-hidden="true">✓</span>}
+                {showFeedback && revealed && isCorrect && <span className={styles.optionCheck} aria-hidden="true">✓</span>}
                 {showFeedback && isSelected && !isCorrect && <span className={styles.optionX} aria-hidden="true">✗</span>}
               </button>
             );
           })}
         </div>
 
-        {showFeedback && (
-          <div className={`${styles.feedback} ${selectedAnswer === q.correctIndex ? styles.feedbackCorrect : styles.feedbackWrong}`} role="alert">
-            <p>{q.explanation}</p>
+        {showFeedback && !revealed && (
+          <div className={styles.feedback + ' ' + styles.feedbackHint} role="alert">
+            <p><strong>Not quite — try again!</strong> {q.hint}</p>
+            <button className="btn btn--secondary" onClick={handleTryAgain}>
+              🔁 Try Again
+            </button>
+          </div>
+        )}
+
+        {showFeedback && revealed && (
+          <div className={`${styles.feedback} ${isCorrectAnswer ? styles.feedbackCorrect : styles.feedbackWrong}`} role="alert">
+            <p>
+              <strong>{isCorrectAnswer ? '✓ Correct!' : '✗ Not quite — here\'s why:'}</strong>{' '}
+              {q.explanation}
+            </p>
             <button className="btn btn--primary" onClick={handleNext}>
               {currentQuestionIdx + 1 >= explainQuestions.length ? '🎉 Finish Module' : 'Next Question →'}
             </button>
@@ -170,9 +212,12 @@ export function POEShell({
           <h2>Module Complete!</h2>
           <p>You scored <strong className="text-cyan">{sessionScore} points</strong> in this session.</p>
           <div className={styles.completeActions}>
-            <button className="btn btn--primary" onClick={() => { resetSession(); setModule(moduleId); setCurrentQuestionIdx(0); }}>
+            <button className="btn btn--secondary" onClick={() => { resetSession(); setModule(moduleId); setCurrentQuestionIdx(0); }}>
               🔄 Try Again
             </button>
+            <Link to="/" className="btn btn--primary">
+              🏠 Back to Dashboard
+            </Link>
           </div>
         </div>
       </div>

@@ -69,7 +69,11 @@ export interface GraphMatchResult {
 
 /**
  * Compares two velocity time-series arrays and returns a match score.
- * Uses normalised mean absolute error, capped at 0–100.
+ *
+ * Error is normalised against the target curve's own velocity span (max−min),
+ * not a per-point `|target|` value — the latter shrinks toward zero wherever
+ * the target crosses zero, which spuriously explodes the normalised error
+ * there and made the score collapse to 0 for almost any mismatch.
  */
 export function scoreGraphMatch(
   target: KinematicsDataPoint[],
@@ -79,16 +83,20 @@ export function scoreGraphMatch(
   if (len === 0) return { score: 0, mae: Infinity, isPerfect: false };
 
   let totalError = 0;
-  let maxPossible = 0;
+  let targetMin = Infinity;
+  let targetMax = -Infinity;
 
   for (let i = 0; i < len; i++) {
     totalError += Math.abs(target[i].v - student[i].v);
-    maxPossible += Math.abs(target[i].v) + 1; // avoid div-by-zero
+    targetMin = Math.min(targetMin, target[i].v);
+    targetMax = Math.max(targetMax, target[i].v);
   }
 
-  const normError = totalError / maxPossible;
-  const score = Math.max(0, Math.round((1 - normError) * 100));
   const mae = totalError / len;
+  // Floor the span so a near-flat target doesn't make the score hypersensitive.
+  const targetSpan = Math.max(targetMax - targetMin, 2);
+  const normError = mae / targetSpan;
+  const score = Math.max(0, Math.min(100, Math.round((1 - normError) * 100)));
 
   return { score, mae, isPerfect: score >= 95 };
 }
