@@ -6,7 +6,7 @@ import { FormulaPanel } from '../../components/ui/FormulaPanel';
 import { useGameStore } from '../../core/store/gameStore';
 import { useSessionStore, type ExplainQuestion } from '../../core/store/sessionStore';
 import { ConceptNotes } from '../../components/concepts/ConceptNotes';
-import { INCLINE_CONCEPTS } from './inclineConcepts';
+import { INCLINE_CONCEPTS, INCLINE_CHALLENGE } from './inclineConcepts';
 import styles from './InclineModule.module.css';
 
 const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
@@ -43,6 +43,27 @@ const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     correctIndex: 1,
     hint: '"Just starts to slide" means the block is right on the edge of equilibrium — the force pulling it down the slope must be exactly balanced by something. What force has been holding it in place up to this point?',
     explanation: 'At the critical angle: mg·sin(θ) = μₛ·mg·cos(θ), which simplifies to tan(θ) = μₛ. This is how we measure the coefficient of static friction experimentally.',
+  },
+  {
+    id: 'slide-or-stay-calc',
+    question: 'A 5 kg block sits on a 30° incline with μₛ = 0.3 (g = 10 m/s²). Does it slide?',
+    options: [
+      'No — friction easily holds it in place',
+      'Yes — the down-slope pull exceeds the maximum friction available',
+      'Impossible to tell without the block\'s exact shape',
+      'No — but only because the mass is under 10 kg',
+    ],
+    correctIndex: 1,
+    hint: 'Down-slope pull: mg·sin(30°) = 5×10×0.5 = 25 N. Maximum static friction: μₛ·mg·cos(30°) = 0.3×5×10×cos(30°) ≈ 13 N. Which one is bigger?',
+    explanation: 'The down-slope pull (25 N) is nearly double the maximum available friction (≈13 N), so friction cannot hold the block — it slides. Mass itself never decides this on its own; it\'s always the ratio between the two forces that matters.',
+  },
+  {
+    id: 'normal-force-steep-limit',
+    question: 'As the incline angle increases toward 90° (a vertical wall), what happens to the normal force?',
+    options: ['It approaches the full weight, mg', 'It approaches zero', 'It stays exactly the same', 'It becomes negative'],
+    correctIndex: 1,
+    hint: 'N = mg·cos(θ). What does cos(θ) approach as θ approaches 90°?',
+    explanation: 'N = mg·cos(θ), and cos(90°) = 0, so the normal force shrinks to zero as the surface becomes vertical — a block can\'t rest on a perfectly vertical wall with nothing else holding it there, which matches the formula perfectly.',
   },
 ];
 
@@ -374,6 +395,12 @@ export function InclineModule() {
           title="Forces on an Incline"
           intro="Normal force, friction, and why gravity splits into two pieces on a slope."
           sections={INCLINE_CONCEPTS}
+        />
+        <ConceptNotes
+          variant="challenge"
+          title="Forces on an Incline"
+          intro="See F = ma as a differential equation, and solve it by integrating."
+          sections={INCLINE_CHALLENGE}
         />
       </div>
 

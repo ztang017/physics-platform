@@ -414,6 +414,19 @@
 
 .footer p + p { margin-top: var(--space-1); }
 
+.whatsNewLink {
+  margin-top: var(--space-2);
+  background: none;
+  border: none;
+  color: var(--accent-cyan);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.whatsNewLink:hover { text-decoration: underline; }
+
 @media (max-width: 768px) {
   .header { padding: var(--space-3) var(--space-4); }
   .main   { padding: var(--space-6) var(--space-4); gap: var(--space-8); }

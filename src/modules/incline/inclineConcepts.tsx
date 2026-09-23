@@ -1,5 +1,7 @@
 import { type ConceptSection } from '../../components/concepts/ConceptNotes';
 import { TryIt } from '../../components/concepts/TryIt';
+import { RevealAnswer } from '../../components/concepts/RevealAnswer';
+import { Katex } from '../../components/ui/Katex';
 
 export const INCLINE_CONCEPTS: ConceptSection[] = [
   {
@@ -85,5 +87,42 @@ export const INCLINE_CONCEPTS: ConceptSection[] = [
       { symbol: 'θ_{critical}', meaning: 'The tilt angle at which sliding just begins', unit: 'degrees' },
       { symbol: 'μ_s', meaning: 'Coefficient of static friction of the surface pair' },
     ],
+  },
+];
+
+// ─── Challenge Yourself: H3 / calculus-based extension ─────────────────────────
+export const INCLINE_CHALLENGE: ConceptSection[] = [
+  {
+    id: 'newtons-second-law-as-ode',
+    icon: '📐',
+    title: "Newton's Second Law as a Differential Equation",
+    body: [
+      "F = ma looks like simple algebra, but a is really a derivative — a = d²x/dt² — which makes Newton's Second Law a DIFFERENTIAL EQUATION: it relates a function (position) to its own second derivative. Solving 'the motion' really means solving this equation for x(t).",
+      "On the incline, once you know the block is sliding, the net force along the slope is constant: F_net = mg sinθ − μₖmg cosθ. Since F_net = ma and this is constant, a is constant too, so m(d²x/dt²) = mg sinθ − μₖmg cosθ, giving a single constant value of a.",
+      'Integrating this ODE twice — exactly like the Kinematics module\'s calculus section — recovers the familiar x(t) = x₀ + v₀t + ½at². The genuinely new idea here isn\'t the integration itself; it\'s recognizing that "the forces determine a constant acceleration" is what justifies solving it this way in the first place.',
+    ],
+    formulaLatex: 'm\\dfrac{d^2x}{dt^2} = mg\\sin\\theta - \\mu_k mg\\cos\\theta',
+    symbols: [
+      { symbol: 'd²x/dt²', meaning: 'Acceleration, written as the second derivative of position along the slope' },
+    ],
+  },
+  {
+    id: 'incline-self-check',
+    icon: '✅',
+    title: 'Self-Check',
+    body: [],
+    interactive: (
+      <RevealAnswer
+        question="A block slides from rest down a slope with constant acceleration a = 2 m/s² (found from solving the ODE above). Integrating twice, how far has it traveled after t = 3 s?"
+        answer={
+          <>
+            <p>Integrate a once: v(t) = ∫2 dt = 2t + C₁. Starting from rest, v(0) = 0, so C₁ = 0, giving v(t) = 2t.</p>
+            <p>Integrate again: x(t) = ∫2t dt = t² + C₂. Starting at x(0) = 0, C₂ = 0, giving x(t) = t².</p>
+            <Katex latex={'x(t) = t^2'} displayMode />
+            <p>At t = 3 s: x(3) = 3² = <strong>9 m</strong> — matching the familiar x = ½at² = ½(2)(9) = 9 m from the algebra-based formula.</p>
+          </>
+        }
+      />
+    ),
   },
 ];

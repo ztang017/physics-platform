@@ -14,7 +14,7 @@ import { FormulaPanel } from '../../components/ui/FormulaPanel';
 import { useGameStore } from '../../core/store/gameStore';
 import { useSessionStore, type ExplainQuestion } from '../../core/store/sessionStore';
 import { ConceptNotes } from '../../components/concepts/ConceptNotes';
-import { KINEMATICS_CONCEPTS } from './kinematicsConcepts';
+import { KINEMATICS_CONCEPTS, KINEMATICS_CHALLENGE } from './kinematicsConcepts';
 import styles from './KinematicsModule.module.css';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -85,6 +85,22 @@ const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     hint: 'Look at the position equation: x = x₀ + v₀t + ½at². The t² term is the giveaway — what shape does a squared term trace out?',
     explanation:
       'Since x = x₀ + v₀t + ½at², the t² term makes it a parabola when acceleration is non-zero. Only constant velocity (a=0) gives a straight diagonal line.',
+  },
+  {
+    id: 'compute-accel-from-graph',
+    question: 'A velocity-time graph is a straight line starting at +4 m/s and reaching 0 m/s at t = 4 s. What is the acceleration?',
+    options: ['−1 m/s²', '+1 m/s²', '−4 m/s²', '+0.25 m/s²'],
+    correctIndex: 0,
+    hint: 'Acceleration is the slope: (change in velocity) ÷ (change in time). The velocity went from +4 to 0 — how much did it change, and over how long?',
+    explanation: 'a = Δv/Δt = (0 − 4)/(4 − 0) = −1 m/s². The negative sign means it\'s decelerating (slowing down), consistent with velocity shrinking toward zero.',
+  },
+  {
+    id: 'area-under-at-graph',
+    question: 'The area under an acceleration-time graph, between two times, represents:',
+    options: ['The displacement', 'The change in velocity (Δv)', 'The average acceleration', 'The final position'],
+    correctIndex: 1,
+    hint: 'Area under a graph is (height) × (base). Here the height is acceleration and the base is time — multiply their units together: (m/s²) × (s) = ?',
+    explanation: 'Multiplying acceleration by a time interval gives a change in velocity — so the area under an a-t graph equals Δv over that interval. This is the same idea as area under a v-t graph giving displacement, one level up.',
   },
 ];
 
@@ -724,6 +740,12 @@ export function KinematicsModule() {
           title="Vector Kinematics"
           intro="Position, velocity, acceleration — and how to read their graphs."
           sections={KINEMATICS_CONCEPTS}
+        />
+        <ConceptNotes
+          variant="challenge"
+          title="Vector Kinematics"
+          intro="Heading into H3 or university physics? See how derivatives and integrals formalize what you've already learned."
+          sections={KINEMATICS_CHALLENGE}
         />
       </div>
 

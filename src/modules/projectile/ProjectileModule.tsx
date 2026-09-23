@@ -9,7 +9,7 @@ import { FormulaPanel } from '../../components/ui/FormulaPanel';
 import { useGameStore } from '../../core/store/gameStore';
 import { useSessionStore, type ExplainQuestion } from '../../core/store/sessionStore';
 import { ConceptNotes } from '../../components/concepts/ConceptNotes';
-import { PROJECTILE_CONCEPTS } from './projectileConcepts';
+import { PROJECTILE_CONCEPTS, PROJECTILE_CHALLENGE } from './projectileConcepts';
 import styles from './ProjectileModule.module.css';
 
 const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
@@ -36,6 +36,22 @@ const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     correctIndex: 1,
     hint: 'Range depends on sin(2θ). sin() reaches its largest possible value, 1, when its input is 90°. What value of θ makes 2θ equal 90°?',
     explanation: '45° maximizes range because sin(2θ) = sin(90°) = 1, which is its maximum value. At 30° and 60° you get the same range as each other, but less than at 45°.',
+  },
+  {
+    id: 'time-of-flight-calc',
+    question: 'A ball is launched at 20 m/s at 30° above horizontal (g = 10 m/s²). Roughly how long does it stay in the air?',
+    options: ['1 s', '2 s', '4 s', '0.5 s'],
+    correctIndex: 1,
+    hint: 'Only the VERTICAL launch speed determines airtime: vy0 = v₀sinθ = 20 × sin(30°) = 10 m/s. Time of flight is 2×vy0/g — what does that give you?',
+    explanation: 'vy0 = 20sin(30°) = 10 m/s. Time of flight = 2vy0/g = 2(10)/10 = 2 s. Notice the horizontal speed (20cos30°) never entered this calculation at all — airtime depends only on the vertical component.',
+  },
+  {
+    id: 'complementary-angles',
+    question: 'Two projectiles are launched at the same speed, one at 30° and one at 60°. How do their ranges compare?',
+    options: ['The 60° shot goes farther', 'The 30° shot goes farther', 'They land at exactly the same range', 'It depends on the mass of each one'],
+    correctIndex: 2,
+    hint: 'Range depends on sin(2θ). Compute 2×30° = 60° and 2×60° = 120° — are sin(60°) and sin(120°) the same value or different?',
+    explanation: 'sin(60°) = sin(120°) ≈ 0.866, so any pair of launch angles that add up to 90° (called complementary angles) produces exactly equal range — one just gets there quickly and low, the other slowly and high.',
   },
 ];
 
@@ -418,6 +434,12 @@ export function ProjectileModule() {
           title="Projectile Motion"
           intro="Why horizontal and vertical motion never interfere with each other."
           sections={PROJECTILE_CONCEPTS}
+        />
+        <ConceptNotes
+          variant="challenge"
+          title="Projectile Motion"
+          intro="Prove why 45° is optimal using derivatives, not just a graph."
+          sections={PROJECTILE_CHALLENGE}
         />
       </div>
 

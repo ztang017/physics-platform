@@ -25,6 +25,10 @@ interface UIState {
   studyBuddyModuleFilter: ModuleId | null;
   openStudyBuddy: (moduleId?: ModuleId) => void;
   closeStudyBuddy: () => void;
+
+  whatsNewOpen: boolean;
+  openWhatsNew: () => void;
+  closeWhatsNew: () => void;
 }
 
 export const useUIStore = create<UIState>()((set) => ({
@@ -47,4 +51,8 @@ export const useUIStore = create<UIState>()((set) => ({
   studyBuddyModuleFilter: null,
   openStudyBuddy: (moduleId) => set({ studyBuddyOpen: true, studyBuddyModuleFilter: moduleId ?? null }),
   closeStudyBuddy: () => set({ studyBuddyOpen: false }),
+
+  whatsNewOpen: false,
+  openWhatsNew: () => set({ whatsNewOpen: true }),
+  closeWhatsNew: () => set({ whatsNewOpen: false }),
 }));

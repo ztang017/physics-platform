@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useGameStore, MODULE_ORDER, type ModuleId, BADGE_DEFINITIONS } from '../core/store/gameStore';
+import { useUIStore } from '../core/store/uiStore';
 import { XPBar } from '../components/ui/XPBar';
 import { MathToggle } from '../components/ui/MathToggle';
 import { BadgeDisplay } from '../components/ui/BadgeDisplay';
@@ -90,6 +91,7 @@ const MODULE_CARDS: ModuleCard[] = [
 
 export function Dashboard() {
   const { studentName, setStudentName, unlockedBadges, completedModules, xp, level } = useGameStore();
+  const openWhatsNew = useUIStore((s) => s.openWhatsNew);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(studentName);
   const [tidbits] = useState(() => pickRandom(PHYSICS_TIDBITS, 3));
@@ -340,6 +342,7 @@ export function Dashboard() {
 
       <footer className={styles.footer}>
         <p>Designed and built with Antigravity 2.0, Claude Code and Google Gemini by Tang Zong Nan.</p>
+        <button className={styles.whatsNewLink} onClick={openWhatsNew}>✨ See what's new</button>
       </footer>
     </div>
   );

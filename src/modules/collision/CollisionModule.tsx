@@ -6,7 +6,7 @@ import { FormulaPanel } from '../../components/ui/FormulaPanel';
 import { useGameStore } from '../../core/store/gameStore';
 import { useSessionStore, type ExplainQuestion } from '../../core/store/sessionStore';
 import { ConceptNotes } from '../../components/concepts/ConceptNotes';
-import { COLLISION_CONCEPTS } from './collisionConcepts';
+import { COLLISION_CONCEPTS, COLLISION_CHALLENGE } from './collisionConcepts';
 import styles from './CollisionModule.module.css';
 
 const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
@@ -38,6 +38,22 @@ const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     correctIndex: 2,
     hint: 'This is one of Newton\'s three laws, and it applies to EVERY pair of interacting objects regardless of their mass or speed — not just collisions. Which law describes force pairs?',
     explanation: 'Newton\'s Third Law: action-reaction pairs are always equal and opposite, regardless of mass or speed. This is why a truck colliding with a small car exerts the same force on the car as the car exerts on the truck — the difference in damage is due to the difference in mass, not force.',
+  },
+  {
+    id: 'perfectly-inelastic-calc',
+    question: 'Cart A (2 kg, moving at 6 m/s) collides head-on and sticks to stationary Cart B (4 kg). What is their combined velocity afterward?',
+    options: ['1 m/s', '2 m/s', '3 m/s', '6 m/s'],
+    correctIndex: 1,
+    hint: 'Total momentum before = total momentum after. Before: (2 kg)(6 m/s) + (4 kg)(0 m/s). After, both masses move together at one shared speed v — set up the equation and solve for v.',
+    explanation: 'Momentum before = 2(6) + 4(0) = 12 kg·m/s. After sticking together, total mass = 6 kg, so v = 12/6 = 2 m/s. Notice kinetic energy before (36 J) is more than after (12 J) — energy was lost even though momentum balanced exactly.',
+  },
+  {
+    id: 'equal-mass-elastic',
+    question: 'In a perfectly elastic collision between a moving cart and an identical stationary cart, what happens?',
+    options: ['They stick together and move as one', 'They exchange velocities exactly — the first cart stops, the second moves off at the original speed', 'Both end up moving at half the original speed', 'The moving cart bounces straight back at the same speed'],
+    correctIndex: 1,
+    hint: 'Try it in the simulation: set equal masses and e = 1 (fully elastic). Watch what the FIRST cart does right after impact, not just the second one.',
+    explanation: 'For equal masses in a perfectly elastic collision, the incoming cart transfers all of its velocity to the target and stops dead — this is the same reason a stationary cue ball "stops dead" when it strikes another ball head-on in pool.',
   },
 ];
 
@@ -370,6 +386,12 @@ export function CollisionModule() {
           title="Momentum & Collisions"
           intro="What momentum means, why it's always conserved, and what 'elastic' means."
           sections={COLLISION_CONCEPTS}
+        />
+        <ConceptNotes
+          variant="challenge"
+          title="Momentum & Collisions"
+          intro="Impulse as an integral — how a varying force during impact still conserves momentum."
+          sections={COLLISION_CHALLENGE}
         />
       </div>
 
