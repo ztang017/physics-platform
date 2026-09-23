@@ -29,6 +29,10 @@ interface UIState {
   whatsNewOpen: boolean;
   openWhatsNew: () => void;
   closeWhatsNew: () => void;
+
+  spacedReviewOpen: boolean;
+  openSpacedReview: () => void;
+  closeSpacedReview: () => void;
 }
 
 export const useUIStore = create<UIState>()((set) => ({
@@ -55,4 +59,8 @@ export const useUIStore = create<UIState>()((set) => ({
   whatsNewOpen: false,
   openWhatsNew: () => set({ whatsNewOpen: true }),
   closeWhatsNew: () => set({ whatsNewOpen: false }),
+
+  spacedReviewOpen: false,
+  openSpacedReview: () => set({ spacedReviewOpen: true }),
+  closeSpacedReview: () => set({ spacedReviewOpen: false }),
 }));

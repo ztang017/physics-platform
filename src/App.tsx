@@ -14,6 +14,8 @@ import { NotesButton } from './components/notes/NotesButton';
 import { StudyBuddyPanel } from './components/studyBuddy/StudyBuddyPanel';
 import { StudyBuddyButton } from './components/studyBuddy/StudyBuddyButton';
 import { WhatsNewModal } from './components/whatsNew/WhatsNewModal';
+import { SpacedReviewPanel } from './components/review/SpacedReviewPanel';
+import { SpacedReviewButton } from './components/review/SpacedReviewButton';
 import { useUIStore } from './core/store/uiStore';
 import type { NotesSection } from './core/store/notesStore';
 import type { ModuleId } from './core/store/gameStore';
@@ -48,6 +50,7 @@ function ModuleLayout() {
           ← Dashboard
         </Link>
         <div className={styles.navRight}>
+          <SpacedReviewButton />
           <StudyBuddyButton moduleId={moduleId as ModuleId} />
           <NotesButton section={moduleId as NotesSection} />
           <FormulaSheetButton />
@@ -95,6 +98,7 @@ export default function App() {
       <NotesPanel />
       <StudyBuddyPanel />
       <WhatsNewModal />
+      <SpacedReviewPanel />
     </HashRouter>
   );
 }

@@ -43,7 +43,7 @@ const COLOR = {
 };
 
 // ─── Explain Questions ─────────────────────────────────────────────────────────
-const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
+export const KINEMATICS_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
   {
     id: 'slope-meaning',
     question: 'On a velocity-time graph, what does the slope of the line represent?',
@@ -753,7 +753,7 @@ export function KinematicsModule() {
         moduleId="kinematics"
         predictComponent={PredictPhase}
         observeComponent={ObservePhase}
-        explainQuestions={EXPLAIN_QUESTIONS}
+        explainQuestions={KINEMATICS_EXPLAIN_QUESTIONS}
         onComplete={handleComplete}
         onTryAgain={handleTryAgain}
         predictHint="Look at the SIGN of your acceleration slider compared to your initial velocity. Do they match (same sign) or oppose each other? That tells you whether the object is speeding up or slowing down, which shapes the v-t line. Separately: is acceleration exactly zero, or not? A non-zero, constant acceleration always curves the x-t graph — it can never be a straight line."

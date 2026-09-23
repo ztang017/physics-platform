@@ -12,7 +12,7 @@ import { ConceptNotes } from '../../components/concepts/ConceptNotes';
 import { PROJECTILE_CONCEPTS, PROJECTILE_CHALLENGE } from './projectileConcepts';
 import styles from './ProjectileModule.module.css';
 
-const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
+export const PROJECTILE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
   {
     id: 'horizontal-force',
     question: 'What force acts on the projectile in the horizontal direction (ignoring air resistance)?',
@@ -447,7 +447,7 @@ export function ProjectileModule() {
         moduleId="projectile"
         predictComponent={PredictPhase}
         observeComponent={ObservePhase}
-        explainQuestions={EXPLAIN_QUESTIONS}
+        explainQuestions={PROJECTILE_EXPLAIN_QUESTIONS}
         onComplete={handleComplete}
         onTryAgain={handleTryAgain}
         predictHint="You don't need to click exactly right — think in two separate pieces. How FAR it can travel sideways depends on v₀ and the angle together; how LONG it stays airborne depends mostly on the vertical piece of the launch (v₀·sinθ). A higher, steeper shot spends longer in the air but may not travel as far sideways."

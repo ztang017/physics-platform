@@ -16,7 +16,7 @@ const EMPTY_VECTORS: Record<PlacedVector['id'], { dx: number; dy: number }> = {
   friction: { dx: 0, dy: 0 },
 };
 
-const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
+export const INCLINE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
   {
     id: 'normal-direction',
     question: 'Why does the normal force point perpendicular to the surface — not straight up?',
@@ -468,7 +468,7 @@ export function InclineModule() {
         moduleId="incline"
         predictComponent={PredictPhase}
         observeComponent={ObservePhase}
-        explainQuestions={EXPLAIN_QUESTIONS}
+        explainQuestions={INCLINE_EXPLAIN_QUESTIONS}
         onComplete={handleComplete}
         onTryAgain={handleTryAgain}
         predictHint="Before reading the 'Block will...' readout below, try comparing the two numbers just above it yourself: the ∥ component (pulling the block down the slope) versus the Max Static Friction (the most grip the surface can offer). Whichever one is bigger wins."
