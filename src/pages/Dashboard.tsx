@@ -9,6 +9,11 @@ import { FormulaSheetButton } from '../components/formulaSheet/FormulaSheetButto
 import { NotesButton } from '../components/notes/NotesButton';
 import { StudyBuddyButton } from '../components/studyBuddy/StudyBuddyButton';
 import { FeedbackForm } from '../components/feedback/FeedbackForm';
+import { Reveal } from '../components/scroll/Reveal';
+import { ScrollProgressBar } from '../components/scroll/ScrollProgressBar';
+import { ScrollCue } from '../components/scroll/ScrollCue';
+import { useScrollReveal } from '../components/scroll/useScrollReveal';
+import { useCountUp } from '../components/scroll/useCountUp';
 import { PHYSICS_TIDBITS, type PhysicsTidbit } from './physicsFacts';
 import styles from './Dashboard.module.css';
 
@@ -96,6 +101,14 @@ export function Dashboard() {
   const [nameInput, setNameInput] = useState(studentName);
   const [tidbits] = useState(() => pickRandom(PHYSICS_TIDBITS, 3));
 
+  // Scroll-triggered reveals: modules/tidbits grids get their own
+  // observers so they can stagger their children in CSS; the badges count
+  // needs its own visibility flag too, to drive the count-up animation.
+  const modulesReveal = useScrollReveal<HTMLDivElement>();
+  const tidbitsReveal = useScrollReveal<HTMLDivElement>();
+  const badgesReveal = useScrollReveal<HTMLDivElement>();
+  const unlockedCount = useCountUp(unlockedBadges.length, badgesReveal.visible);
+
   const handleNameSubmit = () => {
     if (nameInput.trim()) setStudentName(nameInput.trim());
     setEditingName(false);
@@ -117,6 +130,8 @@ export function Dashboard() {
 
   return (
     <div className={styles.page}>
+      <ScrollProgressBar />
+
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
@@ -139,204 +154,234 @@ export function Dashboard() {
 
       <main className={styles.main}>
         {/* Hero Section */}
-        <section className={styles.hero}>
-          <div className={styles.heroContent}>
-            <div className={styles.greeting}>
-              {editingName ? (
-                <form
-                  onSubmit={(e) => { e.preventDefault(); handleNameSubmit(); }}
-                  className={styles.nameForm}
-                >
-                  <input
-                    className={styles.nameInput}
-                    value={nameInput}
-                    onChange={(e) => setNameInput(e.target.value)}
-                    autoFocus
-                    maxLength={30}
-                    aria-label="Your name"
-                  />
-                  <button type="submit" className="btn btn--primary">Save</button>
-                </form>
-              ) : (
+        <section className={`${styles.band} ${styles.heroBand}`}>
+          <div className={styles.bandInner}>
+            <div className={styles.hero}>
+              <div className={styles.heroContent}>
+                <div className={styles.greeting}>
+                  {editingName ? (
+                    <form
+                      onSubmit={(e) => { e.preventDefault(); handleNameSubmit(); }}
+                      className={styles.nameForm}
+                    >
+                      <input
+                        className={styles.nameInput}
+                        value={nameInput}
+                        onChange={(e) => setNameInput(e.target.value)}
+                        autoFocus
+                        maxLength={30}
+                        aria-label="Your name"
+                      />
+                      <button type="submit" className="btn btn--primary">Save</button>
+                    </form>
+                  ) : (
+                    <button
+                      className={styles.greetingBtn}
+                      onClick={() => setEditingName(true)}
+                      aria-label="Click to edit your name"
+                      title="Click to edit name"
+                    >
+                      <h1>
+                        Welcome back, <span className="text-cyan">{studentName}</span> 👋
+                      </h1>
+                      <span className={styles.editHint}>✏️ edit</span>
+                    </button>
+                  )}
+                </div>
+
+                <p className={styles.heroSubtitle}>Pick up where you left off, or start a new module below.</p>
+
+                <div className={styles.statRow}>
+                  <span className={styles.statChip}>
+                    <span className={styles.statChipIcon}>🏆</span>
+                    Level <strong className="text-violet">{level}</strong>
+                  </span>
+                  <span className={styles.statChip}>
+                    <span className={styles.statChipIcon}>⚡</span>
+                    <strong className="text-cyan">{xp}</strong> XP total
+                  </span>
+                  <span className={styles.statChip}>
+                    <span className={styles.statChipIcon}>✅</span>
+                    <strong className="text-green">{completedModules.length}/4</strong> modules
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.heroXP}>
+                {/* Completion ring */}
+                <div className={styles.completionRing} aria-label={`${done} of ${total} modules completed`}>
+                  <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+                    <circle cx="60" cy="60" r={RADIUS} fill="none" stroke="var(--bg-elevated)" strokeWidth="8" />
+                    <circle
+                      cx="60" cy="60" r={RADIUS}
+                      fill="none"
+                      stroke={done === total ? 'var(--accent-green)' : 'var(--accent-cyan)'}
+                      strokeWidth="8"
+                      strokeDasharray={CIRCUMFERENCE}
+                      strokeDashoffset={ringProgress}
+                      strokeLinecap="round"
+                      transform="rotate(-90 60 60)"
+                      style={{ transition: 'stroke-dashoffset 0.8s ease-out, stroke 0.4s' }}
+                    />
+                    <text x="60" y="55" textAnchor="middle" fill="var(--text-primary)" fontSize="22" fontWeight="800" fontFamily="var(--font-sans)">{done}/{total}</text>
+                    <text x="60" y="73" textAnchor="middle" fill="var(--text-muted)" fontSize="10" fontFamily="var(--font-sans)">modules</text>
+                  </svg>
+                </div>
+                <XPBar />
                 <button
-                  className={styles.greetingBtn}
-                  onClick={() => setEditingName(true)}
-                  aria-label="Click to edit your name"
-                  title="Click to edit name"
+                  className={styles.resetBtn}
+                  onClick={handleResetProgress}
+                  aria-label="Reset all progress"
                 >
-                  <h1>
-                    Welcome back, <span className="text-cyan">{studentName}</span> 👋
-                  </h1>
-                  <span className={styles.editHint}>✏️ edit</span>
+                  🗑 Reset Progress
                 </button>
-              )}
+              </div>
             </div>
 
-            <p className={styles.heroSubtitle}>Pick up where you left off, or start a new module below.</p>
-
-            <div className={styles.statRow}>
-              <span className={styles.statChip}>
-                <span className={styles.statChipIcon}>🏆</span>
-                Level <strong className="text-violet">{level}</strong>
-              </span>
-              <span className={styles.statChip}>
-                <span className={styles.statChipIcon}>⚡</span>
-                <strong className="text-cyan">{xp}</strong> XP total
-              </span>
-              <span className={styles.statChip}>
-                <span className={styles.statChipIcon}>✅</span>
-                <strong className="text-green">{completedModules.length}/4</strong> modules
-              </span>
-            </div>
-          </div>
-
-          <div className={styles.heroXP}>
-            {/* Completion ring */}
-            <div className={styles.completionRing} aria-label={`${done} of ${total} modules completed`}>
-              <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
-                <circle cx="60" cy="60" r={RADIUS} fill="none" stroke="var(--bg-elevated)" strokeWidth="8" />
-                <circle
-                  cx="60" cy="60" r={RADIUS}
-                  fill="none"
-                  stroke={done === total ? 'var(--accent-green)' : 'var(--accent-cyan)'}
-                  strokeWidth="8"
-                  strokeDasharray={CIRCUMFERENCE}
-                  strokeDashoffset={ringProgress}
-                  strokeLinecap="round"
-                  transform="rotate(-90 60 60)"
-                  style={{ transition: 'stroke-dashoffset 0.8s ease-out, stroke 0.4s' }}
-                />
-                <text x="60" y="55" textAnchor="middle" fill="var(--text-primary)" fontSize="22" fontWeight="800" fontFamily="var(--font-sans)">{done}/{total}</text>
-                <text x="60" y="73" textAnchor="middle" fill="var(--text-muted)" fontSize="10" fontFamily="var(--font-sans)">modules</text>
-              </svg>
-            </div>
-            <XPBar />
-            <button
-              className={styles.resetBtn}
-              onClick={handleResetProgress}
-              aria-label="Reset all progress"
-            >
-              🗑 Reset Progress
-            </button>
+            <ScrollCue />
           </div>
         </section>
 
         {/* About / Purpose */}
-        <section className={styles.section}>
-          <div className={`card ${styles.aboutCard}`}>
-            <h2 className={styles.aboutTitle}>About PhysicsLab</h2>
-            <p>
-              PhysicsLab is an interactive companion for learning introductory mechanics.
-              Each module walks you through a <strong>Predict → Observe → Explain</strong> cycle:
-              you commit to a prediction first, watch the real simulation play out, then explain
-              the gap between what you expected and what happened. That struggle is where the
-              learning actually happens — it's a far stickier way to build intuition than reading
-              a worked example.
-            </p>
-            <div className={styles.disclaimer}>
-              <span className={styles.disclaimerIcon} aria-hidden="true">⚠️</span>
-              <p>
-                <strong>Disclaimer:</strong> PhysicsLab is a supplementary practice tool, not a
-                substitute for your <strong>CY1308</strong> lectures, tutorials, or official course
-                materials. Always defer to your course notes and instructor for anything that
-                affects your grades or assessments.
-              </p>
-            </div>
+        <section className={`${styles.band} ${styles.bandAlt}`}>
+          <div className={styles.bandInner}>
+            <Reveal>
+              <div className={`card ${styles.aboutCard}`}>
+                <h2 className={styles.aboutTitle}>About PhysicsLab</h2>
+                <p>
+                  PhysicsLab is an interactive companion for learning introductory mechanics.
+                  Each module walks you through a <strong>Predict → Observe → Explain</strong> cycle:
+                  you commit to a prediction first, watch the real simulation play out, then explain
+                  the gap between what you expected and what happened. That struggle is where the
+                  learning actually happens — it's a far stickier way to build intuition than reading
+                  a worked example.
+                </p>
+                <div className={styles.disclaimer}>
+                  <span className={styles.disclaimerIcon} aria-hidden="true">⚠️</span>
+                  <p>
+                    <strong>Disclaimer:</strong> PhysicsLab is a supplementary practice tool, not a
+                    substitute for your <strong>CY1308</strong> lectures, tutorials, or official course
+                    materials. Always defer to your course notes and instructor for anything that
+                    affects your grades or assessments.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
           </div>
         </section>
 
         {/* Module Cards */}
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>Physics Modules</h2>
-            <p>Complete each module through the Predict → Observe → Explain cycle to earn XP and badges.</p>
-          </div>
+        <section className={styles.band}>
+          <div className={styles.bandInner}>
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h2>Physics Modules</h2>
+                <p>Complete each module through the Predict → Observe → Explain cycle to earn XP and badges.</p>
+              </div>
 
-          <div className={styles.moduleGrid}>
-            {MODULE_CARDS.map((card, i) => {
-              const isComplete = completedModules.includes(card.id);
-              const isUnlocked = i === 0 || completedModules.includes(MODULE_ORDER[i - 1]);
+              <div ref={modulesReveal.ref} className={`${styles.moduleGrid} ${styles.staggerGrid} ${modulesReveal.visible ? styles.revealed : ''}`}>
+                {MODULE_CARDS.map((card, i) => {
+                  const isComplete = completedModules.includes(card.id);
+                  const isUnlocked = i === 0 || completedModules.includes(MODULE_ORDER[i - 1]);
 
-              return (
-                <Link
-                  key={card.id}
-                  to={card.path}
-                  className={`${styles.moduleCard} ${!isUnlocked ? styles.locked : ''}`}
-                  style={{ '--card-gradient': card.gradient, '--card-border': card.borderColor } as React.CSSProperties}
-                  aria-label={`${card.title} module — ${isComplete ? 'Completed' : isUnlocked ? 'Available' : 'Locked'}`}
-                  aria-disabled={!isUnlocked}
-                  onClick={(e) => { if (!isUnlocked) e.preventDefault(); }}
-                >
-                  <div className={styles.cardTop}>
-                    <span className={styles.cardIconBadge} aria-hidden="true">{card.emoji}</span>
-                    <div className={styles.cardBadges}>
-                      {isComplete && <span className={styles.completeBadge}>✅ Complete</span>}
-                      {!isUnlocked && <span className={styles.lockedBadge}>🔒 Locked</span>}
-                    </div>
-                  </div>
-                  <div className={styles.cardSubtitle}>{card.subtitle}</div>
-                  <h3 className={styles.cardTitle}>{card.title}</h3>
-                  <p className={styles.cardDesc}>{card.description}</p>
-                  {isUnlocked && !isComplete && (
-                    <div className={styles.cardCta}>Start Module <span aria-hidden="true">→</span></div>
-                  )}
-                  {isComplete && (
-                    <div className={styles.cardCta} style={{ color: 'var(--accent-green)' }}>Review Module <span aria-hidden="true">→</span></div>
-                  )}
-                </Link>
-              );
-            })}
+                  return (
+                    <Link
+                      key={card.id}
+                      to={card.path}
+                      className={`${styles.moduleCard} ${!isUnlocked ? styles.locked : ''}`}
+                      style={{ '--card-gradient': card.gradient, '--card-border': card.borderColor } as React.CSSProperties}
+                      aria-label={`${card.title} module — ${isComplete ? 'Completed' : isUnlocked ? 'Available' : 'Locked'}`}
+                      aria-disabled={!isUnlocked}
+                      onClick={(e) => { if (!isUnlocked) e.preventDefault(); }}
+                    >
+                      <div className={styles.cardTop}>
+                        <span className={styles.cardIconBadge} aria-hidden="true">{card.emoji}</span>
+                        <div className={styles.cardBadges}>
+                          {isComplete && <span className={styles.completeBadge}>✅ Complete</span>}
+                          {!isUnlocked && <span className={styles.lockedBadge}>🔒 Locked</span>}
+                        </div>
+                      </div>
+                      <div className={styles.cardSubtitle}>{card.subtitle}</div>
+                      <h3 className={styles.cardTitle}>{card.title}</h3>
+                      <p className={styles.cardDesc}>{card.description}</p>
+                      {isUnlocked && !isComplete && (
+                        <div className={styles.cardCta}>Start Module <span aria-hidden="true">→</span></div>
+                      )}
+                      {isComplete && (
+                        <div className={styles.cardCta} style={{ color: 'var(--accent-green)' }}>Review Module <span aria-hidden="true">→</span></div>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Badges Section */}
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>Your Badges</h2>
-            <p>{unlockedBadges.length} of {Object.keys(BADGE_DEFINITIONS).length} unlocked</p>
-          </div>
-          <div className="card">
-            <BadgeDisplay unlockedBadges={unlockedBadges} showAll />
+        <section className={`${styles.band} ${styles.bandAlt}`}>
+          <div className={styles.bandInner}>
+            <div ref={badgesReveal.ref} className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h2>Your Badges</h2>
+                <p>{unlockedCount} of {Object.keys(BADGE_DEFINITIONS).length} unlocked</p>
+              </div>
+              <Reveal>
+                <div className="card">
+                  <BadgeDisplay unlockedBadges={unlockedBadges} showAll />
+                </div>
+              </Reveal>
+            </div>
           </div>
         </section>
 
         {/* Physics Corner: fun facts, quotes, and misconceptions — a fresh,
             varied mix each visit instead of one static fact and a separate,
             easy-to-skip misconceptions list. */}
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>🔭 Physics Corner</h2>
-            <p>A fresh mix of facts, quotes, and myths we bust — new picks every visit.</p>
-          </div>
-          <div className={styles.tidbitGrid}>
-            {tidbits.map((t, i) => (
-              <div key={i} className={`card ${styles.tidbitCard}`} data-type={t.type}>
-                <span className={styles.mIcon} aria-hidden="true">{TIDBIT_ICONS[t.type]}</span>
-                <div>
-                  <div className={styles.tidbitLabel}>{TIDBIT_LABELS[t.type]}</div>
-                  {t.type === 'myth' ? (
-                    <>
-                      <p className={styles.tidbitText}><strong>Myth:</strong> {t.text}</p>
-                      <p className={styles.tidbitReality}><strong>Reality:</strong> {t.reality}</p>
-                    </>
-                  ) : (
-                    <p className={styles.tidbitText}>
-                      “{t.text}”
-                      {t.author && <span className={styles.tidbitAuthor}> — {t.author}</span>}
-                    </p>
-                  )}
-                </div>
+        <section className={styles.band}>
+          <div className={styles.bandInner}>
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h2>🔭 Physics Corner</h2>
+                <p>A fresh mix of facts, quotes, and myths we bust — new picks every visit.</p>
               </div>
-            ))}
+              <div ref={tidbitsReveal.ref} className={`${styles.tidbitGrid} ${styles.staggerGrid} ${tidbitsReveal.visible ? styles.revealed : ''}`}>
+                {tidbits.map((t, i) => (
+                  <div key={i} className={`card ${styles.tidbitCard}`} data-type={t.type}>
+                    <span className={styles.mIcon} aria-hidden="true">{TIDBIT_ICONS[t.type]}</span>
+                    <div>
+                      <div className={styles.tidbitLabel}>{TIDBIT_LABELS[t.type]}</div>
+                      {t.type === 'myth' ? (
+                        <>
+                          <p className={styles.tidbitText}><strong>Myth:</strong> {t.text}</p>
+                          <p className={styles.tidbitReality}><strong>Reality:</strong> {t.reality}</p>
+                        </>
+                      ) : (
+                        <p className={styles.tidbitText}>
+                          “{t.text}”
+                          {t.author && <span className={styles.tidbitAuthor}> — {t.author}</span>}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Feedback */}
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>Got Feedback?</h2>
+        <section className={`${styles.band} ${styles.bandAlt}`}>
+          <div className={styles.bandInner}>
+            <Reveal>
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h2>Got Feedback?</h2>
+                </div>
+                <FeedbackForm />
+              </div>
+            </Reveal>
           </div>
-          <FeedbackForm />
         </section>
       </main>
 

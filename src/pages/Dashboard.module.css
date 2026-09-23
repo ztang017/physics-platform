@@ -53,14 +53,32 @@
 /* Main */
 .main {
   flex: 1;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  padding: var(--space-10) var(--space-8) var(--space-16);
   display: flex;
   flex-direction: column;
-  gap: var(--space-16);
 }
+
+/* Full-width section "bands" — each topic gets its own edge-to-edge strip
+ * so a background shift (on alternating bands) reads as a clear signal
+ * that one topic has ended and the next has begun, instead of everything
+ * running together inside one long, uniformly-colored column. */
+.band {
+  width: 100%;
+  padding: var(--space-12) 0;
+}
+
+.bandAlt {
+  background: linear-gradient(180deg, rgba(79, 70, 229, 0.045), rgba(124, 58, 237, 0.02));
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.bandInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-8);
+}
+
+.heroBand { padding-top: var(--space-10); }
 
 /* Hero */
 .hero {
@@ -170,6 +188,25 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-5);
 }
+
+/* Scroll-triggered stagger: each card fades in a beat after the last,
+ * toggled by one shared "revealed" class from a single IntersectionObserver
+ * on the grid itself — no per-card wrapper needed, so the grid layout is
+ * completely untouched. */
+.staggerGrid > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+}
+
+.staggerGrid.revealed > * { opacity: 1; transform: translateY(0); }
+
+.staggerGrid.revealed > *:nth-child(1) { transition-delay: 0ms; }
+.staggerGrid.revealed > *:nth-child(2) { transition-delay: 90ms; }
+.staggerGrid.revealed > *:nth-child(3) { transition-delay: 180ms; }
+.staggerGrid.revealed > *:nth-child(4) { transition-delay: 270ms; }
+.staggerGrid.revealed > *:nth-child(5) { transition-delay: 360ms; }
+.staggerGrid.revealed > *:nth-child(n+6) { transition-delay: 420ms; }
 
 .moduleCard {
   display: flex;
@@ -428,8 +465,10 @@
 .whatsNewLink:hover { text-decoration: underline; }
 
 @media (max-width: 768px) {
-  .header { padding: var(--space-3) var(--space-4); }
-  .main   { padding: var(--space-6) var(--space-4); gap: var(--space-8); }
+  .header    { padding: var(--space-3) var(--space-4); }
+  .band      { padding: var(--space-8) 0; }
+  .heroBand  { padding-top: var(--space-6); }
+  .bandInner { padding: 0 var(--space-4); }
   .hero   { grid-template-columns: 1fr; gap: var(--space-4); padding: var(--space-5); }
   .heroXP { min-width: unset; width: 100%; }
   .greetingBtn h1 { font-size: 1.5rem; }
