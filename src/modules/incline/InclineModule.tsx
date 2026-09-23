@@ -1,15 +1,22 @@
 import { useRef, useState, useEffect } from 'react';
 import { useHiDPICanvas } from '../../components/canvas/useHiDPICanvas';
-import { computeInclineForces, type InclineParams } from '../../core/physics/incline';
+import { computeInclineForces, validateFBD, type InclineParams, type FBDVector, type FBDValidationResult } from '../../core/physics/incline';
 import { POEShell } from '../../components/poe/POEShell';
 import { FormulaPanel } from '../../components/ui/FormulaPanel';
 import { useGameStore } from '../../core/store/gameStore';
 import { useSessionStore, type ExplainQuestion } from '../../core/store/sessionStore';
 import { ConceptNotes } from '../../components/concepts/ConceptNotes';
 import { INCLINE_CONCEPTS, INCLINE_CHALLENGE } from './inclineConcepts';
+import { InclineFBDPlacer, MAX_ARROW_LEN, pixelVectorToForce, type PlacedVector } from './InclineFBDPlacer';
 import styles from './InclineModule.module.css';
 
-const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
+const EMPTY_VECTORS: Record<PlacedVector['id'], { dx: number; dy: number }> = {
+  weight: { dx: 0, dy: 0 },
+  normal: { dx: 0, dy: 0 },
+  friction: { dx: 0, dy: 0 },
+};
+
+export const INCLINE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
   {
     id: 'normal-direction',
     question: 'Why does the normal force point perpendicular to the surface — not straight up?',
@@ -283,30 +290,64 @@ export function InclineModule() {
   const [mass, setMass] = useState(5);
   const [validated, setValidated] = useState(false);
   const [firstAttempt, setFirstAttempt] = useState(true);
+  const [vectors, setVectors] = useState(EMPTY_VECTORS);
+  const [verifyResult, setVerifyResult] = useState<FBDValidationResult | null>(null);
 
   const inclineParams: InclineParams = { mass, angleDeg, muStatic, muKinetic: muStatic * 0.75 };
   const forces = computeInclineForces(inclineParams);
 
-  const handleValidate = () => {
-    if (firstAttempt) {
-      unlockBadge('force-whisperer');
-      setFirstAttempt(false);
-    }
-    // Only award XP the first time this specific attempt is verified — if the
-    // student uses Back to revisit Predict and re-verifies, this is a no-op.
-    if (!validated) addXP(25);
-    setValidated(true);
-    setPOEPhase('observe');
+  const handleVectorChange = (id: PlacedVector['id'], dx: number, dy: number) => {
+    setVectors((prev) => ({ ...prev, [id]: { dx, dy } }));
   };
 
-  // "Try Again" resets the attempt so re-verifying can't re-award XP for the
-  // same click; firstAttempt is intentionally left alone since that badge is
-  // meant to be earned once, ever, not once per retry.
+  const handleResetVectors = () => {
+    setVectors(EMPTY_VECTORS);
+    setVerifyResult(null);
+  };
+
+  const allVectorsPlaced = (['weight', 'normal', 'friction'] as const).every(
+    (id) => Math.sqrt(vectors[id].dx ** 2 + vectors[id].dy ** 2) >= 6
+  );
+
+  // Real drag-and-place validation: the student's dragged vectors are
+  // converted back to (magnitude, angle) using the same scale the placer
+  // drew them with, then checked against the actual physics. Only a fully
+  // correct diagram (all 3 vectors within tolerance) advances the phase —
+  // this is what finally makes the "perfect FBD on the first attempt"
+  // badge description true; previously any click here always "succeeded".
+  const handleValidate = () => {
+    const scale = MAX_ARROW_LEN / Math.max(forces.weight, 1);
+    const studentVectors: FBDVector[] = (['weight', 'normal', 'friction'] as const).map((id) => {
+      const { magnitude, angleDeg: vecAngle } = pixelVectorToForce(vectors[id].dx, vectors[id].dy, scale);
+      return { id, magnitude, angleDeg: vecAngle };
+    });
+    const result = validateFBD(studentVectors, forces, angleDeg);
+    setVerifyResult(result);
+
+    if (result.isValid) {
+      if (firstAttempt) unlockBadge('force-whisperer');
+      // Only award XP the first time this specific attempt is verified — if the
+      // student uses Back to revisit Predict and re-verifies, this is a no-op.
+      if (!validated) addXP(25);
+      setValidated(true);
+      setPOEPhase('observe');
+    }
+    setFirstAttempt(false);
+  };
+
+  // "Try Again" resets firstAttempt too — now that verification is real,
+  // fumbling the drag interaction on a genuine first try (before you've
+  // gotten the hang of it) shouldn't permanently lock out the "perfect on
+  // the first attempt" badge for the rest of the session; a fresh run
+  // through the module earns a fresh first attempt.
   const handleTryAgain = () => {
     setAngleDeg(30);
     setMuStatic(0.4);
     setMass(5);
     setValidated(false);
+    setVectors(EMPTY_VECTORS);
+    setVerifyResult(null);
+    setFirstAttempt(true);
   };
 
   const handleComplete = (score: number) => {
@@ -320,15 +361,15 @@ export function InclineModule() {
       <div className={styles.sliders}>
         <div className="slider-wrap">
           <label className="slider-label" htmlFor="inc-angle">Incline Angle <span className="value">{angleDeg}°</span></label>
-          <input id="inc-angle" type="range" min="5" max="75" step="1" value={angleDeg} onChange={(e) => { setAngleDeg(+e.target.value); setValidated(false); }} />
+          <input id="inc-angle" type="range" min="5" max="75" step="1" value={angleDeg} onChange={(e) => { setAngleDeg(+e.target.value); setValidated(false); setVerifyResult(null); }} />
         </div>
         <div className="slider-wrap">
           <label className="slider-label" htmlFor="inc-mu">Static Friction (μₛ) <span className="value">{muStatic.toFixed(2)}</span></label>
-          <input id="inc-mu" type="range" min="0.1" max="0.9" step="0.05" value={muStatic} onChange={(e) => { setMuStatic(+e.target.value); setValidated(false); }} />
+          <input id="inc-mu" type="range" min="0.1" max="0.9" step="0.05" value={muStatic} onChange={(e) => { setMuStatic(+e.target.value); setValidated(false); setVerifyResult(null); }} />
         </div>
         <div className="slider-wrap">
           <label className="slider-label" htmlFor="inc-mass">Mass (m) <span className="value">{mass} kg</span></label>
-          <input id="inc-mass" type="range" min="1" max="20" step="1" value={mass} onChange={(e) => { setMass(+e.target.value); setValidated(false); }} />
+          <input id="inc-mass" type="range" min="1" max="20" step="1" value={mass} onChange={(e) => { setMass(+e.target.value); setValidated(false); setVerifyResult(null); }} />
         </div>
       </div>
 
@@ -353,11 +394,30 @@ export function InclineModule() {
         </div>
       </div>
 
-      <p className={styles.hint}>Predicted whether it slides? Verify your FBD to see the real force vectors.</p>
+      <div className={styles.fbdBuilder}>
+        <p className={styles.hint}>
+          🖱️ <strong>Drag each force out from the block</strong> — direction AND length both matter. Use the numbers above to work out what each vector should be, then place it.
+        </p>
+        <InclineFBDPlacer angleDeg={angleDeg} forces={forces} vectors={vectors} onChange={handleVectorChange} />
+        <button className="btn btn--secondary" onClick={handleResetVectors} disabled={!allVectorsPlaced && !verifyResult}>
+          ↺ Reset Vectors
+        </button>
+      </div>
 
-      <button className="btn btn--primary" onClick={handleValidate}>
+      {verifyResult && !verifyResult.isValid && (
+        <div className={styles.fbdFeedback} role="alert">
+          <p><strong>Score: {verifyResult.score}%</strong> — not quite right yet:</p>
+          <ul>
+            {verifyResult.errors.map((err, i) => <li key={i}>{err}</li>)}
+          </ul>
+          <p className={styles.fbdFeedbackHint}>Adjust the vectors above and verify again.</p>
+        </div>
+      )}
+
+      <button className="btn btn--primary" onClick={handleValidate} disabled={!allVectorsPlaced}>
         ⚡ Verify My FBD
       </button>
+      {!allVectorsPlaced && <p className={styles.hint}>Place all three vectors (W, N, f) before verifying.</p>}
     </div>
   );
 
@@ -408,7 +468,7 @@ export function InclineModule() {
         moduleId="incline"
         predictComponent={PredictPhase}
         observeComponent={ObservePhase}
-        explainQuestions={EXPLAIN_QUESTIONS}
+        explainQuestions={INCLINE_EXPLAIN_QUESTIONS}
         onComplete={handleComplete}
         onTryAgain={handleTryAgain}
         predictHint="Before reading the 'Block will...' readout below, try comparing the two numbers just above it yourself: the ∥ component (pulling the block down the slope) versus the Max Static Friction (the most grip the surface can offer). Whichever one is bigger wins."

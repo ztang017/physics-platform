@@ -9,7 +9,7 @@ import { ConceptNotes } from '../../components/concepts/ConceptNotes';
 import { COLLISION_CONCEPTS, COLLISION_CHALLENGE } from './collisionConcepts';
 import styles from './CollisionModule.module.css';
 
-const EXPLAIN_QUESTIONS: ExplainQuestion[] = [
+export const COLLISION_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
   {
     id: 'momentum-conserved',
     question: 'After the collision, total momentum is:',
@@ -399,7 +399,7 @@ export function CollisionModule() {
         moduleId="collision"
         predictComponent={PredictPhase}
         observeComponent={ObservePhase}
-        explainQuestions={EXPLAIN_QUESTIONS}
+        explainQuestions={COLLISION_EXPLAIN_QUESTIONS}
         onComplete={handleComplete}
         onTryAgain={handleTryAgain}
         predictHint="Total momentum before the collision must equal total momentum after — that's the one rule that never breaks. Think about a heavy cart hitting a much lighter one: for momentum (mass × velocity) to balance out, what does that usually mean for how fast the lighter cart ends up moving?"

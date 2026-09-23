@@ -1,10 +1,12 @@
 import React, { type ReactNode, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSessionStore, type ExplainQuestion, type POEPhase } from '../../core/store/sessionStore';
+import { useSRSStore } from '../../core/store/srsStore';
+import type { ModuleId } from '../../core/store/gameStore';
 import styles from './POEShell.module.css';
 
 interface POEShellProps {
-  moduleId: string;
+  moduleId: ModuleId;
   predictComponent: ReactNode;
   observeComponent: ReactNode;
   explainQuestions: ExplainQuestion[];
@@ -42,6 +44,7 @@ export function POEShell({
 }: POEShellProps) {
   const { poePhase, setPOEPhase, answerExplainQuestion, sessionScore, addScore, resetSession, setModule } =
     useSessionStore();
+  const recordSRSAnswer = useSRSStore((s) => s.recordAnswer);
 
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -108,6 +111,7 @@ export function POEShell({
 
       if (idx === q.correctIndex) {
         answerExplainQuestion(q.id, idx);
+        recordSRSAnswer(moduleId, q.id, true);
         addScore(Math.round(100 / explainQuestions.length));
         setRevealed(true);
       } else if (hasRetryLeft) {
@@ -117,6 +121,7 @@ export function POEShell({
       } else {
         // Second miss: record it and reveal the correct answer.
         answerExplainQuestion(q.id, idx);
+        recordSRSAnswer(moduleId, q.id, false);
         setRevealed(true);
       }
     };

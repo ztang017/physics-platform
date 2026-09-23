@@ -8,6 +8,7 @@ import { BadgeDisplay } from '../components/ui/BadgeDisplay';
 import { FormulaSheetButton } from '../components/formulaSheet/FormulaSheetButton';
 import { NotesButton } from '../components/notes/NotesButton';
 import { StudyBuddyButton } from '../components/studyBuddy/StudyBuddyButton';
+import { SpacedReviewButton } from '../components/review/SpacedReviewButton';
 import { FeedbackForm } from '../components/feedback/FeedbackForm';
 import { Reveal } from '../components/scroll/Reveal';
 import { ScrollProgressBar } from '../components/scroll/ScrollProgressBar';
@@ -144,6 +145,7 @@ export function Dashboard() {
           </div>
         </div>
         <div className={styles.headerRight}>
+          <SpacedReviewButton />
           <StudyBuddyButton />
           <NotesButton />
           <FormulaSheetButton />
