@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { HashRouter, Routes, Route, Link, useParams } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
 import { KinematicsModule } from './modules/kinematics/KinematicsModule';
@@ -13,9 +13,13 @@ import { NotesPanel } from './components/notes/NotesPanel';
 import { NotesButton } from './components/notes/NotesButton';
 import { StudyBuddyPanel } from './components/studyBuddy/StudyBuddyPanel';
 import { StudyBuddyButton } from './components/studyBuddy/StudyBuddyButton';
+import { WhatsNewModal } from './components/whatsNew/WhatsNewModal';
+import { useUIStore } from './core/store/uiStore';
 import type { NotesSection } from './core/store/notesStore';
 import type { ModuleId } from './core/store/gameStore';
 import styles from './App.module.css';
+
+const WHATS_NEW_SESSION_KEY = 'physicslab-whatsnew-shown';
 
 const MODULE_MAP: Record<string, React.ReactElement> = {
   kinematics: <KinematicsModule />,
@@ -68,6 +72,17 @@ function LoadingFallback() {
 }
 
 export default function App() {
+  const openWhatsNew = useUIStore((s) => s.openWhatsNew);
+
+  // Once per browser session (sessionStorage, not localStorage) — a fresh
+  // tab/session sees it again, but navigating between pages in the same
+  // session doesn't retrigger it.
+  useEffect(() => {
+    if (sessionStorage.getItem(WHATS_NEW_SESSION_KEY)) return;
+    sessionStorage.setItem(WHATS_NEW_SESSION_KEY, '1');
+    openWhatsNew();
+  }, [openWhatsNew]);
+
   return (
     <HashRouter>
       <Suspense fallback={<LoadingFallback />}>
@@ -79,6 +94,7 @@ export default function App() {
       <FormulaSheet />
       <NotesPanel />
       <StudyBuddyPanel />
+      <WhatsNewModal />
     </HashRouter>
   );
 }

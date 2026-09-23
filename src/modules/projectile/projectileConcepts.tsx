@@ -1,5 +1,7 @@
 import { type ConceptSection } from '../../components/concepts/ConceptNotes';
 import { TryIt } from '../../components/concepts/TryIt';
+import { RevealAnswer } from '../../components/concepts/RevealAnswer';
+import { Katex } from '../../components/ui/Katex';
 
 export const PROJECTILE_CONCEPTS: ConceptSection[] = [
   {
@@ -94,6 +96,42 @@ export const PROJECTILE_CONCEPTS: ConceptSection[] = [
             : vals.theta < 45
             ? 'Below 45°, the shot is flatter and lands sooner — try pushing the angle toward 45° to go further.'
             : 'Above 45°, the shot goes higher but spends more time exposed to gravity pulling it down before it travels as far.'
+        }
+      />
+    ),
+  },
+];
+
+// ─── Challenge Yourself: H3 / calculus-based extension ─────────────────────────
+export const PROJECTILE_CHALLENGE: ConceptSection[] = [
+  {
+    id: 'optimizing-range-with-derivatives',
+    icon: '📐',
+    title: 'Optimizing Range with Derivatives',
+    body: [
+      'You already know 45° maximizes range — but WHY 45° specifically, beyond "sin(2θ) peaks there"? Calculus gives a general tool for finding a maximum of any function: at the peak, its slope (derivative) is exactly zero, because the function is momentarily flat right before it turns around and starts decreasing.',
+      'Treat range as a function of angle, R(θ) = (v₀²/g)sin(2θ), and differentiate with respect to θ using the chain rule: dR/dθ = (v₀²/g) · 2cos(2θ) = (2v₀²/g)cos(2θ). Setting this equal to zero: cos(2θ) = 0, which happens when 2θ = 90°, i.e. θ = 45°.',
+      "This is the same technique used to optimize almost anything in physics and engineering — cost, energy, stress, range — find the derivative, set it to zero, solve for the variable.",
+    ],
+    formulaLatex: '\\dfrac{dR}{d\\theta} = \\dfrac{2v_0^2}{g}\\cos(2\\theta) = 0 \\quad\\Rightarrow\\quad \\theta = 45°',
+    symbols: [
+      { symbol: 'dR/dθ', meaning: 'The rate at which range changes as launch angle changes' },
+    ],
+  },
+  {
+    id: 'projectile-self-check',
+    icon: '✅',
+    title: 'Self-Check',
+    body: [],
+    interactive: (
+      <RevealAnswer
+        question="Differentiate R(θ) = (v₀²/g)sin(2θ) and confirm that θ = 45° is where dR/dθ = 0, not just a value that happens to maximize sin(2θ)."
+        answer={
+          <>
+            <p>Using the chain rule on sin(2θ), the derivative of the inner function 2θ is 2, so:</p>
+            <Katex latex={'\\dfrac{dR}{d\\theta} = \\dfrac{v_0^2}{g}\\cdot 2\\cos(2\\theta)'} displayMode />
+            <p>Setting dR/dθ = 0 means cos(2θ) = 0 (since v₀²/g ≠ 0). cos is zero at 90°, so 2θ = 90°, giving <strong>θ = 45°</strong> — confirming the maximum algebraically rather than just reading it off a graph.</p>
+          </>
         }
       />
     ),

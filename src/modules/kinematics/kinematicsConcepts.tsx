@@ -1,5 +1,7 @@
 import { type ConceptSection } from '../../components/concepts/ConceptNotes';
 import { TryIt } from '../../components/concepts/TryIt';
+import { RevealAnswer } from '../../components/concepts/RevealAnswer';
+import { Katex } from '../../components/ui/Katex';
 
 export const KINEMATICS_CONCEPTS: ConceptSection[] = [
   {
@@ -92,6 +94,72 @@ export const KINEMATICS_CONCEPTS: ConceptSection[] = [
           result === 0
             ? 'Zero velocity or zero time means nothing has moved yet.'
             : `At a constant ${vals.v} m/s, the object ends up ${Math.abs(result).toFixed(1)} m ${result >= 0 ? 'ahead of' : 'behind'} where it started — this is the area under a flat line on a v-t graph.`
+        }
+      />
+    ),
+  },
+];
+
+// ─── Challenge Yourself: H3 / calculus-based extension ─────────────────────────
+// Optional enrichment for students moving into calculus-based mechanics. It
+// deliberately reframes formulas already taught above as calculus statements,
+// rather than introducing new physics — the goal is recognition, not a new
+// syllabus grafted on top of a beginner module.
+export const KINEMATICS_CHALLENGE: ConceptSection[] = [
+  {
+    id: 'derivatives-of-motion',
+    icon: '📐',
+    title: 'Derivatives: The Calculus Behind the Slopes',
+    body: [
+      "You already know velocity is the slope of an x-t graph, and acceleration is the slope of a v-t graph. Calculus just gives that idea a name and a symbol: the slope AT AN INSTANT is called a derivative, written dx/dt.",
+      'So velocity is formally defined as v(t) = dx/dt — the instantaneous rate of change of position. Acceleration is the derivative of velocity, a(t) = dv/dt, which makes it the SECOND derivative of position: a(t) = d²x/dt². Every "slope of the graph" statement from the basics section above is really this, just without the notation.',
+    ],
+    formulaLatex: 'v(t) = \\dfrac{dx}{dt} \\qquad\\qquad a(t) = \\dfrac{dv}{dt} = \\dfrac{d^2x}{dt^2}',
+    symbols: [
+      { symbol: 'dx/dt', meaning: 'The instantaneous rate of change of position — velocity' },
+      { symbol: 'd²x/dt²', meaning: 'The rate of change of velocity — acceleration, found by differentiating twice' },
+    ],
+  },
+  {
+    id: 'integrating-variable-acceleration',
+    icon: '∫',
+    title: 'Integrating Variable Acceleration',
+    body: [
+      "The constant-acceleration equations (v = v₀ + at, x = x₀ + v₀t + ½at²) aren't arbitrary — they're what you get from integrating a(t) = a (a constant) once to get v(t), then integrating again to get x(t). Integration is the reverse of differentiation: instead of finding a slope, you're finding the area under a graph, which accumulates change over time.",
+      "This matters because real acceleration often ISN'T constant. Suppose a(t) = 6t (it grows steadily with time) and the object starts from rest at the origin. Integrating once: v(t) = ∫6t dt = 3t² + C. Since v(0) = 0, C = 0, so v(t) = 3t². Integrating again: x(t) = ∫3t² dt = t³ + C. Since x(0) = 0, C = 0, so x(t) = t³.",
+      'None of the algebra-based formulas above could handle this case — they only work when a is constant. This is exactly the situation H3/university mechanics is built to handle.',
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Velocity v(t) = ½kt²"
+        resultUnit="m/s"
+        formulaLatex={'a(t) = kt \\quad\\Rightarrow\\quad v(t) = \\int_0^t kt\\,dt = \\tfrac{1}{2}kt^2'}
+        variables={[
+          { id: 'k', label: 'Rate constant (k)', min: 0.5, max: 6, step: 0.5, defaultValue: 2, unit: 'm/s³' },
+          { id: 't', label: 'Time (t)', min: 0, max: 6, step: 0.5, defaultValue: 2, unit: 's' },
+        ]}
+        compute={({ k, t }) => 0.5 * k * t * t}
+        interpret={(vals, result) =>
+          `With acceleration growing linearly as a(t) = ${vals.k}t, integrating gives v(t) = ½(${vals.k})t² — at t = ${vals.t}s that works out to ${result.toFixed(1)} m/s, starting from rest.`
+        }
+      />
+    ),
+  },
+  {
+    id: 'kinematics-self-check',
+    icon: '✅',
+    title: 'Self-Check',
+    body: [],
+    interactive: (
+      <RevealAnswer
+        question="An object starts from rest and experiences acceleration a(t) = 4t (m/s²). What is its velocity at t = 3 s?"
+        answer={
+          <>
+            <p>Integrate a(t) with respect to time: v(t) = ∫4t dt = 2t² + C.</p>
+            <Katex latex={'v(t) = 2t^2 + C'} displayMode />
+            <p>Since the object starts from rest, v(0) = 0, so C = 0, giving v(t) = 2t².</p>
+            <p>At t = 3 s: v(3) = 2(3)² = 2(9) = <strong>18 m/s</strong>.</p>
+          </>
         }
       />
     ),

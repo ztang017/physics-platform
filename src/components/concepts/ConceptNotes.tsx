@@ -27,27 +27,36 @@ interface ConceptNotesProps {
   title: string;
   intro: string;
   sections: ConceptSection[];
+  /** 'challenge' reuses the same accordion mechanics but with a visually
+   *  distinct, clearly-optional "advanced" treatment — used for the
+   *  calculus-based Challenge Yourself extensions rather than duplicating
+   *  this whole component for a different color scheme. */
+  variant?: 'basics' | 'challenge';
 }
 
 /** A collapsible "learn this first" panel of beginner-friendly explanations,
  * shown above a module's Predict/Observe/Explain cycle. Closed by default so it
  * never gets in the way of a student who already knows the material. */
-export function ConceptNotes({ title, intro, sections }: ConceptNotesProps) {
+export function ConceptNotes({ title, intro, sections, variant = 'basics' }: ConceptNotesProps) {
   const [open, setOpen] = useState(false);
   const [openSectionId, setOpenSectionId] = useState<string | null>(sections[0]?.id ?? null);
+  const isChallenge = variant === 'challenge';
 
   return (
     <div className={styles.wrap}>
       <button
         type="button"
-        className={styles.toggle}
+        className={`${styles.toggle} ${isChallenge ? styles.toggleChallenge : ''}`}
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls="concept-notes-panel"
       >
-        <span className={styles.toggleIcon}>📘</span>
+        <span className={styles.toggleIcon}>{isChallenge ? '🧮' : '📘'}</span>
         <span className={styles.toggleText}>
-          <span className={styles.toggleTitle}>New to {title}? Learn the concepts first</span>
+          <span className={styles.toggleTitle}>
+            {isChallenge ? `Challenge Yourself: ${title}` : `New to ${title}? Learn the concepts first`}
+            {isChallenge && <span className={styles.challengeBadge}>H3 · Calculus · Optional</span>}
+          </span>
           <span className={styles.toggleSub}>{intro}</span>
         </span>
         <span className={`${styles.chevron} ${open ? styles.chevronOpen : ''}`} aria-hidden="true">▾</span>
