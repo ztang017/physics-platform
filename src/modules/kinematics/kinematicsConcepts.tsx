@@ -72,6 +72,29 @@ export const KINEMATICS_CONCEPTS: ConceptSection[] = [
     ],
   },
   {
+    id: 'meeting-point',
+    icon: '🤝',
+    title: 'When Two Objects Meet',
+    body: [
+      "Some problems ask you to find WHEN and WHERE two separately-moving objects are in the same place at the same time — a ball thrown after another, two cars pulling away from different points, and so on. This isn't new physics: it's writing a position equation, x(t) = x₀ + v₀t + ½at², for EACH object separately, then setting the two expressions equal to each other and solving for the one shared value of t where they match.",
+      "The only subtlety is keeping a single, consistent clock for both objects. If the second object starts moving Δt seconds after the first, its own equation should use (t − Δt) in place of t everywhere — because by the shared clock time t, the second object has only actually been moving for (t − Δt) seconds.",
+    ],
+    interactive: (
+      <RevealAnswer
+        question="Ball A is thrown straight up at 20 m/s. Exactly 1 s later, Ball B is thrown straight up from the same point at 30 m/s. Measuring t from when Ball A is thrown, when do the two balls meet? (g = 10 m/s²)"
+        answer={
+          <>
+            <p>Write a position equation for each ball, both measured on the same clock t:</p>
+            <Katex latex={'x_A(t) = 20t - 5t^2'} displayMode />
+            <Katex latex={'x_B(t) = 30(t-1) - 5(t-1)^2 \\quad (t \\geq 1)'} displayMode />
+            <p>Set them equal and solve for t — expanding x_B and collecting terms gives t = <strong>1.75 s</strong>.</p>
+            <p>Checking both: x_A(1.75) = 20(1.75) − 5(1.75)² ≈ 19.7 m, and x_B(0.75) = 30(0.75) − 5(0.75)² ≈ 19.7 m — they agree, confirming the two balls pass each other about 19.7 m up.</p>
+          </>
+        }
+      />
+    ),
+  },
+  {
     id: 'reading-graphs',
     icon: '📈',
     title: 'Reading Motion Graphs',

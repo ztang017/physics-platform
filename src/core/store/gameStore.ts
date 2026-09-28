@@ -14,7 +14,8 @@ export type BadgeId =
   | 'momentum-guardian'  // Module 4: complete collision module
   | 'first-steps'        // Complete first module
   | 'halfway-there'      // Complete 2 modules
-  | 'physics-champion';  // Complete all 4 modules
+  | 'physics-champion'   // Complete all 4 modules
+  | 'sharp-shooter';     // Any module: perfect Explain phase, zero wrong answers
 
 export interface Badge {
   id: BadgeId;
@@ -90,6 +91,12 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
     name: 'Physics Champion',
     description: 'Completed all 4 modules!',
     emoji: '🏆',
+  },
+  'sharp-shooter': {
+    id: 'sharp-shooter',
+    name: 'Sharp Shooter',
+    description: 'Answered every Explain-phase question correctly on the first try, in a single module run.',
+    emoji: '🏹',
   },
 };
 

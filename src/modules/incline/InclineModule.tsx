@@ -31,6 +31,14 @@ export const INCLINE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     explanation: 'The normal force is a contact force — surfaces can only push objects perpendicular to their own plane. It cannot pull, and it always opposes the component of force pressing into the surface.',
   },
   {
+    id: 'stacked-boxes-normal',
+    question: 'A 3 kg box rests on top of a 5 kg box, which sits still on a table. What is the normal force between the two boxes (the force the 5 kg box exerts upward on the 3 kg box)? (g = 10 m/s²)',
+    options: ['80 N', '30 N', '50 N', '15 N'],
+    correctIndex: 1,
+    hint: 'Isolate just the TOP box by itself, ignoring the table and the bottom box\'s own weight for a moment — what single force must the bottom box supply to hold up just what\'s resting on it?',
+    explanation: 'Looking at the top box alone, only its own weight (3 kg × 10 m/s² = 30 N) needs to be balanced — the bottom box only has to push up hard enough to support what\'s directly touching it. The full 80 N (both boxes\' combined weight) is what the TABLE must supply to the bottom box, since the table supports everything above it. Each surface only ever has to react to what\'s immediately pressing on it — normal force isn\'t automatically "the whole weight," even when it looks that way for a single block.',
+  },
+  {
     id: 'friction-doubles-mass',
     question: 'If you double the mass of the block (angle unchanged), what happens to the frictional force?',
     options: ['It stays the same', 'It doubles', 'It halves', 'It becomes zero'],
@@ -71,6 +79,14 @@ export const INCLINE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     correctIndex: 1,
     hint: 'N = mg·cos(θ). What does cos(θ) approach as θ approaches 90°?',
     explanation: 'N = mg·cos(θ), and cos(90°) = 0, so the normal force shrinks to zero as the surface becomes vertical — a block can\'t rest on a perfectly vertical wall with nothing else holding it there, which matches the formula perfectly.',
+  },
+  {
+    id: 'contact-force-blocks',
+    question: 'A 4 kg block and a 6 kg block sit in contact on a frictionless table. A 50 N force pushes on the 4 kg block, driving both blocks forward together. What is the contact force between the two blocks?',
+    options: ['50 N', '30 N', '20 N', '10 N'],
+    correctIndex: 1,
+    hint: 'First find the acceleration of the WHOLE 10 kg system using F = ma on the combined mass. Then isolate just the 6 kg block by itself — the only horizontal force touching it is the push from the 4 kg block. What force does that block need to accelerate at that same rate?',
+    explanation: 'Treating both blocks as one 10 kg system: a = F/m = 50/10 = 5 m/s². Now isolate the 6 kg block alone — the only thing touching it is the 4 kg block behind it, so that contact force alone must supply F = ma = 6 × 5 = 30 N. It\'s NOT simply the full 50 N: some of the push (20 N) goes into accelerating the 4 kg block itself, and only the remaining 30 N transmits through to the block behind it — Newton\'s Third Law in action, since the 6 kg block pushes back with the same 30 N.',
   },
 ];
 
@@ -350,9 +366,10 @@ export function InclineModule() {
     setFirstAttempt(true);
   };
 
-  const handleComplete = (score: number) => {
+  const handleComplete = (score: number, perfectExplain: boolean) => {
     addXP(50 + score);
     unlockBadge('equilibrium-master');
+    if (perfectExplain) unlockBadge('sharp-shooter');
     completeModule('incline');
   };
 

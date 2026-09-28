@@ -22,6 +22,31 @@ export const INCLINE_CONCEPTS: ConceptSection[] = [
     ],
   },
   {
+    id: 'normal-force-stacking',
+    icon: '📦',
+    title: 'Normal Force in a Stack',
+    body: [
+      "N = mg only tells the whole story when a single object sits directly on the ground with nothing else involved. As soon as objects are STACKED — a box on a box, a book on a box on a table — each surface only has to react to whatever is ACTUALLY pressing on it, not automatically 'the whole weight'.",
+      "The trick is to work from the TOP down. Isolate the topmost object by itself: the only thing touching it from below is the object right underneath, so that contact force has to equal just the top object's own weight — nothing more. Move down one level, and THAT surface now supports everything above it: the object directly on it, plus everything that object is itself holding up.",
+      "This is why the table under a stack of boxes has to push back with the COMBINED weight of everything above it, even though no single box between the table and the top one 'feels' that whole total directly — the load simply passes down, one contact force at a time, growing by one box's weight at each level.",
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Normal force the table exerts on the bottom box"
+        resultUnit="N"
+        formulaLatex={'N_{table} = (m_{top} + m_{bottom})\\,g'}
+        variables={[
+          { id: 'topMass', label: 'Top box mass', min: 1, max: 10, step: 1, defaultValue: 3, unit: 'kg' },
+          { id: 'bottomMass', label: 'Bottom box mass', min: 1, max: 15, step: 1, defaultValue: 5, unit: 'kg' },
+        ]}
+        compute={({ topMass, bottomMass }) => (topMass + bottomMass) * 10}
+        interpret={({ topMass }, result) =>
+          `The table pushes up on the bottom box with ${result.toFixed(0)} N — the COMBINED weight. But the bottom box only has to push up on the top box with ${(topMass * 10).toFixed(0)} N, since that's all that's actually resting on it.`
+        }
+      />
+    ),
+  },
+  {
     id: 'decomposing-gravity',
     icon: '📐',
     title: 'Decomposing Gravity on a Slope',
@@ -87,6 +112,38 @@ export const INCLINE_CONCEPTS: ConceptSection[] = [
       { symbol: 'θ_{critical}', meaning: 'The tilt angle at which sliding just begins', unit: 'degrees' },
       { symbol: 'μ_s', meaning: 'Coefficient of static friction of the surface pair' },
     ],
+  },
+  {
+    id: 'contact-forces',
+    icon: '🧱',
+    title: 'Contact Forces Between Pushed Objects',
+    body: [
+      "Blocks don't need a slope to require a careful free-body diagram. Push two blocks that are touching each other, and the block in FRONT only feels a contact push from the block BEHIND it — nothing else is touching it horizontally. That single contact force is entirely what accelerates the front block, by Newton's Second Law applied to it alone.",
+      "The trick to these problems: first treat the touching objects as ONE combined system to find their shared acceleration, using F = ma with the TOTAL mass. Then isolate just ONE of the objects — usually the one with only a single force acting on it — and apply F = ma to it individually. The only unknown left in that equation is the contact force itself.",
+      "Newton's Third Law then guarantees the force the front block pushes back on the block behind it is exactly equal and opposite — same size, opposite direction, no matter what the two masses are.",
+    ],
+    formulaLatex: 'a = \\dfrac{F}{m_1+m_2} \\qquad\\qquad F_{contact} = m_2 a',
+    symbols: [
+      { symbol: 'F', meaning: 'The single external push applied to the front block', unit: 'N' },
+      { symbol: 'm_1, m_2', meaning: 'Mass of the pushed (front) block and the block behind it', unit: 'kg' },
+      { symbol: 'F_{contact}', meaning: "The contact force transmitted to the block being pushed from behind", unit: 'N' },
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Contact force on the back block"
+        resultUnit="N"
+        formulaLatex={'F_{contact} = F \\cdot \\dfrac{m_2}{m_1+m_2}'}
+        variables={[
+          { id: 'appliedForce', label: 'Applied force (F)', min: 10, max: 100, step: 5, defaultValue: 50, unit: 'N' },
+          { id: 'm1', label: 'Front block mass (m₁)', min: 1, max: 10, step: 1, defaultValue: 4, unit: 'kg' },
+          { id: 'm2', label: 'Back block mass (m₂)', min: 1, max: 10, step: 1, defaultValue: 6, unit: 'kg' },
+        ]}
+        compute={({ appliedForce, m1, m2 }) => (appliedForce * m2) / (m1 + m2)}
+        interpret={({ appliedForce, m1, m2 }, result) =>
+          `The whole system accelerates at ${(appliedForce / (m1 + m2)).toFixed(2)} m/s². Only ${result.toFixed(1)} N of the ${appliedForce} N push actually reaches the back block — the rest (${(appliedForce - result).toFixed(1)} N) goes into accelerating the front block itself.`
+        }
+      />
+    ),
   },
 ];
 

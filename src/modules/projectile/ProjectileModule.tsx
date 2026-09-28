@@ -328,9 +328,10 @@ export function ProjectileModule() {
     }
   };
 
-  const handleComplete = (score: number) => {
+  const handleComplete = (score: number, perfectExplain: boolean) => {
     addXP(50 + score);
     unlockBadge('trajectory-ace');
+    if (perfectExplain) unlockBadge('sharp-shooter');
     completeModule('projectile');
   };
 

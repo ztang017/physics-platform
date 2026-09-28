@@ -10,7 +10,10 @@ interface POEShellProps {
   predictComponent: ReactNode;
   observeComponent: ReactNode;
   explainQuestions: ExplainQuestion[];
-  onComplete: (score: number) => void;
+  /** `perfectExplain` is true only if every Explain-phase question in this run
+   *  was answered correctly on the FIRST attempt — used to award the
+   *  "Sharp Shooter" badge without needing new persisted state per module. */
+  onComplete: (score: number, perfectExplain: boolean) => void;
   predictCorrect?: boolean; // parent sets this when prediction is evaluated
   /** Optional scaffolding shown in the Predict phase behind a "Need a hint?"
    *  reveal — unlike the Explain-phase hint (only shown after a wrong guess),
@@ -54,6 +57,10 @@ export function POEShell({
   const [revealed, setRevealed] = useState(false);
   const [observeReady, setObserveReady] = useState(false);
   const [predictHintOpen, setPredictHintOpen] = useState(false);
+  // Tracks whether every Explain question so far has been answered correctly
+  // on the first attempt — one wrong guess anywhere in the run clears it for
+  // good, regardless of whether the retry succeeds.
+  const [perfectExplain, setPerfectExplain] = useState(true);
 
   // Reset on mount if a different module is loaded
   React.useEffect(() => {
@@ -64,6 +71,7 @@ export function POEShell({
     setAttemptCount(0);
     setRevealed(false);
     setPredictHintOpen(false);
+    setPerfectExplain(true);
   }, [moduleId]);
 
   // Delay the Observe→Explain button so students must spend time observing
@@ -116,13 +124,16 @@ export function POEShell({
         setRevealed(true);
       } else if (hasRetryLeft) {
         // First miss: nudge only, let them try again — don't record or reveal yet.
+        // Still disqualifies this run from "Sharp Shooter" even if the retry succeeds.
         setAttemptCount(1);
         setRevealed(false);
+        setPerfectExplain(false);
       } else {
         // Second miss: record it and reveal the correct answer.
         answerExplainQuestion(q.id, idx);
         recordSRSAnswer(moduleId, q.id, false);
         setRevealed(true);
+        setPerfectExplain(false);
       }
     };
 
@@ -138,7 +149,7 @@ export function POEShell({
       setRevealed(false);
       if (currentQuestionIdx + 1 >= explainQuestions.length) {
         setPOEPhase('complete');
-        onComplete(sessionScore);
+        onComplete(sessionScore, perfectExplain);
       } else {
         setCurrentQuestionIdx((i) => i + 1);
       }
@@ -240,6 +251,7 @@ export function POEShell({
                 resetSession();
                 setModule(moduleId);
                 setCurrentQuestionIdx(0);
+                setPerfectExplain(true);
                 onTryAgain?.();
               }}
             >
