@@ -19,6 +19,14 @@ export const COLLISION_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     explanation: 'Momentum is always conserved in a closed system. This is Newton\'s Third Law in action — the impulse cart 1 exerts on cart 2 is equal and opposite to what cart 2 exerts on cart 1.',
   },
   {
+    id: 'cm-invariance-boat',
+    question: 'A 60 kg person stands still on a 40 kg boat floating on calm water (no friction from the water). The person then walks 2 m toward the front of the boat, relative to the boat. Since there\'s no external horizontal force on the person+boat system, how far — and which way — does the boat move?',
+    options: ['1.2 m backward (opposite the walk)', '2.0 m backward, same distance as the person\'s step', '0.8 m forward, following the person', 'The boat doesn\'t move at all'],
+    correctIndex: 0,
+    hint: 'Because there\'s no external horizontal force on the person+boat system, their combined centre of mass can\'t shift at all. If the person moves one way, the boat must recoil the opposite way — like a mini rocket — so the two shifts exactly cancel when weighted by mass.',
+    explanation: 'With zero external horizontal force, the centre of mass of person+boat stays fixed. Setting mₚ(Δboat + 2) + m_boat·Δboat = 0 with mₚ = 60 kg and m_boat = 40 kg gives Δboat = −1.2 m — the boat recoils 1.2 m opposite to the person\'s step. The heavier person makes the lighter boat recoil further than the reverse would — the same "action-reaction" idea you use for momentum in a collision, just applied to walking instead of colliding.',
+  },
+  {
     id: 'elastic-vs-inelastic',
     question: 'In a perfectly inelastic collision (e = 0), what is special about the carts afterward?',
     options: ['They bounce apart at equal speeds', 'They stick together and move as one', 'All kinetic energy is converted to momentum', 'Momentum is lost'],
@@ -54,6 +62,22 @@ export const COLLISION_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     correctIndex: 1,
     hint: 'Try it in the simulation: set equal masses and e = 1 (fully elastic). Watch what the FIRST cart does right after impact, not just the second one.',
     explanation: 'For equal masses in a perfectly elastic collision, the incoming cart transfers all of its velocity to the target and stops dead — this is the same reason a stationary cue ball "stops dead" when it strikes another ball head-on in pool.',
+  },
+  {
+    id: 'sequential-collisions',
+    question: 'Cart A (2 kg, moving at 6 m/s) has an elastic head-on collision with an identical stationary Cart B (2 kg). Cart B then goes on to have its own elastic head-on collision with a third identical stationary Cart C (2 kg), further down the track. What is Cart C\'s velocity right after its collision?',
+    options: ['6 m/s', '3 m/s', '2 m/s', '0 m/s'],
+    correctIndex: 0,
+    hint: 'You already know what happens when one cart elastically hits an identical stationary cart: the mover stops, and the target takes off at the mover\'s original speed. Apply that rule TWICE in a row — once for A hitting B, then again for B hitting C.',
+    explanation: 'Equal-mass elastic collisions fully swap velocities. First, A (6 m/s) hits B (stationary): A stops, B takes off at 6 m/s. Then B (now moving at 6 m/s) hits C (stationary): B stops, C takes off at 6 m/s. The velocity passed all the way down the line unchanged — this is exactly the mechanism behind a Newton\'s cradle: each middle ball briefly moves and instantly stops, but the ball on the end flies off carrying the original motion.',
+  },
+  {
+    id: 'collision-2d-momentum',
+    question: 'A 3 kg puck moving east at 4 m/s (so its momentum is entirely in the x-direction) strikes an identical stationary 3 kg puck off-center. After the collision, the first puck moves off with velocity components (2 m/s east, 2 m/s north). What must the SECOND puck\'s velocity components be, for momentum to be conserved in both directions?',
+    options: ['2 m/s east, 2 m/s south', '2 m/s west, 2 m/s north', '2 m/s east, 2 m/s north', '4 m/s east, 2 m/s south'],
+    correctIndex: 0,
+    hint: 'Momentum conservation applies separately to each direction — treat the x-momentum and the y-momentum as two completely independent bookkeeping totals. Before the collision, is there any momentum in the north-south direction at all?',
+    explanation: 'Before the collision, all momentum is eastward: pₓ = 3×4 = 12 kg·m/s, and p_y = 0 (nothing is moving north-south yet). After the collision, puck 1 carries pₓ₁ = 3×2 = 6 and p_y1 = 3×2 = 6. Since totals must stay the same in EACH direction separately: pₓ₂ = 12−6 = 6 → v₂ₓ = 2 m/s east, and p_y2 = 0−6 = −6 → v₂y = −2 m/s (2 m/s south) — the northward y-momentum puck 1 gained must be exactly cancelled by puck 2 heading south, since there was none to begin with. A 2D collision is really just two 1D momentum-conservation problems solved side by side.',
   },
 ];
 
@@ -214,10 +238,11 @@ export function CollisionModule() {
   // real collision here would be misleading).
   const isApproaching = v1 > v2;
 
-  const handleComplete = (score: number) => {
+  const handleComplete = (score: number, perfectExplain: boolean) => {
     addXP(50 + score);
     if (result.isEnergyConserved) unlockBadge('conservationist');
     unlockBadge('momentum-guardian');
+    if (perfectExplain) unlockBadge('sharp-shooter');
     completeModule('collision');
   };
 

@@ -102,6 +102,14 @@ export const KINEMATICS_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     hint: 'Area under a graph is (height) × (base). Here the height is acceleration and the base is time — multiply their units together: (m/s²) × (s) = ?',
     explanation: 'Multiplying acceleration by a time interval gives a change in velocity — so the area under an a-t graph equals Δv over that interval. This is the same idea as area under a v-t graph giving displacement, one level up.',
   },
+  {
+    id: 'rendezvous-calc',
+    question: 'Ball A is thrown straight up at 15 m/s. Exactly 1 second later, Ball B is thrown straight up from the same spot at 25 m/s. Measuring t from the moment Ball A is thrown, at what time do the two balls collide? (g = 10 m/s²)',
+    options: ['1.5 s', '1.0 s', '2.0 s', '2.5 s'],
+    correctIndex: 0,
+    hint: 'Write a position equation x = v₀t − ½gt² for each ball, using the SAME t for both. Ball B\'s clock starts 1 s late, so wherever Ball A\'s equation has "t", Ball B\'s equation should have "(t − 1)". Set the two expressions equal and solve for t.',
+    explanation: 'Using x = v₀t − ½gt² for each ball (with Ball B\'s equation using (t−1) since it launches 1 s late) and setting the two heights equal: 15t − 5t² = 25(t−1) − 5(t−1)². Solving gives t = 1.5 s, at which point both balls are 11.25 m up — confirming the meeting point. It\'s the same position equation you already use, just written twice and solved as a system.',
+  },
 ];
 
 // ─── Simulation Canvas ────────────────────────────────────────────────────────
@@ -517,9 +525,10 @@ export function KinematicsModule() {
   };
 
   // ─── Module Complete ──────────────────────────────────────────────────────────
-  const handleComplete = (score: number) => {
+  const handleComplete = (score: number, perfectExplain: boolean) => {
     addXP(50 + score);
     unlockBadge('motion-maestro');
+    if (perfectExplain) unlockBadge('sharp-shooter');
     completeModule('kinematics');
   };
 

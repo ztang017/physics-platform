@@ -54,6 +54,37 @@ export const COLLISION_CONCEPTS: ConceptSection[] = [
     ],
   },
   {
+    id: 'center-of-mass-invariance',
+    icon: '🛶',
+    title: "The Centre of Mass Doesn't Move (Without an External Push)",
+    body: [
+      "Conservation of momentum has a striking twin: if a system feels no external horizontal force, the CENTRE OF MASS of the whole system can't shift sideways at all — no matter what the objects inside it do to each other. This works even when nothing looks like a 'collision' at all.",
+      "Classic example: a person walks across a stationary rowboat floating on calm water. It looks like just the person is moving — but with every step, the person pushes backward on the boat (Newton's Third Law), and the boat pushes back on the person. As the person moves one way relative to the water, the boat drifts the OTHER way, in exactly the proportion needed so the shared centre of mass of person+boat never actually moves.",
+      "This is really the same law as momentum conservation, just applied to POSITION instead of velocity: since total momentum starts and stays at zero, the weighted-average position of the system (the centre of mass) can't be shifting either — velocity is the rate of change of position, so a total momentum that's always zero means the centre of mass's velocity is always zero too.",
+    ],
+    formulaLatex: '\\Delta x_{boat} = -\\dfrac{m_{person}}{m_{person}+m_{boat}}\\, d',
+    symbols: [
+      { symbol: 'Δx_{boat}', meaning: "The boat's displacement relative to the water (opposite the person's walk)", unit: 'm' },
+      { symbol: 'd', meaning: "The person's displacement relative to the BOAT (how far they walked along the deck)", unit: 'm' },
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Boat displacement (opposite direction to the walk)"
+        resultUnit="m"
+        formulaLatex={'\\Delta x_{boat} = \\dfrac{m_{person}}{m_{person}+m_{boat}}\\,d'}
+        variables={[
+          { id: 'personMass', label: 'Person mass', min: 30, max: 100, step: 5, defaultValue: 60, unit: 'kg' },
+          { id: 'boatMass', label: 'Boat mass', min: 10, max: 100, step: 5, defaultValue: 40, unit: 'kg' },
+          { id: 'walkDist', label: 'Distance walked (relative to boat)', min: 0.5, max: 5, step: 0.5, defaultValue: 2, unit: 'm' },
+        ]}
+        compute={({ personMass, boatMass, walkDist }) => (personMass * walkDist) / (personMass + boatMass)}
+        interpret={({ personMass, boatMass }, result) =>
+          `The heavier the person is relative to the boat, the further the boat recoils — here a ${personMass} kg person on a ${boatMass} kg boat makes it drift ${result.toFixed(2)} m in the opposite direction, keeping the shared centre of mass perfectly fixed.`
+        }
+      />
+    ),
+  },
+  {
     id: 'elastic-vs-inelastic',
     icon: '💥',
     title: 'Elastic vs. Inelastic Collisions',
@@ -61,6 +92,7 @@ export const COLLISION_CONCEPTS: ConceptSection[] = [
       'Momentum is ALWAYS conserved in a collision — that part never changes. Kinetic energy (½mv², the energy of motion) is a different story: in a perfectly ELASTIC collision, like two billiard balls or two hard steel balls, kinetic energy is ALSO conserved — none of it is lost to other forms.',
       'In an INELASTIC collision, like a car crash or a ball of clay hitting the floor, some kinetic energy converts into heat, sound, and permanent deformation of the materials. The objects may even stick together afterward and move as one combined mass — that extreme case is called a perfectly inelastic collision, and it\'s where the MOST kinetic energy possible is lost while still conserving momentum.',
       'Real-world collisions almost always fall somewhere between these two extremes — a small amount of energy is nearly always lost as heat and sound, even in a "bouncy" collision that looks fairly elastic.',
+      "One special case is worth memorizing: when two objects of EQUAL mass have a perfectly elastic head-on collision, they fully swap velocities — the mover stops dead, and the target takes off at exactly the mover's original speed. Chain several equal masses in a row and this swap repeats at each impact, passing the original motion all the way down the line — the mechanism behind a Newton's cradle.",
     ],
   },
   {
@@ -77,6 +109,21 @@ export const COLLISION_CONCEPTS: ConceptSection[] = [
       { symbol: 'e', meaning: 'Coefficient of restitution (0 = stick together, 1 = perfectly bouncy)' },
       { symbol: 'v_{1i}, v_{2i}', meaning: 'Velocities before the collision', unit: 'm/s' },
       { symbol: 'v_{1f}, v_{2f}', meaning: 'Velocities after the collision', unit: 'm/s' },
+    ],
+  },
+  {
+    id: 'momentum-2d',
+    icon: '🧭',
+    title: 'Momentum in Two Dimensions',
+    body: [
+      "Every collision so far has been head-on, along a single line — but real collisions (like two billiard balls meeting off-center) usually send objects off at angles, not straight along the original line of approach. The good news: nothing new is required. Momentum conservation applies SEPARATELY to the x-direction and the y-direction, as two completely independent bookkeeping totals that each have to balance.",
+      "The method: split every velocity into its x- and y-components (exactly like decomposing a launch velocity in the Projectile module, or gravity on the Incline module). Add up all the x-momentum before the collision, and it must equal the total x-momentum after — regardless of what's happening in the y-direction. Do the same separately for y.",
+      "This is especially powerful when one object starts with ALL of its momentum along one axis (say, purely eastward) and nothing at all along the other — any y-momentum that shows up afterward in one object MUST be exactly cancelled by the other, since the y-total started at zero and has to stay at zero.",
+    ],
+    formulaLatex: '\\sum p_x \\text{ (before)} = \\sum p_x \\text{ (after)} \\qquad \\sum p_y \\text{ (before)} = \\sum p_y \\text{ (after)}',
+    symbols: [
+      { symbol: 'p_x', meaning: 'The x-component of momentum, tracked independently of y', unit: 'kg·m/s' },
+      { symbol: 'p_y', meaning: 'The y-component of momentum, tracked independently of x', unit: 'kg·m/s' },
     ],
   },
 ];
