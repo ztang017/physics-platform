@@ -53,6 +53,22 @@ export const PROJECTILE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     hint: 'Range depends on sin(2θ). Compute 2×30° = 60° and 2×60° = 120° — are sin(60°) and sin(120°) the same value or different?',
     explanation: 'sin(60°) = sin(120°) ≈ 0.866, so any pair of launch angles that add up to 90° (called complementary angles) produces exactly equal range — one just gets there quickly and low, the other slowly and high.',
   },
+  {
+    id: 'relative-velocity-same-line',
+    question: 'A boat can travel at 8 m/s in still water. It heads directly downstream on a river flowing at 3 m/s. What is the boat\'s speed relative to the shore?',
+    options: ['11 m/s', '5 m/s', '8 m/s', '24 m/s'],
+    correctIndex: 0,
+    hint: 'Both velocities point the same way — downstream. When two velocities line up along the same direction, how do you combine them?',
+    explanation: 'Since the boat\'s own speed and the current both point downstream (the same direction), their magnitudes simply add: 8 + 3 = 11 m/s relative to the shore. If the boat instead headed upstream against the current, you\'d subtract instead: 8 − 3 = 5 m/s.',
+  },
+  {
+    id: 'relative-velocity-perpendicular',
+    question: 'A boat aimed straight across a river travels at 6 m/s relative to the water. The river\'s current flows at 8 m/s, perpendicular to the boat\'s heading. What is the boat\'s actual speed relative to the shore?',
+    options: ['14 m/s', '10 m/s', '8 m/s', '2 m/s'],
+    correctIndex: 1,
+    hint: 'The boat\'s own velocity and the current point in PERPENDICULAR directions — exactly like the horizontal and vertical pieces of a launch velocity. How do you combine two perpendicular vectors into one resultant?',
+    explanation: 'Because the two velocities are perpendicular, they combine like the legs of a right triangle: resultant = √(6² + 8²) = √(36+64) = √100 = 10 m/s. The boat is NOT actually moving in the direction it\'s pointed — the current drags it downstream even while the boat "aims" straight across, the same tip-to-tail vector addition used for launch velocity components.',
+  },
 ];
 
 // Canvas constants

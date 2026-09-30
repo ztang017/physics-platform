@@ -114,6 +114,37 @@ export const INCLINE_CONCEPTS: ConceptSection[] = [
     ],
   },
   {
+    id: 'accelerating-reference-frames',
+    icon: '🛗',
+    title: 'Accelerating Reference Frames: The Elevator Effect',
+    body: [
+      "Every normal-force calculation so far assumed the ground underneath is NOT accelerating. Stand on a scale inside an accelerating elevator, though, and the reading changes — even though your actual weight (mg) hasn't changed at all. The scale is reporting the NORMAL FORCE, and that depends on your acceleration too, not just gravity.",
+      "Apply Newton's Second Law to you alone, taking 'up' as positive: N − mg = ma, where a is the elevator's acceleration (positive if accelerating upward, negative if accelerating downward). Solving for N gives N = m(g + a) — heavier than your resting weight when accelerating upward, lighter when accelerating downward.",
+      "A useful shortcut: treat it as if gravity were temporarily a different, 'effective' value, g_eff = g + a. Every formula you already know for a stationary incline or floor still works — just substitute g_eff wherever you'd normally use g. This is why a downward-accelerating elevator makes a block on a frictionless incline inside it slide SLOWER than it would sitting still: the effective gravity pulling it down the slope has temporarily shrunk.",
+    ],
+    formulaLatex: 'N = m(g + a) \\qquad\\qquad g_{eff} = g + a',
+    symbols: [
+      { symbol: 'N', meaning: 'Normal force (what a scale would read)', unit: 'N' },
+      { symbol: 'a', meaning: "The elevator's acceleration (positive = upward, negative = downward)", unit: 'm/s²' },
+      { symbol: 'g_{eff}', meaning: 'Effective gravity felt inside the accelerating elevator' },
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Scale reading (normal force)"
+        resultUnit="N"
+        formulaLatex={'N = m(g + a)'}
+        variables={[
+          { id: 'mass', label: 'Person\'s mass', min: 30, max: 100, step: 5, defaultValue: 60, unit: 'kg' },
+          { id: 'elevatorAccel', label: 'Elevator acceleration (+ up / − down)', min: -5, max: 5, step: 0.5, defaultValue: 2, unit: 'm/s²' },
+        ]}
+        compute={({ mass, elevatorAccel }) => mass * (10 + elevatorAccel)}
+        interpret={({ mass, elevatorAccel }, result) =>
+          `Resting weight would read ${(mass * 10).toFixed(0)} N. With the elevator accelerating at ${elevatorAccel} m/s², the scale instead reads ${result.toFixed(0)} N — ${elevatorAccel > 0 ? 'heavier, since the elevator is speeding up going up (or slowing down going down)' : elevatorAccel < 0 ? 'lighter, since the elevator is speeding up going down (or slowing down going up)' : 'unchanged, since there is no acceleration'}.`
+        }
+      />
+    ),
+  },
+  {
     id: 'contact-forces',
     icon: '🧱',
     title: 'Contact Forces Between Pushed Objects',

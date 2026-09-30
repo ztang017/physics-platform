@@ -8,9 +8,13 @@ export interface WhatsNewItem {
 // whether returning visitors get a fresh popup for genuinely new content
 // (not used for the session gate itself, which always fires once per visit
 // regardless of version).
-export const WHATS_NEW_VERSION = '2026-09-29';
+export const WHATS_NEW_VERSION = '2026-09-30';
 
 export const WHATS_NEW_ITEMS: WhatsNewItem[] = [
+  { icon: '🧭', title: 'Relative velocity in Projectile Motion', desc: "New concept notes and Explain questions on combining velocities — a boat crossing a current, aimed with or across the flow — rounding out the 'Kinematics and Relative Velocity' topic from the course syllabus." },
+  { icon: '🛗', title: 'The elevator effect in Incline', desc: "New concept notes and questions on accelerating reference frames — how normal force (and an incline's sliding speed) changes inside an accelerating elevator, using the same effective-gravity trick as real tutorial problems." },
+  { icon: '🪂', title: 'Terminal velocity, derived', desc: "Kinematics' Challenge Yourself section now derives terminal velocity from a = g − kv as a separable differential equation, with a live calculator." },
+  { icon: '🚀', title: 'Rocket thrust from first principles', desc: "Collisions' Challenge Yourself section now covers variable-mass systems — deriving rocket thrust with the product rule on F = d(mv)/dt." },
   { icon: '📚', title: 'Quiz questions matched to real course tutorials', desc: "We cross-checked every module against actual university tutorial sheets and added new Explain questions and concept notes for gaps we found: rendezvous problems in Kinematics, normal-force stacking and contact forces in Incline, and centre-of-mass, chained collisions, and 2D momentum in Collisions." },
   { icon: '🏹', title: 'New badge: Sharp Shooter', desc: 'Answer every Explain-phase question correctly on your first try, in a single module run, to unlock it.' },
   { icon: '🎯', title: 'Projectile fixes', desc: 'Your predicted landing spot now stays on screen to compare against the real one, and the flight actually animates instead of snapping straight to the final line.' },

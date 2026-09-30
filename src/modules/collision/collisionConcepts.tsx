@@ -161,6 +161,36 @@ export const COLLISION_CHALLENGE: ConceptSection[] = [
     ),
   },
   {
+    id: 'variable-mass-rocket-thrust',
+    icon: '🚀',
+    title: 'Variable-Mass Systems: Rocket Thrust',
+    body: [
+      "Newton's Second Law says net force equals dp/dt = d(mv)/dt. Every calculation so far assumed mass stays constant, letting F = ma fall right out. But for a rocket burning fuel — or an astronaut firing a handheld thruster — MASS ITSELF is changing over time, so differentiating d(mv)/dt properly needs the product rule: d(mv)/dt = m(dv/dt) + v(dm/dt). The second term doesn't vanish just because it's inconvenient.",
+      "Here's the trick that makes this manageable: work in the frame where the EXHAUST leaves at a constant speed u relative to the rocket, not relative to the ground. Conserving momentum between the rocket and the tiny bit of ejected mass over an instant dt leads to a clean result: the net thrust force on the rocket is F = u·|dm/dt| — exhaust speed times how fast mass is being flung out the back.",
+      "Notice this looks completely different from F = ma, yet it's the SAME law, just applied to a system where mass isn't fixed. A more powerful thruster ejects fuel faster (bigger dm/dt) or ejects it at higher speed (bigger u) — either one increases thrust, exactly as intuition suggests.",
+    ],
+    formulaLatex: 'F_{thrust} = u\\left|\\dfrac{dm}{dt}\\right|',
+    symbols: [
+      { symbol: 'u', meaning: 'Exhaust speed, measured RELATIVE TO the rocket/thruster', unit: 'm/s' },
+      { symbol: 'dm/dt', meaning: 'Rate at which the rocket loses mass (fuel being ejected)', unit: 'kg/s' },
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Thrust force"
+        resultUnit="N"
+        formulaLatex={'F_{thrust} = u \\cdot \\dfrac{dm}{dt}'}
+        variables={[
+          { id: 'exhaustSpeed', label: 'Exhaust speed (u)', min: 50, max: 1000, step: 10, defaultValue: 490, unit: 'm/s' },
+          { id: 'massFlow', label: 'Mass flow rate (dm/dt)', min: 0.005, max: 0.2, step: 0.005, defaultValue: 0.01, unit: 'kg/s' },
+        ]}
+        compute={({ exhaustSpeed, massFlow }) => exhaustSpeed * massFlow}
+        interpret={({ exhaustSpeed, massFlow }, result) =>
+          `Ejecting mass at ${massFlow.toFixed(3)} kg/s with an exhaust speed of ${exhaustSpeed} m/s produces ${result.toFixed(1)} N of thrust — the same force you'd get from F = ma on a fixed mass, but here it comes entirely from flinging mass away rather than accelerating a constant one.`
+        }
+      />
+    ),
+  },
+  {
     id: 'collision-self-check',
     icon: '✅',
     title: 'Self-Check',
