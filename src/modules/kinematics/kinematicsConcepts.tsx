@@ -169,6 +169,36 @@ export const KINEMATICS_CHALLENGE: ConceptSection[] = [
     ),
   },
   {
+    id: 'terminal-velocity-ode',
+    icon: '🪂',
+    title: 'Terminal Velocity: A Differential Equation',
+    body: [
+      "Every equation so far assumed CONSTANT acceleration. But a falling object with air resistance doesn't accelerate at a constant rate — the faster it falls, the more the air pushes back, so its acceleration actually shrinks over time. Approximately, a = dv/dt = g − kv, where k is a constant capturing how strong the air resistance is. This is a differential equation: it relates v to its OWN derivative, not just to t directly.",
+      "Solving it takes a technique called separation of variables: rearrange so every v term is on one side and every t term is on the other, dv/(g−kv) = dt, then integrate both sides. Starting from rest (v = 0 at t = 0), the result works out to v(t) = (g/k)(1 − e^(−kt)) — velocity that rises quickly at first, then FLATTENS OUT as e^(−kt) shrinks toward zero.",
+      "That flat ceiling is the terminal velocity: as t → ∞, e^(−kt) → 0, so v approaches g/k and never exceeds it. This is exactly why a skydiver stops speeding up after a while and instead falls at a constant, maximum speed — the air resistance has grown large enough to exactly cancel gravity, making the net acceleration zero.",
+    ],
+    formulaLatex: 'a = \\dfrac{dv}{dt} = g - kv \\quad\\Rightarrow\\quad v(t) = \\dfrac{g}{k}\\left(1 - e^{-kt}\\right)',
+    symbols: [
+      { symbol: 'k', meaning: 'A constant capturing how strongly air resistance grows with speed', unit: '1/s' },
+      { symbol: 'v_{max} = g/k', meaning: 'Terminal velocity — the speed v(t) approaches but never exceeds' },
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Velocity at time t"
+        resultUnit="m/s"
+        formulaLatex={'v(t) = \\dfrac{g}{k}\\left(1-e^{-kt}\\right)'}
+        variables={[
+          { id: 'k', label: 'Air-resistance constant (k)', min: 0.1, max: 2, step: 0.1, defaultValue: 0.5, unit: '1/s' },
+          { id: 't', label: 'Time since falling from rest (t)', min: 0, max: 15, step: 0.5, defaultValue: 4, unit: 's' },
+        ]}
+        compute={({ k, t }) => (9.8 / k) * (1 - Math.exp(-k * t))}
+        interpret={({ k, t }, result) =>
+          `With k = ${k}, terminal velocity is g/k ≈ ${(9.8 / k).toFixed(1)} m/s. At t = ${t}s the falling object has reached ${result.toFixed(1)} m/s — ${result / (9.8 / k) > 0.95 ? "already essentially at its terminal speed" : "still speeding up, but the rate of increase is slowing down"}.`
+        }
+      />
+    ),
+  },
+  {
     id: 'kinematics-self-check',
     icon: '✅',
     title: 'Self-Check',

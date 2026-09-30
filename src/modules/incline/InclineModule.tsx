@@ -81,6 +81,22 @@ export const INCLINE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     explanation: 'N = mg·cos(θ), and cos(90°) = 0, so the normal force shrinks to zero as the surface becomes vertical — a block can\'t rest on a perfectly vertical wall with nothing else holding it there, which matches the formula perfectly.',
   },
   {
+    id: 'elevator-normal-force',
+    question: 'A 60 kg person stands on a scale inside an elevator. When the elevator accelerates upward at 2 m/s², what does the scale read? (g = 10 m/s²)',
+    options: ['600 N', '480 N', '720 N', '120 N'],
+    correctIndex: 2,
+    hint: 'Draw the FBD for the person alone: weight down (mg), normal force up (N). The net force must equal ma, and the acceleration points the same way the elevator accelerates — upward. Does N need to be BIGGER or SMALLER than mg to produce a net upward force?',
+    explanation: 'Newton\'s Second Law on the person, taking up as positive: N − mg = ma. Solving: N = m(g+a) = 60×(10+2) = 720 N. The scale reads MORE than resting weight (600 N) whenever the elevator accelerates upward — that extra force is what\'s actually accelerating you upward along with the elevator, matching the "heavier at the start of going up" feeling in a real elevator.',
+  },
+  {
+    id: 'incline-in-elevator',
+    question: 'A block sits on a frictionless incline (angle 30°) inside an elevator. The elevator accelerates DOWNWARD at 2 m/s². What is the block\'s acceleration down the slope, relative to the incline? (g = 10 m/s²)',
+    options: ['4 m/s²', '5 m/s²', '6 m/s²', '8 m/s²'],
+    correctIndex: 0,
+    hint: 'When the elevator accelerates downward, it\'s as if gravity is temporarily "weaker" inside it — swap in an effective gravity g_eff = g − a wherever the usual frictionless-incline formula (a = g·sinθ) uses g.',
+    explanation: 'Inside an accelerating elevator, the incline formula still works if you use an EFFECTIVE gravity: g_eff = g − a for a downward-accelerating elevator (or g + a for upward). Here g_eff = 10 − 2 = 8 m/s², so the block\'s acceleration down the frictionless slope is g_eff·sinθ = 8×sin(30°) = 4 m/s² — slower than it would slide in a stationary elevator (which would give 10×sin(30°) = 5 m/s²), because the downward-accelerating elevator briefly makes everything inside feel lighter.',
+  },
+  {
     id: 'contact-force-blocks',
     question: 'A 4 kg block and a 6 kg block sit in contact on a frictionless table. A 50 N force pushes on the 4 kg block, driving both blocks forward together. What is the contact force between the two blocks?',
     options: ['50 N', '30 N', '20 N', '10 N'],

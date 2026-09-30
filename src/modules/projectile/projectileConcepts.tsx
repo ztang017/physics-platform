@@ -100,6 +100,37 @@ export const PROJECTILE_CONCEPTS: ConceptSection[] = [
       />
     ),
   },
+  {
+    id: 'relative-velocity',
+    icon: '🧭',
+    title: 'Relative Velocity: Combining Two Motions',
+    body: [
+      "So far every velocity has been measured against the ground. But sometimes something moves relative to a medium that is ITSELF moving — a boat crossing a flowing river, a plane flying through wind, a person walking on a moving walkway. What an outside observer on the ground actually sees is the VECTOR SUM of the object's velocity relative to that medium, plus the medium's own velocity relative to the ground.",
+      "When both velocities point along the SAME line — a boat motoring downstream, or a plane flying into a headwind — combining them is just ordinary addition or subtraction: add when they point the same way, subtract when they're opposite.",
+      "It gets more interesting when the two velocities point in DIFFERENT directions, like a boat aimed straight across a river that's flowing sideways. Then you add them as VECTORS, exactly like combining the horizontal and vertical pieces of a launch velocity: draw them tip-to-tail, and the resultant — the boat's actual path over the ground — is the diagonal connecting start to finish.",
+    ],
+    formulaLatex: '\\vec{v}_{ground} = \\vec{v}_{object/medium} + \\vec{v}_{medium/ground}',
+    symbols: [
+      { symbol: 'v_{ground}', meaning: "The object's actual velocity as seen by someone standing still on the ground", unit: 'm/s' },
+      { symbol: 'v_{object/medium}', meaning: "The object's own velocity relative to the medium it's moving through (e.g. a boat's speed through the water)", unit: 'm/s' },
+      { symbol: 'v_{medium/ground}', meaning: "The medium's own velocity relative to the ground (e.g. the current, or the wind)", unit: 'm/s' },
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Boat's actual speed over the ground"
+        resultUnit="m/s"
+        formulaLatex={'v_{ground} = \\sqrt{v_{boat}^2 + v_{current}^2}'}
+        variables={[
+          { id: 'boatSpeed', label: "Boat's speed (aimed straight across)", min: 1, max: 10, step: 0.5, defaultValue: 4, unit: 'm/s' },
+          { id: 'currentSpeed', label: 'Current speed (perpendicular to the boat)', min: 0, max: 8, step: 0.5, defaultValue: 3, unit: 'm/s' },
+        ]}
+        compute={({ boatSpeed, currentSpeed }) => Math.sqrt(boatSpeed * boatSpeed + currentSpeed * currentSpeed)}
+        interpret={({ boatSpeed }, result) =>
+          `Even though the boat is aimed straight across at ${boatSpeed} m/s, the current drags it downstream at the same time — its actual speed over the ground is ${result.toFixed(1)} m/s, along a diagonal path, not the straight line it was pointed at.`
+        }
+      />
+    ),
+  },
 ];
 
 // ─── Challenge Yourself: H3 / calculus-based extension ─────────────────────────
