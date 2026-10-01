@@ -167,3 +167,76 @@ describe('sampleTimelineAt', () => {
     expect(mid.u).toBeLessThan(b.u);
   });
 });
+
+import { expectedRestBars, gradeEnergyBars, firstRestTime, BAR_KEYS, type EnergyBars } from './energy';
+
+describe('expectedRestBars (energy bar chart at the first moment of rest)', () => {
+  it('puts everything into heat when the block stops on the patch', () => {
+    expect(expectedRestBars(computeEnergyRamp(STOPS_BEFORE))).toEqual({ kinetic: 0, gravitational: 0, elastic: 0, heat: 100 });
+  });
+
+  it('splits the energy between the spring and heat at maximum compression', () => {
+    // E0 = 39.2 J, one crossing costs 29.4 J → 75% heat, 25% spring
+    const bars = expectedRestBars(computeEnergyRamp(STOPS_AFTER));
+    expect(bars.heat).toBeCloseTo(75, 6);
+    expect(bars.elastic).toBeCloseTo(25, 6);
+    expect(bars.kinetic).toBe(0);
+    expect(bars.gravitational).toBe(0);
+  });
+
+  it('puts everything into the spring when there is no friction', () => {
+    const bars = expectedRestBars(computeEnergyRamp(FRICTIONLESS));
+    expect(bars.elastic).toBeCloseTo(100, 6);
+    expect(bars.heat).toBe(0);
+  });
+
+  it('always adds up to 100% of the starting energy', () => {
+    for (const p of [STOPS_BEFORE, STOPS_AFTER, RETURNS, FRICTIONLESS]) {
+      const bars = expectedRestBars(computeEnergyRamp(p));
+      expect(BAR_KEYS.reduce((s, k) => s + bars[k], 0)).toBeCloseTo(100, 6);
+    }
+  });
+
+  it('agrees with the simulation at the moment firstRestTime points to', () => {
+    for (const p of [STOPS_BEFORE, STOPS_AFTER, RETURNS, FRICTIONLESS]) {
+      const tl = generateEnergyTimeline(p);
+      const e0 = p.mass * G * p.height;
+      const at = sampleTimelineAt(tl, firstRestTime(tl));
+      const bars = expectedRestBars(computeEnergyRamp(p));
+      expect(at.kinetic / e0 * 100).toBeLessThan(2);
+      expect(at.elastic / e0 * 100).toBeCloseTo(bars.elastic, 0);
+      expect(at.heat / e0 * 100).toBeCloseTo(bars.heat, 0);
+    }
+  });
+});
+
+describe('gradeEnergyBars', () => {
+  const expected: EnergyBars = { kinetic: 0, gravitational: 0, elastic: 25, heat: 75 };
+
+  it('accepts the exact answer and anything within tolerance', () => {
+    expect(gradeEnergyBars(expected, expected).isCorrect).toBe(true);
+    expect(gradeEnergyBars({ kinetic: 0, gravitational: 0, elastic: 30, heat: 70 }, expected).isCorrect).toBe(true);
+  });
+
+  it('flags bars outside tolerance and reports what was expected', () => {
+    const grade = gradeEnergyBars({ kinetic: 0, gravitational: 0, elastic: 40, heat: 60 }, expected);
+    expect(grade.isCorrect).toBe(false);
+    expect(grade.errors.map((e) => e.bar).sort()).toEqual(['elastic', 'heat']);
+    expect(grade.errors.find((e) => e.bar === 'heat')).toEqual({ bar: 'heat', expected: 75, actual: 60 });
+  });
+
+  it('reports whether the bars balance, independently of being correct', () => {
+    const unbalanced = gradeEnergyBars({ kinetic: 0, gravitational: 0, elastic: 25, heat: 50 }, expected);
+    expect(unbalanced.balanced).toBe(false);
+    expect(unbalanced.total).toBe(75);
+    // balanced to 100% but the wrong split
+    const balancedWrong = gradeEnergyBars({ kinetic: 50, gravitational: 0, elastic: 0, heat: 50 }, expected);
+    expect(balancedWrong.balanced).toBe(true);
+    expect(balancedWrong.isCorrect).toBe(false);
+  });
+
+  it('scores a perfect chart 100 and an empty chart much lower', () => {
+    expect(gradeEnergyBars(expected, expected).score).toBe(100);
+    expect(gradeEnergyBars({ kinetic: 0, gravitational: 0, elastic: 0, heat: 0 }, expected).score).toBeLessThan(80);
+  });
+});

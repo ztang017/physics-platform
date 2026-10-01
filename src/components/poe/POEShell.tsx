@@ -120,7 +120,11 @@ export function POEShell({
       if (idx === q.correctIndex) {
         answerExplainQuestion(q.id, idx);
         recordSRSAnswer(moduleId, q.id, true);
-        addScore(Math.round(100 / explainQuestions.length));
+        // Each question's share is the difference of rounded running totals, so a
+        // perfect run is exactly 100 for any question count (a flat round(100/n)
+        // per question gives 96 for 12 questions and 98 for 7).
+        const n = explainQuestions.length;
+        addScore(Math.round((100 * (currentQuestionIdx + 1)) / n) - Math.round((100 * currentQuestionIdx) / n));
         setRevealed(true);
       } else if (hasRetryLeft) {
         // First miss: nudge only, let them try again — don't record or reveal yet.

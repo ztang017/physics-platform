@@ -10,6 +10,8 @@ export type BadgeId =
   | 'trajectory-ace'     // Module 2: complete projectile module
   | 'force-whisperer'    // Module 3: first-attempt FBD
   | 'equilibrium-master' // Module 3: complete incline module
+  | 'energy-accountant'  // Module 4: correct energy bar chart on the first graded try
+  | 'perfect-parking'    // Module 4: Stop Zone cleared on the very first release
   | 'energy-architect'   // Module 4: complete work, energy & power module
   | 'conservationist'    // Module 5: perfect elastic collision
   | 'momentum-guardian'  // Module 5: complete collision module
@@ -62,6 +64,18 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
     name: 'Equilibrium Master',
     description: 'Completed the Free-Body Diagram module.',
     emoji: '⚖️',
+  },
+  'energy-accountant': {
+    id: 'energy-accountant',
+    name: 'Energy Accountant',
+    description: 'Built a correct energy bar chart on your first graded attempt in the Energy Ramp.',
+    emoji: '📊',
+  },
+  'perfect-parking': {
+    id: 'perfect-parking',
+    name: 'Perfect Parking',
+    description: 'Stopped the block inside the Stop Zone on your very first release.',
+    emoji: '🅿️',
   },
   'energy-architect': {
     id: 'energy-architect',

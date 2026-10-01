@@ -8,9 +8,11 @@ export interface WhatsNewItem {
 // whether returning visitors get a fresh popup for genuinely new content
 // (not used for the session gate itself, which always fires once per visit
 // regardless of version).
-export const WHATS_NEW_VERSION = '2026-10-01';
+export const WHATS_NEW_VERSION = '2026-10-02';
 
 export const WHATS_NEW_ITEMS: WhatsNewItem[] = [
+  { icon: '📊', title: 'Energy bar charts and the Stop Zone', desc: "The Energy Ramp now lets you drag bars to build an energy chart before you see the result (and earn the Energy Accountant badge), then check it against the real thing. After the replay, park the block in the Stop Zone for the Perfect Parking badge — all with energy, no guessing." },
+  { icon: '🤝', title: 'Momentum meets energy in Collisions', desc: "New concept notes and questions on systems that push themselves apart, building up to the classic block-on-a-sliding-wedge problem where you need both conservation laws." },
   { icon: '🔋', title: 'New module: Work, Energy & Power', desc: "A fifth module following the course's work-and-energy lecture: predict what a block does on a ramp, rough patch and spring, watch a live energy ledger, then test yourself on ten questions. It sits before Collisions, and has its own Challenge Yourself calculus section." },
   { icon: '🧭', title: 'Relative velocity in Projectile Motion', desc: "New concept notes and Explain questions on combining velocities — a boat crossing a current, aimed with or across the flow — rounding out the 'Kinematics and Relative Velocity' topic from the course syllabus." },
   { icon: '🛗', title: 'The elevator effect in Incline', desc: "New concept notes and questions on accelerating reference frames — how normal force (and an incline's sliding speed) changes inside an accelerating elevator, using the same effective-gravity trick as real tutorial problems." },

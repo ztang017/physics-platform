@@ -229,6 +229,23 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     ),
   },
   {
+    id: 'energy-bar-charts',
+    icon: '📊',
+    title: 'Energy Bar Charts: Keeping the Books',
+    body: [
+      "An energy bar chart is a snapshot of where an object's energy is at one moment: one bar each for kinetic energy, gravitational potential energy, spring energy, and heat. Draw a chart for the start of a process and another for the end, and the rule is simple — the bars at the end must add up to the same total as the bars at the start. Energy is only ever moved between bars, never created or lost.",
+      "Heat is what makes friction fit the picture. Without it, a block sliding over a rough patch would seem to lose energy. With a heat bar, the kinetic bar shrinks and the heat bar grows by exactly the same amount, so the total stays put.",
+      "In the Energy Ramp, the chart at release is one tall gravitational bar. To build the chart for the moment the block first comes to rest, ask two questions: how much has friction already turned into heat? And is any energy left, stored in the spring? Kinetic energy is zero at that moment, because the block is momentarily at rest.",
+    ],
+    formulaLatex: 'K + U_g + U_s + Q = \\text{the same total at every moment}',
+    symbols: [
+      { symbol: 'K', meaning: 'Kinetic energy bar', unit: 'J' },
+      { symbol: 'U_g', meaning: 'Gravitational potential energy bar', unit: 'J' },
+      { symbol: 'U_s', meaning: 'Spring (elastic) potential energy bar', unit: 'J' },
+      { symbol: 'Q', meaning: 'Heat bar: energy turned into thermal energy by friction', unit: 'J' },
+    ],
+  },
+  {
     id: 'crossing-budget',
     icon: '🎢',
     title: 'Reading the Energy Ramp: The Crossing Budget',
@@ -259,6 +276,37 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
             : result <= 2
               ? 'Between one and two crossings: it reaches the spring, bounces back, and stops on the patch on the return trip.'
               : 'More than two crossings: it makes it all the way back across and climbs the ramp again.'
+        }
+      />
+    ),
+  },
+  {
+    id: 'stopping-distance',
+    icon: '🛑',
+    title: 'How Far Does Friction Let It Slide?',
+    body: [
+      'A block released from height h arrives at the foot of the ramp with kinetic energy mgh. On a rough floor it stops only when friction has removed all of that energy. Friction removes μmg of energy for every metre the block slides, so over a distance s it removes μmg × s.',
+      'Setting the two equal gives μmg × s = mgh. The m and g cancel, leaving s = h/μ. A block released twice as high slides twice as far, and a rougher floor stops it sooner. A heavier block slides exactly the same distance: it starts with more energy, but friction pushes back on it harder.',
+      "This is how the Stop Zone challenge works. You know where the zone is and you know μ, so you can work out the release height you need: h = μ × s. No trial and error needed.",
+    ],
+    formulaLatex: '\\mu mg\\,s = mgh \\;\\Rightarrow\\; s = \\dfrac{h}{\\mu}',
+    symbols: [
+      { symbol: 's', meaning: 'Distance the block slides along the rough floor before stopping', unit: 'm' },
+      { symbol: 'h', meaning: 'Height the block was released from', unit: 'm' },
+      { symbol: 'μ', meaning: 'Coefficient of friction of the floor' },
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Sliding distance before stopping"
+        resultUnit="m"
+        formulaLatex={'s = \\dfrac{h}{\\mu}'}
+        variables={[
+          { id: 'stopHeight', label: 'Release height (h)', min: 0.2, max: 2, step: 0.1, defaultValue: 0.6, unit: 'm' },
+          { id: 'stopMu', label: 'Friction (μ)', min: 0.1, max: 0.8, step: 0.05, defaultValue: 0.3, unit: '' },
+        ]}
+        compute={({ stopHeight, stopMu }) => stopHeight / stopMu}
+        interpret={({ stopHeight, stopMu }) =>
+          `Starting ${stopHeight.toFixed(1)} m up with μ = ${stopMu.toFixed(2)}, the block slides this far. Notice that no mass appears anywhere in the formula.`
         }
       />
     ),

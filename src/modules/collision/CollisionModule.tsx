@@ -27,6 +27,14 @@ export const COLLISION_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     explanation: 'With zero external horizontal force, the centre of mass of person+boat stays fixed. Setting mₚ(Δboat + 2) + m_boat·Δboat = 0 with mₚ = 60 kg and m_boat = 40 kg gives Δboat = −1.2 m — the boat recoils 1.2 m opposite to the person\'s step. The heavier person makes the lighter boat recoil further than the reverse would — the same "action-reaction" idea you use for momentum in a collision, just applied to walking instead of colliding.',
   },
   {
+    id: 'push-apart-momentum',
+    question: 'Two carts, 1 kg and 3 kg, sit at rest with a compressed spring between them. When the spring is released, the 1 kg cart shoots off to the left at 6 m/s. What is the velocity of the 3 kg cart?',
+    options: ['2 m/s to the right', '2 m/s to the left', '6 m/s to the right', '18 m/s to the right'],
+    correctIndex: 0,
+    hint: 'Before the release, both carts are at rest, so the total momentum is zero. Momentum must still add up to zero afterward. If the 1 kg cart carries momentum to the left, what must the 3 kg cart carry?',
+    explanation: 'Total momentum stays at zero: (1)(−6) + (3)v = 0, so v = +2 m/s — to the right, the opposite way. The lighter cart moves three times faster because it has one third of the mass: equal and opposite momenta, but different speeds.',
+  },
+  {
     id: 'elastic-vs-inelastic',
     question: 'In a perfectly inelastic collision (e = 0), what is special about the carts afterward?',
     options: ['They bounce apart at equal speeds', 'They stick together and move as one', 'All kinetic energy is converted to momentum', 'Momentum is lost'],
@@ -78,6 +86,14 @@ export const COLLISION_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     correctIndex: 0,
     hint: 'Momentum conservation applies separately to each direction — treat the x-momentum and the y-momentum as two completely independent bookkeeping totals. Before the collision, is there any momentum in the north-south direction at all?',
     explanation: 'Before the collision, all momentum is eastward: pₓ = 3×4 = 12 kg·m/s, and p_y = 0 (nothing is moving north-south yet). After the collision, puck 1 carries pₓ₁ = 3×2 = 6 and p_y1 = 3×2 = 6. Since totals must stay the same in EACH direction separately: pₓ₂ = 12−6 = 6 → v₂ₓ = 2 m/s east, and p_y2 = 0−6 = −6 → v₂y = −2 m/s (2 m/s south) — the northward y-momentum puck 1 gained must be exactly cancelled by puck 2 heading south, since there was none to begin with. A 2D collision is really just two 1D momentum-conservation problems solved side by side.',
+  },
+  {
+    id: 'wedge-momentum-energy',
+    question: 'A 0.500 kg block is released from rest at the top of a frictionless curved wedge of mass 3.00 kg, which sits on a frictionless horizontal surface. When the block leaves the wedge, its speed is 4.00 m/s to the right. What was the height h of the wedge? (g = 9.8 m/s²)',
+    options: ['0.952 m', '0.816 m', '1.63 m', '0.408 m'],
+    correctIndex: 0,
+    hint: 'Two steps. First, the block and wedge start at rest and nothing pushes them sideways, so momentum conservation gives the wedge\'s speed from the block\'s. Then use energy: the potential energy the block loses (mgh) becomes the kinetic energy of BOTH the block and the wedge.',
+    explanation: 'Momentum: (0.5)(4.00) + (3.00)V = 0, so the wedge recoils at V = −0.667 m/s. Energy: mgh = ½mv² + ½MV² = ½(0.5)(16) + ½(3)(0.444) = 4.00 + 0.667 = 4.667 J, so h = 4.667 / (0.5 × 9.8) = 0.952 m. Counting only the block\'s kinetic energy would give v²/2g ≈ 0.82 m — too low, because part of the released energy went into moving the wedge.',
   },
 ];
 

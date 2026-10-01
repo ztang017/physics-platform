@@ -126,6 +126,41 @@ export const COLLISION_CONCEPTS: ConceptSection[] = [
       { symbol: 'p_y', meaning: 'The y-component of momentum, tracked independently of x', unit: 'kg·m/s' },
     ],
   },
+  {
+    id: 'momentum-and-energy-together',
+    icon: '🤝',
+    title: 'Momentum and Energy Together',
+    body: [
+      "Some systems start at rest and then push themselves apart: two carts released from a compressed spring, a person stepping off a boat, or a block sliding down a wedge that is itself free to slide. Nothing outside pushes sideways, so the total momentum stays at zero. Whatever momentum one part gains, the other gains the opposite amount.",
+      "That gives one equation linking the two velocities: m₁v₁ + m₂v₂ = 0. The lighter object always ends up moving faster, in proportion to the mass ratio. But it doesn't tell you the actual speeds. For that you need the second conservation law, energy: the energy released (spring energy, or height lost) becomes the kinetic energy of BOTH parts together.",
+      "The recipe: use momentum to find the second object's speed from the first, then use energy conservation with both kinetic energies included. The classic mistake is to count only the fast, light object's kinetic energy and forget that the heavy, slow one has some too.",
+    ],
+    formulaLatex: 'm_1v_1 + m_2v_2 = 0 \\qquad\\qquad m_1 g h = \\tfrac{1}{2}m_1v_1^2 + \\tfrac{1}{2}m_2v_2^2',
+    symbols: [
+      { symbol: 'm_1, v_1', meaning: 'Mass and final speed of the block', unit: 'kg, m/s' },
+      { symbol: 'm_2, v_2', meaning: 'Mass and final speed of the wedge (it recoils the other way)', unit: 'kg, m/s' },
+      { symbol: 'h', meaning: 'Height the block slides down', unit: 'm' },
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Height of the wedge"
+        resultUnit="m"
+        formulaLatex={'h = \\dfrac{\\tfrac{1}{2}m v^2 + \\tfrac{1}{2}MV^2}{mg} \\quad\\text{with}\\quad V = \\dfrac{mv}{M}'}
+        variables={[
+          { id: 'wedgeBlockMass', label: 'Block mass (m)', min: 0.1, max: 2, step: 0.1, defaultValue: 0.5, unit: 'kg' },
+          { id: 'wedgeMass', label: 'Wedge mass (M)', min: 1, max: 10, step: 0.5, defaultValue: 3, unit: 'kg' },
+          { id: 'wedgeSpeed', label: 'Block speed leaving the wedge (v)', min: 1, max: 8, step: 0.5, defaultValue: 4, unit: 'm/s' },
+        ]}
+        compute={({ wedgeBlockMass, wedgeMass, wedgeSpeed }) => {
+          const wedgeRecoil = (wedgeBlockMass * wedgeSpeed) / wedgeMass;
+          return (0.5 * wedgeBlockMass * wedgeSpeed ** 2 + 0.5 * wedgeMass * wedgeRecoil ** 2) / (wedgeBlockMass * 9.8);
+        }}
+        interpret={({ wedgeBlockMass, wedgeMass, wedgeSpeed }) =>
+          `The wedge recoils at ${((wedgeBlockMass * wedgeSpeed) / wedgeMass).toFixed(2)} m/s. Counting only the block's kinetic energy would give ${(wedgeSpeed ** 2 / (2 * 9.8)).toFixed(2)} m — too low, because part of the released energy moves the wedge.`
+        }
+      />
+    ),
+  },
 ];
 
 // ─── Challenge Yourself: H3 / calculus-based extension ─────────────────────────

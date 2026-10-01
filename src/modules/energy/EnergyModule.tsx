@@ -1,12 +1,20 @@
 import { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import {
+  type EnergyBars,
+  type EnergyBarsGrade,
   type EnergyRampParams,
   type EnergyRampResult,
   type EnergySample,
   type EnergyTimeline,
   type RampOutcome,
+  BAR_KEYS,
+  BAR_STEP,
+  BAR_TOLERANCE,
   computeEnergyRamp,
+  expectedRestBars,
+  firstRestTime,
   generateEnergyTimeline,
+  gradeEnergyBars,
   sampleTimelineAt,
   rampLength,
   RAMP_ANGLE_DEG,
@@ -118,12 +126,33 @@ export const ENERGY_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     explanation: 'Friction converts mechanical energy into thermal energy, warming the block and the patch. Mechanical energy (K + U) drops, but the total energy — including the heat — is always conserved. In the simulation you can watch the heat bar grow by exactly what the other bars lose.',
   },
   {
+    id: 'energy-chart-total',
+    question: 'In an energy bar chart for the block sliding over the rough patch, the kinetic-energy bar has shrunk by 30% of the starting energy mgh. For the chart to stay balanced, what must have happened to the other bars?',
+    options: [
+      'Nothing — friction destroys that energy',
+      'The heat bar has grown by 30% of mgh',
+      'The gravitational bar has grown by 30% of mgh',
+      'The spring bar has grown by 30% of mgh',
+    ],
+    correctIndex: 1,
+    hint: 'The block is on a flat patch, so its height is not changing and it has not reached the spring. Friction is acting. Where does the energy friction removes from the motion end up?',
+    explanation: 'Energy is conserved, so the bars must always add up to the starting energy. The block is level (no change in Ug) and not touching the spring, so the 30% that left the kinetic bar was converted by friction into thermal energy: the heat bar grows by exactly 30% of mgh. Friction moves energy between bars; it never makes it vanish.',
+  },
+  {
     id: 'incline-energy-calc',
     question: 'A crate slides from rest down a rough 5 m long incline at 30° with kinetic friction μₖ = 0.2. Using energy methods (g = 10 m/s², cos 30° ≈ 0.87), what is its speed at the bottom?',
     options: ['5.7 m/s', '7.1 m/s', '4.0 m/s', '10 m/s'],
     correctIndex: 0,
     hint: 'Write the energy balance: ½mv² = mgh − (friction force) × (distance along the slope). The drop in height is 5 × sin 30°, and friction is μₖ·mg·cos 30°. The mass cancels.',
     explanation: 'The height dropped is 5 sin 30° = 2.5 m, so gravity supplies mg(2.5) = 25m joules. Friction removes μₖmg cos 30° × 5 ≈ 8.7m joules. So ½mv² = (25 − 8.7)m, giving v² ≈ 32.6 and v ≈ 5.7 m/s. Ignoring friction would give √(2·10·2.5) ≈ 7.1 m/s — noticeably too fast. Energy did it in one line, with no need to resolve forces along the slope or find an acceleration.',
+  },
+  {
+    id: 'stopping-distance-calc',
+    question: 'A block is released from rest 0.6 m above a flat, rough floor by way of a smooth ramp. The floor has μ = 0.3. How far does the block slide along the floor before it stops?',
+    options: ['2.0 m', '0.6 m', '1.8 m', '0.18 m'],
+    correctIndex: 0,
+    hint: 'The block stops when friction has removed all of its starting energy mgh. Friction removes μmg for every metre it slides, so μmg × s = mgh. Notice what cancels.',
+    explanation: 'Setting the energy friction removes equal to the energy the block started with: μmg·s = mgh. The m and g cancel, leaving s = h/μ = 0.6/0.3 = 2.0 m. The answer doesn\'t depend on the block\'s mass at all — a heavier block has more energy but is also pushed back harder by friction.',
   },
   {
     id: 'power-lift-calc',
@@ -157,6 +186,11 @@ const COLOR = {
   text: 'rgba(23,27,38,0.6)',
 };
 
+// The mini-game: park the block inside this stretch of the patch. The friction
+// is fixed so the answer is a clean h = μ·s, whatever the block's mass.
+interface StopZone { mu: number; from: number; to: number }
+const STOP_ZONE: StopZone = { mu: 0.5, from: 1.2, to: 1.8 };
+
 const OUTCOME_LABEL: Record<RampOutcome, string> = {
   'stops-before-spring': 'It stops on the rough patch, before reaching the spring',
   'stops-after-rebound': 'It bounces off the spring, then stops on the rough patch',
@@ -176,7 +210,7 @@ function blockPose(sample: EnergySample, rampLen: number) {
   return { x: FOOT_X + (sample.u - rampLen) * SCALE, y: GROUND_Y, angle: 0 };
 }
 
-function drawScene(ctx: CanvasRenderingContext2D, params: EnergyRampParams, sample: EnergySample) {
+function drawScene(ctx: CanvasRenderingContext2D, params: EnergyRampParams, sample: EnergySample, zone?: StopZone) {
   const rampLen = rampLength(params.height);
   const run = rampLen * Math.cos(THETA) * SCALE;
   const rise = params.height * SCALE;
@@ -231,6 +265,23 @@ function drawScene(ctx: CanvasRenderingContext2D, params: EnergyRampParams, samp
   ctx.textAlign = 'center';
   ctx.fillText(`rough patch  μ = ${params.mu.toFixed(2)}`, (patchStartX + patchEndX) / 2, GROUND_Y + 16);
 
+  // Stop Zone (mini-game): a green band on the patch showing where to park the block
+  if (zone) {
+    const zx = patchStartX + zone.from * SCALE;
+    const zw = (zone.to - zone.from) * SCALE;
+    ctx.fillStyle = 'rgba(22,163,74,0.2)';
+    ctx.fillRect(zx, GROUND_Y - 34, zw, 34);
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = COLOR.kinetic;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(zx, GROUND_Y - 34, zw, 34);
+    ctx.setLineDash([]);
+    ctx.fillStyle = COLOR.kinetic;
+    ctx.font = 'bold 10px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('STOP ZONE', zx + zw / 2, GROUND_Y - 40);
+  }
+
   // Block
   const pose = blockPose(sample, rampLen);
 
@@ -281,13 +332,13 @@ function drawScene(ctx: CanvasRenderingContext2D, params: EnergyRampParams, samp
   ctx.fillText(`smooth ramp ${RAMP_ANGLE_DEG}°`, 8, 50);
 }
 
-function EnergyCanvas({ params, sample }: { params: EnergyRampParams; sample: EnergySample }) {
+function EnergyCanvas({ params, sample, zone }: { params: EnergyRampParams; sample: EnergySample; zone?: StopZone }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const draw = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d');
-    if (ctx) drawScene(ctx, params, sample);
-  }, [params, sample]);
+    if (ctx) drawScene(ctx, params, sample, zone);
+  }, [params, sample, zone]);
 
   // The hook wipes the canvas whenever layout changes its size (e.g. late in
   // a hard page load), so it repaints via onResize rather than staying blank.
@@ -342,20 +393,10 @@ function EnergyLedger({ sample, totalEnergy }: { sample: EnergySample; totalEner
   );
 }
 
-// ─── Observe stage: playback + live ledger ────────────────────────────────────
-function EnergyStage({
-  params,
-  result,
-  timeline,
-  predicted,
-}: {
-  params: EnergyRampParams;
-  result: EnergyRampResult;
-  timeline: EnergyTimeline;
-  predicted: RampOutcome | null;
-}) {
+// ─── Shared playback (drives the main replay and the mini-game) ──────────────
+function useTimelinePlayback(timeline: EnergyTimeline, autoplay: boolean) {
   const [elapsed, setElapsed] = useState(0);
-  const [playing, setPlaying] = useState(true);
+  const [playing, setPlaying] = useState(autoplay);
   const [slowMo, setSlowMo] = useState(false);
   const elapsedRef = useRef(0);
 
@@ -390,6 +431,354 @@ function EnergyStage({
     setPlaying(true);
   };
 
+  return { elapsed, playing, setPlaying, slowMo, setSlowMo, sample, finished, seek, replay };
+}
+
+// ─── Energy bar chart builder (Predict) ──────────────────────────────────────
+const BAR_META: Record<keyof EnergyBars, { label: string; short: string; color: string }> = {
+  kinetic: { label: 'Kinetic', short: 'K', color: COLOR.kinetic },
+  gravitational: { label: 'Gravitational', short: 'Ug', color: COLOR.gravitational },
+  elastic: { label: 'Spring', short: 'Us', color: COLOR.elastic },
+  heat: { label: 'Heat', short: 'Q', color: COLOR.heat },
+};
+const EMPTY_BARS: EnergyBars = { kinetic: 0, gravitational: 0, elastic: 0, heat: 0 };
+const RELEASE_BARS: EnergyBars = { kinetic: 0, gravitational: 100, elastic: 0, heat: 0 };
+
+function BarColumn({
+  id,
+  value,
+  totalEnergy,
+  onChange,
+}: {
+  id: keyof EnergyBars;
+  value: number;
+  totalEnergy: number;
+  /** Omit for a read-only bar. */
+  onChange?: (id: keyof EnergyBars, percent: number) => void;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+  const meta = BAR_META[id];
+  const joules = (value / 100) * totalEnergy;
+
+  const setFromPointer = (clientY: number) => {
+    const rect = trackRef.current?.getBoundingClientRect();
+    // An unmeasured track would divide by zero and poison the value with NaN.
+    if (!rect || rect.height === 0) return;
+    const raw = ((rect.bottom - clientY) / rect.height) * 100;
+    if (!Number.isFinite(raw)) return;
+    onChange?.(id, Math.max(0, Math.min(100, Math.round(raw / BAR_STEP) * BAR_STEP)));
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!onChange) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragging.current = true;
+    setFromPointer(e.clientY);
+  };
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (dragging.current) setFromPointer(e.clientY);
+  };
+  const handlePointerEnd = () => { dragging.current = false; };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!onChange) return;
+    const next: Record<string, number> = {
+      ArrowUp: value + BAR_STEP,
+      ArrowRight: value + BAR_STEP,
+      ArrowDown: value - BAR_STEP,
+      ArrowLeft: value - BAR_STEP,
+      PageUp: value + 25,
+      PageDown: value - 25,
+      Home: 0,
+      End: 100,
+    };
+    if (e.key in next) {
+      e.preventDefault();
+      onChange(id, Math.max(0, Math.min(100, next[e.key])));
+    }
+  };
+
+  return (
+    <div className={styles.barCol}>
+      <div
+        ref={trackRef}
+        className={`${styles.barTrack} ${onChange ? '' : styles.barTrackLocked}`}
+        role={onChange ? 'slider' : 'img'}
+        tabIndex={onChange ? 0 : undefined}
+        aria-label={`${meta.label} energy bar`}
+        aria-orientation={onChange ? 'vertical' : undefined}
+        aria-valuemin={onChange ? 0 : undefined}
+        aria-valuemax={onChange ? 100 : undefined}
+        aria-valuenow={onChange ? value : undefined}
+        aria-valuetext={`${value}% of the starting energy, ${joules.toFixed(1)} joules`}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+        onKeyDown={handleKeyDown}
+      >
+        {[25, 50, 75].map((g) => (
+          <span key={g} className={styles.barGrid} style={{ bottom: `${g}%` }} aria-hidden="true" />
+        ))}
+        <div className={styles.barFill} style={{ height: `${value}%`, background: meta.color }} />
+      </div>
+      <span className={styles.barValue}>{value}%</span>
+      <span className={styles.barJoules}>{joules.toFixed(1)} J</span>
+      <span className={styles.barName} style={{ color: meta.color }}>{meta.short}</span>
+    </div>
+  );
+}
+
+function EnergyBarBuilder({
+  bars,
+  totalEnergy,
+  onChange,
+  onReset,
+}: {
+  bars: EnergyBars;
+  totalEnergy: number;
+  onChange: (id: keyof EnergyBars, percent: number) => void;
+  onReset: () => void;
+}) {
+  const total = BAR_KEYS.reduce((sum, k) => sum + bars[k], 0);
+  return (
+    <div className={styles.chartBuilder}>
+      <h4>📊 Energy accounting <span className={styles.optionalTag}>optional · +20 XP and a badge</span></h4>
+      <p className={styles.hint}>
+        Every bar is a share of the energy the block starts with. On the left is the chart at release (given). On the right, build
+        the chart for the <strong>first moment the block is momentarily at rest</strong> — at the spring's maximum squash, or
+        wherever it stops on the patch. Drag a bar, or focus it and use the arrow keys.
+      </p>
+      <div className={styles.chartPair}>
+        <div className={styles.chartPanel}>
+          <h5>At release (given)</h5>
+          <div className={styles.barRow}>
+            {BAR_KEYS.map((k) => <BarColumn key={k} id={k} value={RELEASE_BARS[k]} totalEnergy={totalEnergy} />)}
+          </div>
+        </div>
+        <div className={styles.chartPanel}>
+          <h5>First moment at rest (yours)</h5>
+          <div className={styles.barRow}>
+            {BAR_KEYS.map((k) => <BarColumn key={k} id={k} value={bars[k]} totalEnergy={totalEnergy} onChange={onChange} />)}
+          </div>
+        </div>
+      </div>
+      <div className={styles.chartFooter}>
+        <span className={styles.chartSum} data-balanced={total === 100}>
+          Your bars add up to {total}% of mgh {total === 100 ? '✓ balanced' : '— energy is conserved, so they must match the left chart'}
+        </span>
+        <button className="btn btn--secondary" onClick={onReset} disabled={total === 0}>↺ Reset bars</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Chart-vs-actual comparison (Observe) ────────────────────────────────────
+type ChartOutcome = 'none' | 'earned' | 'missed';
+
+function ChartComparison({
+  student,
+  expected,
+  grade,
+  outcome,
+  onJump,
+}: {
+  student: EnergyBars;
+  expected: EnergyBars;
+  grade: EnergyBarsGrade | null;
+  outcome: ChartOutcome;
+  onJump: () => void;
+}) {
+  return (
+    <div className={styles.comparison} role="group" aria-label="Your energy chart compared with the real one">
+      <h4>📊 Energy chart check — the first moment at rest</h4>
+      {grade === null && (
+        <p className={styles.hint}>You skipped the optional energy chart. The real chart is below — try building one next time to earn the Energy Accountant badge.</p>
+      )}
+      {grade?.isCorrect && (
+        <p className={styles.verdictGood}>
+          ✓ Your chart matches: every bar is within ±{BAR_TOLERANCE}% of mgh.
+          {outcome === 'earned' && ' 🏆 Energy Accountant earned (+20 XP).'}
+        </p>
+      )}
+      {grade && !grade.isCorrect && (
+        <div className={styles.verdictBad}>
+          <p><strong>Not quite — score {grade.score}%.</strong>{outcome === 'missed' && ' (The badge goes to your first graded attempt.)'}</p>
+          <ul>
+            {grade.errors.map((e) => (
+              <li key={e.bar}>{BAR_META[e.bar].label}: you set {e.actual}%, the real value is about {Math.round(e.expected)}%</li>
+            ))}
+            {!grade.balanced && <li>Your bars added up to {grade.total}% — they should always add up to 100% of mgh.</li>}
+          </ul>
+        </div>
+      )}
+      <div className={styles.compareList}>
+        {BAR_KEYS.map((k) => (
+          <div className={styles.compareRow} key={k}>
+            <span className={styles.compareLabel} style={{ color: BAR_META[k].color }}>{BAR_META[k].label}</span>
+            <div className={styles.compareTracks} aria-hidden="true">
+              {grade !== null && (
+                <div className={styles.compareTrack}>
+                  <div className={styles.compareYou} style={{ width: `${student[k]}%`, borderColor: BAR_META[k].color }} />
+                </div>
+              )}
+              <div className={styles.compareTrack}>
+                <div className={styles.compareFill} style={{ width: `${expected[k]}%`, background: BAR_META[k].color }} />
+              </div>
+            </div>
+            <strong className={styles.compareNums}>{grade !== null ? `${student[k]}% vs ` : ''}{Math.round(expected[k])}%</strong>
+          </div>
+        ))}
+      </div>
+      <p className={styles.hint}>{grade !== null ? 'Outlined bar = your chart · solid bar = the real one' : 'Solid bars = the real chart'}</p>
+      <button className="btn btn--secondary" onClick={onJump}>⏭ Jump to that moment in the replay</button>
+    </div>
+  );
+}
+
+// ─── Stop Zone mini-game (Observe) ───────────────────────────────────────────
+function StopZoneRun({
+  params,
+  timeline,
+  released,
+  result,
+  inZone,
+}: {
+  params: EnergyRampParams;
+  timeline: EnergyTimeline;
+  released: boolean;
+  result: EnergyRampResult;
+  inZone: boolean;
+}) {
+  const playback = useTimelinePlayback(timeline, released);
+  const stop = result.stopPosition;
+
+  let verdict: string;
+  if (inZone) {
+    verdict = `✅ Parked! It stopped ${stop!.toFixed(2)} m along the patch, inside the zone.`;
+  } else if (result.outcome !== 'stops-before-spring') {
+    verdict = '💥 Too much energy: it crossed the whole patch and hit the spring. Release it from lower down.';
+  } else {
+    verdict = `It stopped ${stop!.toFixed(2)} m along the patch — ${stop! < STOP_ZONE.from ? 'short of' : 'past'} the zone (${STOP_ZONE.from}–${STOP_ZONE.to} m). ${stop! < STOP_ZONE.from ? 'It needs more energy.' : 'It had too much energy.'}`;
+  }
+
+  return (
+    <>
+      <EnergyCanvas params={params} sample={playback.sample} zone={STOP_ZONE} />
+      {released && playback.finished && (
+        <p className={inZone ? styles.verdictGood : styles.verdictBad} role="status">{verdict}</p>
+      )}
+    </>
+  );
+}
+
+function StopZoneGame({
+  attempts,
+  cleared,
+  onRelease,
+}: {
+  attempts: number;
+  cleared: boolean;
+  onRelease: (success: boolean) => void;
+}) {
+  const [mass, setMass] = useState(2);
+  const [height, setHeight] = useState(1.0);
+  // null = nothing released yet for the current settings; each release bumps it
+  // so the run (and its animation) restarts, even with unchanged sliders.
+  const [run, setRun] = useState<number | null>(null);
+
+  const params = useMemo(() => ({ mass, height, mu: STOP_ZONE.mu, k: 200 }), [mass, height]);
+  const result = useMemo(() => computeEnergyRamp(params), [params]);
+  const timeline = useMemo(() => generateEnergyTimeline(params), [params]);
+  const inZone =
+    result.outcome === 'stops-before-spring' &&
+    result.stopPosition !== null &&
+    result.stopPosition >= STOP_ZONE.from &&
+    result.stopPosition <= STOP_ZONE.to;
+
+  const release = () => {
+    onRelease(inZone);
+    setRun((r) => (r ?? 0) + 1);
+  };
+
+  return (
+    <div className={styles.gameCard}>
+      <div className={styles.gameHeader}>
+        <span className={styles.gameIcon}>🅿️</span>
+        <div>
+          <h4>Stop Zone Challenge</h4>
+          <p>
+            Friction on the patch is fixed at <strong>μ = {STOP_ZONE.mu.toFixed(2)}</strong>. Choose a release height so the block comes
+            to rest inside the green zone, <strong>{STOP_ZONE.from}–{STOP_ZONE.to} m</strong> along the patch. Work it out with energy
+            rather than guessing — the badge goes to a first-release success.
+          </p>
+        </div>
+      </div>
+
+      <div className={styles.sliders}>
+        <div className="slider-wrap">
+          <label className="slider-label" htmlFor="zone-height">Release height (h) <span className="value">{height.toFixed(2)} m</span></label>
+          <input id="zone-height" type="range" min="0.5" max="3" step="0.05" value={height}
+            onChange={(e) => { setHeight(+e.target.value); setRun(null); }} />
+        </div>
+        <div className="slider-wrap">
+          <label className="slider-label" htmlFor="zone-mass">Block mass (m) <span className="value">{mass} kg</span></label>
+          <input id="zone-mass" type="range" min="1" max="5" step="0.5" value={mass}
+            onChange={(e) => { setMass(+e.target.value); setRun(null); }} />
+        </div>
+      </div>
+
+      <StopZoneRun
+        key={`${mass}-${height}-${run ?? 'idle'}`}
+        params={params}
+        timeline={timeline}
+        released={run !== null}
+        result={result}
+        inZone={inZone}
+      />
+
+      <div className={styles.playRow}>
+        <button className="btn btn--primary" onClick={release}>🚀 Release!</button>
+        <span className={styles.gameStatus}>
+          Releases so far: <strong>{attempts}</strong>{cleared && ' · ✅ Zone cleared'}
+        </span>
+      </div>
+      {attempts > 0 && !cleared && (
+        <p className={styles.hint}>
+          💡 The block stops when friction has used up <em>all</em> of its starting energy: μmg × s = mgh. Solve for the height h that
+          makes s land in the zone — and notice what happens to the mass.
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ─── Observe stage: playback + live ledger ────────────────────────────────────
+function EnergyStage({
+  params,
+  result,
+  timeline,
+  predicted,
+  studentBars,
+  expectedBars,
+  chartGrade,
+  chartOutcome,
+  stopZone,
+}: {
+  params: EnergyRampParams;
+  result: EnergyRampResult;
+  timeline: EnergyTimeline;
+  predicted: RampOutcome | null;
+  studentBars: EnergyBars;
+  expectedBars: EnergyBars;
+  chartGrade: EnergyBarsGrade | null;
+  chartOutcome: ChartOutcome;
+  stopZone: { attempts: number; cleared: boolean; onRelease: (success: boolean) => void };
+}) {
+  const playback = useTimelinePlayback(timeline, true);
+  const { sample, elapsed, playing, finished, slowMo } = playback;
+
   const fmt = (v: number, unit: string, show = true) => (show ? `${v.toFixed(2)} ${unit}` : '—');
   const reached = result.outcome !== 'stops-before-spring';
 
@@ -411,13 +800,13 @@ function EnergyStage({
         <div className={styles.playRow}>
           <button
             className={`btn ${playing ? 'btn--secondary' : 'btn--primary'}`}
-            onClick={() => (playing ? setPlaying(false) : finished ? replay() : setPlaying(true))}
+            onClick={() => (playing ? playback.setPlaying(false) : finished ? playback.replay() : playback.setPlaying(true))}
           >
             {playing ? '⏸ Pause' : finished ? '↺ Replay' : '▶ Play'}
           </button>
           <button
             className="btn btn--secondary"
-            onClick={() => setSlowMo((s) => !s)}
+            onClick={() => playback.setSlowMo((s) => !s)}
             aria-pressed={slowMo}
           >
             🐢 Slow motion {slowMo ? 'on' : 'off'}
@@ -434,12 +823,20 @@ function EnergyStage({
           max={timeline.duration}
           step={0.01}
           value={elapsed}
-          onChange={(e) => seek(parseFloat(e.target.value))}
+          onChange={(e) => playback.seek(parseFloat(e.target.value))}
           aria-label="Scrub through the block's trip"
         />
       </div>
 
       <EnergyLedger sample={sample} totalEnergy={result.totalEnergy} />
+
+      <ChartComparison
+        student={studentBars}
+        expected={expectedBars}
+        grade={chartGrade}
+        outcome={chartOutcome}
+        onJump={() => playback.seek(firstRestTime(timeline))}
+      />
 
       <div className={styles.readoutsGrid}>
         <div className={styles.readout}><span>Energy at release (mgh)</span><strong className="text-cyan">{fmt(result.totalEnergy, 'J')}</strong></div>
@@ -466,6 +863,8 @@ function EnergyStage({
           { label: 'Conservation', latex: 'K + U_g + U_s + Q = mgh', liveValue: `mgh = ${result.totalEnergy.toFixed(1)} J`, accentColor: 'cyan' },
         ]}
       />
+
+      <StopZoneGame attempts={stopZone.attempts} cleared={stopZone.cleared} onRelease={stopZone.onRelease} />
     </div>
   );
 }
@@ -483,17 +882,53 @@ export function EnergyModule() {
   const [k, setK] = useState(DEFAULTS.k);
   const [predicted, setPredicted] = useState<RampOutcome | null>(null);
   const [predictionLocked, setPredictionLocked] = useState(false);
+  const [bars, setBars] = useState<EnergyBars>(EMPTY_BARS);
+  // 'none' until the chart is first graded; only that first graded attempt can
+  // earn the badge, whether or not it was right.
+  const [chartOutcome, setChartOutcome] = useState<ChartOutcome>('none');
+  const [stopAttempts, setStopAttempts] = useState(0);
+  const [stopCleared, setStopCleared] = useState(false);
 
   const params: EnergyRampParams = useMemo(() => ({ mass, height, mu, k }), [mass, height, mu, k]);
   const result = useMemo(() => computeEnergyRamp(params), [params]);
   const timeline = useMemo(() => generateEnergyTimeline(params), [params]);
   const startSample = timeline.samples[0];
+  const expectedBars = useMemo(() => expectedRestBars(result), [result]);
+  const chartAttempted = BAR_KEYS.some((key) => bars[key] > 0);
+  const chartGrade = useMemo(
+    () => (chartAttempted ? gradeEnergyBars(bars, expectedBars) : null),
+    [chartAttempted, bars, expectedBars],
+  );
+
+  const handleBarChange = (id: keyof EnergyBars, percent: number) => {
+    setBars((prev) => ({ ...prev, [id]: percent }));
+  };
 
   const handleLockPrediction = () => {
     // Only award XP the first time — if the student uses Back to revisit
     // Predict and re-locks, this must stay a no-op for scoring purposes.
     if (!predictionLocked) { addXP(10); setPredictionLocked(true); }
+    // The chart is a prediction too, graded once, the first time it's locked in.
+    if (chartGrade && chartOutcome === 'none') {
+      if (chartGrade.isCorrect) {
+        setChartOutcome('earned');
+        addXP(20);
+        unlockBadge('energy-accountant');
+      } else {
+        setChartOutcome('missed');
+      }
+    }
     setPOEPhase('observe');
+  };
+
+  const handleStopRelease = (success: boolean) => {
+    const firstRelease = stopAttempts === 0;
+    setStopAttempts((n) => n + 1);
+    if (success && !stopCleared) {
+      setStopCleared(true);
+      addXP(30);
+      if (firstRelease) unlockBadge('perfect-parking');
+    }
   };
 
   const handleComplete = (score: number, perfectExplain: boolean) => {
@@ -512,6 +947,10 @@ export function EnergyModule() {
     setK(DEFAULTS.k);
     setPredicted(null);
     setPredictionLocked(false);
+    setBars(EMPTY_BARS);
+    setChartOutcome('none');
+    setStopAttempts(0);
+    setStopCleared(false);
   };
 
   const PredictPhase = (
@@ -554,6 +993,13 @@ export function EnergyModule() {
         </p>
       </div>
 
+      <EnergyBarBuilder
+        bars={bars}
+        totalEnergy={result.totalEnergy}
+        onChange={handleBarChange}
+        onReset={() => setBars(EMPTY_BARS)}
+      />
+
       <div className={styles.questionCard}>
         <p className={styles.questionText}>
           A {mass} kg block is released from {height.toFixed(1)} m. Following it for one round trip (down, across the patch, off the spring, and back), what will happen?
@@ -586,6 +1032,11 @@ export function EnergyModule() {
       result={result}
       timeline={timeline}
       predicted={predicted}
+      studentBars={bars}
+      expectedBars={expectedBars}
+      chartGrade={chartGrade}
+      chartOutcome={chartOutcome}
+      stopZone={{ attempts: stopAttempts, cleared: stopCleared, onRelease: handleStopRelease }}
     />
   );
 
