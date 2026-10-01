@@ -178,6 +178,31 @@ export const STUDY_TOPICS: StudyTopic[] = [
     principle: "Gravity is conservative, so the work it does depends only on the height dropped, not the path. By the work-energy theorem that work becomes kinetic energy, giving v = √(2gh) for any frictionless path. A gentler slide takes longer, but it ends with the same speed.",
   },
 
+  {
+    id: 'en-stop-zone',
+    moduleId: 'energy',
+    question: "How do I get the block to stop inside the Stop Zone without guessing?",
+    keywords: ['stop zone', 'parking', 'park the block', 'stopping distance', 'how far will it slide', 'release height'],
+    prompts: [
+      "The block stops once friction has taken away ALL the energy it started with. How much energy does it start with, in terms of m, g and h?",
+      "Friction takes away μmg for every metre it slides. How much does it take away over a distance s?",
+      "Set those two amounts equal. What cancels, and what does that tell you about whether the mass slider matters?",
+    ],
+    principle: "The energy at the foot of the ramp, mgh, is all burned by friction over the sliding distance: μmg × s = mgh, so s = h/μ. To park at a distance s you need a release height h = μs. Mass cancels completely, so it never matters.",
+  },
+  {
+    id: 'en-bar-chart',
+    moduleId: 'energy',
+    question: "I'm not sure what to put in the energy bar chart for the moment the block stops.",
+    keywords: ['bar chart', 'energy chart', 'energy bars', 'which bars', 'first moment at rest'],
+    prompts: [
+      "At the moment the block is momentarily at rest, how much kinetic energy does it have?",
+      "The ramp's height is long gone. What is the gravitational energy bar at that moment?",
+      "So the starting energy has to be sitting in only two places. How much has friction already turned into heat, and is the rest stored in the spring?",
+    ],
+    principle: "At the first moment of rest, K = 0 and Ug = 0, so only the spring and heat bars hold energy, and together they must add up to the full starting energy mgh. If the block never reaches the spring, all of it is heat. If it does, heat equals one crossing's cost and the spring holds the rest.",
+  },
+
   // ─── Collision ────────────────────────────────────────────────────────────
   {
     id: 'col-momentum-mismatch',
@@ -214,5 +239,17 @@ export const STUDY_TOPICS: StudyTopic[] = [
       "Energy can't vanish — if it's not kinetic energy anymore, what other forms could it have taken during the impact?",
     ],
     principle: "Only perfectly elastic collisions conserve kinetic energy exactly. Any other collision converts some KE into heat, sound, and deformation of the objects — the energy isn't lost from the universe, just no longer in the form of the carts' motion.",
+  },
+  {
+    id: 'col-wedge-both-laws',
+    moduleId: 'collision',
+    question: "Why do I need both momentum AND energy for the block-on-a-sliding-wedge problem?",
+    keywords: ['wedge', 'recoil', 'sliding wedge', 'block on a wedge', 'both momentum and energy', 'push apart'],
+    prompts: [
+      "Nothing pushes the block-and-wedge system sideways. What does that say about the total horizontal momentum, starting from rest?",
+      "That gives you the wedge's speed in terms of the block's. Does it tell you how big the block's speed actually is?",
+      "Where does the block's speed come from? Think about what happened to its height. Is any of that energy going into moving the wedge too?",
+    ],
+    principle: "Momentum conservation links the two speeds (m₁v₁ + m₂v₂ = 0) but can't fix their size. Energy conservation supplies the size: the potential energy lost becomes the kinetic energy of BOTH objects. Leaving out the heavy wedge's small kinetic energy is the classic mistake.",
   },
 ];

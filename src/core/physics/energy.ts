@@ -231,3 +231,77 @@ export function sampleTimelineAt(timeline: EnergyTimeline, t: number): EnergySam
     region: f < 0.5 ? a.region : b.region,
   };
 }
+
+// ─── Energy bar chart (Predict-phase builder) ────────────────────────────────
+// Students build a bar chart of where the block's energy is at the first moment
+// it comes to rest after release. Every bar is a percentage of the starting
+// energy mgh, so "balanced" simply means the bars add up to 100%.
+
+export interface EnergyBars {
+  kinetic: number;
+  gravitational: number;
+  elastic: number;
+  heat: number;
+}
+
+export const BAR_KEYS: (keyof EnergyBars)[] = ['kinetic', 'gravitational', 'elastic', 'heat'];
+export const BAR_STEP = 5;      // bars snap to multiples of this many percent
+export const BAR_TOLERANCE = 5; // a bar counts as right within ± this many percent of mgh
+
+/**
+ * The first moment the block is at rest after release: at maximum spring
+ * compression if it ever reaches the spring, otherwise where it stops on the
+ * patch. Either way K = 0 and the ramp's potential energy is long gone, so only
+ * the spring and the heat bars hold energy.
+ */
+export function expectedRestBars(result: EnergyRampResult): EnergyBars {
+  if (result.outcome === 'stops-before-spring') {
+    return { kinetic: 0, gravitational: 0, elastic: 0, heat: 100 };
+  }
+  const heat = (100 * result.frictionCostPerCrossing) / result.totalEnergy;
+  return { kinetic: 0, gravitational: 0, elastic: 100 - heat, heat };
+}
+
+export interface EnergyBarsGrade {
+  isCorrect: boolean;
+  /** 0–100: 100 minus the average absolute error across the four bars. */
+  score: number;
+  /** Do the student's bars add up to the starting energy (within tolerance)? */
+  balanced: boolean;
+  total: number;
+  /** Bars outside tolerance, with what was expected and what the student set. */
+  errors: { bar: keyof EnergyBars; expected: number; actual: number }[];
+}
+
+export function gradeEnergyBars(
+  student: EnergyBars,
+  expected: EnergyBars,
+  tolerance = BAR_TOLERANCE,
+): EnergyBarsGrade {
+  const errors = BAR_KEYS.filter((bar) => Math.abs(student[bar] - expected[bar]) > tolerance).map((bar) => ({
+    bar,
+    expected: expected[bar],
+    actual: student[bar],
+  }));
+  const meanError = BAR_KEYS.reduce((sum, bar) => sum + Math.abs(student[bar] - expected[bar]), 0) / BAR_KEYS.length;
+  const total = BAR_KEYS.reduce((sum, bar) => sum + student[bar], 0);
+  return {
+    isCorrect: errors.length === 0,
+    score: Math.max(0, Math.round(100 - meanError)),
+    balanced: Math.abs(total - 100) <= tolerance,
+    total,
+    errors,
+  };
+}
+
+/** Time of the "first at rest" moment above, so the scrubber can jump straight to it. */
+export function firstRestTime(timeline: EnergyTimeline): number {
+  const { samples } = timeline;
+  const first = samples.findIndex((s) => s.region === 'spring');
+  if (first === -1) return timeline.duration;
+  let best = first;
+  for (let i = first; i < samples.length && samples[i].region === 'spring'; i++) {
+    if (samples[i].elastic > samples[best].elastic) best = i;
+  }
+  return samples[best].t;
+}

@@ -48,3 +48,54 @@
   .conceptWrap { padding: var(--space-4) var(--space-4) 0; }
   .ledgerRow { grid-template-columns: 7rem 1fr 4rem; gap: var(--space-2); }
 }
+
+/* ── Energy bar chart builder (Predict) ───────────────────────────────────── */
+.chartBuilder { background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); }
+.chartBuilder h4 { color: var(--text-primary); font-size: 0.95rem; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.optionalTag { font-size: 0.68rem; font-weight: 600; color: var(--accent-cyan); background: rgba(79,70,229,0.08); border-radius: var(--radius-full); padding: 2px var(--space-2); }
+.chartPair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+.chartPanel { background: var(--bg-base); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-3); }
+.chartPanel h5 { font-size: 0.78rem; color: var(--text-secondary); font-weight: 600; }
+.barRow { display: flex; justify-content: space-around; gap: var(--space-2); }
+.barCol { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.barTrack { position: relative; width: 44px; height: 150px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-sm); overflow: hidden; cursor: ns-resize; touch-action: none; }
+.barTrack:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+.barTrackLocked { cursor: default; opacity: 0.85; }
+.barFill { position: absolute; left: 0; bottom: 0; width: 100%; border-radius: 2px 2px 0 0; transition: height var(--duration-fast); }
+.barGrid { position: absolute; left: 0; right: 0; height: 1px; background: rgba(23,27,38,0.1); pointer-events: none; }
+.barValue { font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700; color: var(--text-primary); margin-top: var(--space-1); }
+.barJoules { font-family: var(--font-mono); font-size: 0.66rem; color: var(--text-muted); }
+.barName { font-size: 0.8rem; font-weight: 700; }
+.chartFooter { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.chartSum { font-size: 0.85rem; color: var(--text-secondary); }
+.chartSum[data-balanced="true"] { color: var(--accent-green); font-weight: 600; }
+
+/* ── Chart check (Observe) ────────────────────────────────────────────────── */
+.comparison { background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); max-width: 600px; }
+.comparison h4 { color: var(--text-primary); font-size: 0.9rem; }
+.verdictGood { padding: var(--space-3) var(--space-4); background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.3); border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.88rem; line-height: 1.5; }
+.verdictBad { padding: var(--space-3) var(--space-4); background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.25); border-radius: var(--radius-md); color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; }
+.verdictBad ul { margin: var(--space-2) 0 0 var(--space-5); }
+.compareList { display: flex; flex-direction: column; gap: var(--space-3); }
+.compareRow { display: grid; grid-template-columns: 7rem 1fr 6.5rem; align-items: center; gap: var(--space-3); font-size: 0.8rem; }
+.compareLabel { font-weight: 600; }
+.compareTracks { display: flex; flex-direction: column; gap: 3px; }
+.compareTrack { height: 9px; background: var(--bg-base); border: 1px solid var(--border-subtle); border-radius: var(--radius-full); overflow: hidden; }
+.compareFill { height: 100%; border-radius: var(--radius-full); }
+.compareYou { height: 100%; box-sizing: border-box; border: 2px solid; border-radius: var(--radius-full); background: transparent; }
+.compareNums { font-family: var(--font-mono); font-size: 0.75rem; text-align: right; color: var(--text-primary); }
+
+/* ── Stop Zone mini-game (Observe) ────────────────────────────────────────── */
+.gameCard { background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); max-width: 640px; }
+.gameHeader { display: flex; gap: var(--space-3); align-items: flex-start; }
+.gameHeader h4 { color: var(--text-primary); }
+.gameHeader p { font-size: 0.88rem; line-height: 1.5; }
+.gameIcon { font-size: 1.6rem; line-height: 1; }
+.gameStatus { font-size: 0.85rem; color: var(--text-secondary); align-self: center; }
+
+@media (max-width: 640px) {
+  .chartPair { grid-template-columns: 1fr; }
+  .chartBuilder { padding: var(--space-4); }
+  .compareRow { grid-template-columns: 5.5rem 1fr 5.5rem; gap: var(--space-2); }
+  .gameCard { padding: var(--space-4); }
+}
