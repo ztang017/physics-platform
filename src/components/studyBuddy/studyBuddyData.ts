@@ -128,6 +128,56 @@ export const STUDY_TOPICS: StudyTopic[] = [
     principle: "Your prediction is a guess to be tested, not graded on vibes — the animation reflects the actual comparison between the down-slope force and maximum static friction for the exact numbers you set. If it disagrees with your intuition, that's the whole point of the Observe phase: find out which force was actually bigger.",
   },
 
+  // ─── Energy ───────────────────────────────────────────────────────────────
+  {
+    id: 'en-zero-work',
+    moduleId: 'energy',
+    question: "Why is the work zero when I carry a heavy box across the room? It felt like a lot of effort.",
+    keywords: ['zero work', 'carry', 'carrying', 'holding', 'effort', 'no work', 'box across'],
+    prompts: [
+      "In physics, work needs a force AND a displacement. Which direction is your supporting force pointing while you carry the box?",
+      "Which direction is the box moving while you walk across the room?",
+      "Work = F·s·cosθ. What angle is between those two directions — and what is cos of that angle?",
+    ],
+    principle: "Work only counts the part of a force that points along the motion. Your upward supporting force is perpendicular to your horizontal walk (θ = 90°, cos 90° = 0), so it does zero work on the box. Feeling tired is about your muscles, not about work done on the box.",
+  },
+  {
+    id: 'en-energy-lost',
+    moduleId: 'energy',
+    question: "The block lost energy on the rough patch. Does that mean energy isn't conserved?",
+    keywords: ['friction energy', 'rough patch', 'where did the energy go', 'energy go on the', 'mechanical energy', 'thermal energy'],
+    prompts: [
+      "Look at the energy ledger while the block crosses the rough patch. Which bar is growing as the kinetic bar shrinks?",
+      "Friction is a non-conservative force. What happens to the surfaces when you rub them together?",
+      "If you add the heat bar to the other three bars, what do you get — does that total ever change?",
+    ],
+    principle: "Mechanical energy (K + U) can be lost to friction, but total energy cannot. The 'missing' energy becomes thermal energy in the block and the patch. The ledger's total always equals mgh: friction moves energy between bars, it never destroys it.",
+  },
+  {
+    id: 'en-mass-cancels',
+    moduleId: 'energy',
+    question: "Why does doubling the block's mass not change where it stops on the patch?",
+    keywords: ['mass', 'heavier', 'double the mass', 'doubling mass', 'mass cancels', 'same outcome'],
+    prompts: [
+      "Write down the energy the block starts with. Does it depend on the mass?",
+      "Now write down the energy one crossing of the rough patch costs. Does THAT depend on the mass?",
+      "If both sides have a factor of m, what happens when you compare them?",
+    ],
+    principle: "The starting energy is mgh and the friction cost is μmg·d — both contain m, so it cancels when you compare them. A heavier block brings more energy but pays proportionally more friction. Mass only matters for things it doesn't cancel from, like how far the spring compresses.",
+  },
+  {
+    id: 'en-speed-not-shape',
+    moduleId: 'energy',
+    question: "Why doesn't the shape of a slide change the speed at the bottom?",
+    keywords: ['shape', 'slide', 'steeper', 'curved', 'same speed', 'path', 'conservative'],
+    prompts: [
+      "Is gravity a conservative force? What does that say about how much work it does between two heights?",
+      "If the work gravity does depends only on the start and end heights, what does the path between them matter for?",
+      "Use the work-energy theorem: if the work is the same, what must be the same about the final kinetic energy?",
+    ],
+    principle: "Gravity is conservative, so the work it does depends only on the height dropped, not the path. By the work-energy theorem that work becomes kinetic energy, giving v = √(2gh) for any frictionless path. A gentler slide takes longer, but it ends with the same speed.",
+  },
+
   // ─── Collision ────────────────────────────────────────────────────────────
   {
     id: 'col-momentum-mismatch',

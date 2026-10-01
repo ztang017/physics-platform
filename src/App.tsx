@@ -4,6 +4,7 @@ import { Dashboard } from './pages/Dashboard';
 import { KinematicsModule } from './modules/kinematics/KinematicsModule';
 import { ProjectileModule } from './modules/projectile/ProjectileModule';
 import { InclineModule } from './modules/incline/InclineModule';
+import { EnergyModule } from './modules/energy/EnergyModule';
 import { CollisionModule } from './modules/collision/CollisionModule';
 import { MathToggle } from './components/ui/MathToggle';
 import { XPBar } from './components/ui/XPBar';
@@ -27,6 +28,7 @@ const MODULE_MAP: Record<string, React.ReactElement> = {
   kinematics: <KinematicsModule />,
   projectile: <ProjectileModule />,
   incline:    <InclineModule />,
+  energy:     <EnergyModule />,
   collision:  <CollisionModule />,
 };
 

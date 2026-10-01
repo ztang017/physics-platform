@@ -121,6 +121,50 @@ export const FORMULA_SHEET: SheetSection[] = [
     ],
   },
   {
+    moduleId: 'energy',
+    icon: '🔋',
+    title: 'Work, Energy & Power',
+    formulas: [
+      {
+        label: 'Work',
+        latex: 'W = F\\,s\\cos\\theta',
+        symbols: [
+          { symbol: 'W', meaning: 'Work done by the force', unit: 'J' },
+          { symbol: 'θ', meaning: 'Angle between the force and the motion', unit: '°' },
+        ],
+      },
+      {
+        label: 'Work–energy theorem',
+        latex: 'W_{net} = \\Delta K = \\tfrac{1}{2}mv_f^2 - \\tfrac{1}{2}mv_i^2',
+        symbols: [{ symbol: 'K', meaning: 'Kinetic energy', unit: 'J' }],
+      },
+      {
+        label: 'Gravitational potential energy',
+        latex: '\\Delta U = mg\\,\\Delta y',
+        caption: 'Only the change matters — zero height can go anywhere.',
+        symbols: [{ symbol: 'Δy', meaning: 'Change in height', unit: 'm' }],
+      },
+      {
+        label: 'Spring force and energy',
+        latex: 'F = -kx \\qquad U_{el} = \\tfrac{1}{2}kx^2',
+        symbols: [
+          { symbol: 'k', meaning: 'Spring constant', unit: 'N/m' },
+          { symbol: 'x', meaning: 'Extension from natural length', unit: 'm' },
+        ],
+      },
+      {
+        label: 'Conservation of energy',
+        latex: 'K_i + U_i + W_{nc} = K_f + U_f',
+        symbols: [{ symbol: 'W_{nc}', meaning: 'Work by non-conservative forces (e.g. friction)', unit: 'J' }],
+      },
+      {
+        label: 'Power',
+        latex: 'P = \\dfrac{W}{t} = Fv',
+        symbols: [{ symbol: 'P', meaning: 'Power', unit: 'W' }],
+      },
+    ],
+  },
+  {
     moduleId: 'collision',
     icon: '💥',
     title: 'Momentum & Collisions',

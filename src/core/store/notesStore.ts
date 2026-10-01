@@ -22,6 +22,7 @@ const EMPTY_NOTES: Record<NotesSection, string> = {
   kinematics: '',
   projectile: '',
   incline: '',
+  energy: '',
   collision: '',
 };
 

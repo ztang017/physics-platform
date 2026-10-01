@@ -8,6 +8,7 @@ const TABS: { id: NotesSection; label: string; icon: string }[] = [
   { id: 'kinematics', label: 'Kinematics', icon: '📈' },
   { id: 'projectile', label: 'Projectile', icon: '🚀' },
   { id: 'incline',    label: 'Incline',    icon: '⚖️' },
+  { id: 'energy',     label: 'Energy',     icon: '🔋' },
   { id: 'collision',  label: 'Collision',  icon: '💥' },
 ];
 
