@@ -261,8 +261,8 @@ export function POEShell({
             >
               🔄 Try Again
             </button>
-            <Link to="/" className="btn btn--primary">
-              🏠 Back to Dashboard
+            <Link to="/courses" className="btn btn--primary">
+              📚 Back to Courses
             </Link>
           </div>
         </div>

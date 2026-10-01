@@ -1,0 +1,28 @@
+.header {
+  padding: var(--space-12) 0 var(--space-6);
+}
+
+.inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: -0.025em;
+}
+
+.lead {
+  font-size: 1.1rem;
+  line-height: 1.65;
+  max-width: 62ch;
+}
+
+@media (max-width: 640px) {
+  .header { padding: var(--space-8) 0 var(--space-4); }
+  .inner { padding: 0 var(--space-4); }
+}

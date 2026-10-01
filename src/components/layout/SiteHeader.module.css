@@ -1,0 +1,89 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--glass-bg);
+  border-bottom: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-8);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+}
+
+.logo:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 3px; }
+.logoIcon { font-size: 1.5rem; line-height: 1; }
+
+.logoText {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav {
+  display: flex;
+  gap: var(--space-1);
+  margin-right: auto;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.navLink:hover { background: var(--bg-elevated); color: var(--text-primary); }
+.navLink:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+.navLinkActive { color: var(--accent-cyan); background: rgba(79, 70, 229, 0.08); }
+
+.tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+@media (max-width: 960px) {
+  .inner { padding: var(--space-3) var(--space-4); }
+  .nav { margin-right: 0; }
+  /* Tools drop onto their own row so the nav never gets squeezed */
+  .tools { flex: 1 1 100%; justify-content: space-between; gap: var(--space-2); }
+}
+
+@media (max-width: 640px) {
+  /* Wrapped onto several rows the bar is far too tall to keep pinned on a
+     phone, so let it scroll away; the footer carries the same links. */
+  .header { position: static; }
+  .nav { width: 100%; }
+  .navLink { flex: 1; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .tools > :last-child { flex: 1 1 100%; justify-content: center; }
+}

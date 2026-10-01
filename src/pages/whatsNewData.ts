@@ -8,9 +8,10 @@ export interface WhatsNewItem {
 // whether returning visitors get a fresh popup for genuinely new content
 // (not used for the session gate itself, which always fires once per visit
 // regardless of version).
-export const WHATS_NEW_VERSION = '2026-10-02';
+export const WHATS_NEW_VERSION = '2026-10-03';
 
 export const WHATS_NEW_ITEMS: WhatsNewItem[] = [
+  { icon: '🎨', title: 'A fresh, cleaner design', desc: "The homepage now focuses on your progress, your badges and the Physics Corner. All five modules live on a new Courses page, the feedback form moved to Contact us, and every page now shares a footer with links to get around." },
   { icon: '📊', title: 'Energy bar charts and the Stop Zone', desc: "The Energy Ramp now lets you drag bars to build an energy chart before you see the result (and earn the Energy Accountant badge), then check it against the real thing. After the replay, park the block in the Stop Zone for the Perfect Parking badge — all with energy, no guessing." },
   { icon: '🤝', title: 'Momentum meets energy in Collisions', desc: "New concept notes and questions on systems that push themselves apart, building up to the classic block-on-a-sliding-wedge problem where you need both conservation laws." },
   { icon: '🔋', title: 'New module: Work, Energy & Power', desc: "A fifth module following the course's work-and-energy lecture: predict what a block does on a ramp, rough patch and spring, watch a live energy ledger, then test yourself on ten questions. It sits before Collisions, and has its own Challenge Yourself calculus section." },
@@ -26,6 +27,6 @@ export const WHATS_NEW_ITEMS: WhatsNewItem[] = [
   { icon: '🧠', title: 'Study Buddy', desc: "Stuck on something? Ask in plain English and get guided, Socratic-style nudges instead of the answer handed to you." },
   { icon: '📝', title: 'Personal Notes', desc: 'Jot thoughts down in any module — autosaved to your browser and organized by module.' },
   { icon: '🏅', title: 'Clickable badges', desc: 'Click any badge, locked or unlocked, to see exactly what it takes to earn it.' },
-  { icon: '💌', title: 'Feedback that reaches the creator', desc: "The feedback box at the bottom of the Dashboard now really sends your message, instead of just opening an email draft." },
+  { icon: '💌', title: 'Feedback that reaches the creator', desc: "The feedback form on the Contact us page now really sends your message, instead of just opening an email draft." },
   { icon: '🔭', title: 'A bigger Physics Corner', desc: 'Many more facts, quotes, and myth-busting cards now rotate in on every visit.' },
 ];

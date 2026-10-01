@@ -241,7 +241,7 @@ export function CollisionModule() {
 
   // Cancel any in-flight animation frame on unmount — without this, a RAF
   // callback already queued when the student navigates away (e.g. clicking
-  // "Dashboard" mid-play) still fires once more and calls setState on an
+  // "Courses" mid-play) still fires once more and calls setState on an
   // unmounted component.
   useEffect(() => () => cancelAnimationFrame(animRef.current), []);
 

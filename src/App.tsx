@@ -1,6 +1,14 @@
 import React, { Suspense, useEffect } from 'react';
 import { HashRouter, Routes, Route, Link, useParams } from 'react-router-dom';
-import { Dashboard } from './pages/Dashboard';
+import { Home } from './pages/Home';
+import { Courses } from './pages/Courses';
+import { Contact } from './pages/Contact';
+import { NotFound } from './pages/NotFound';
+import { SiteLayout } from './components/layout/SiteLayout';
+import { SiteFooter } from './components/layout/SiteFooter';
+import { ScrollToTop } from './components/layout/ScrollToTop';
+import { usePageTitle } from './components/layout/usePageTitle';
+import { getCourse } from './core/courses';
 import { KinematicsModule } from './modules/kinematics/KinematicsModule';
 import { ProjectileModule } from './modules/projectile/ProjectileModule';
 import { InclineModule } from './modules/incline/InclineModule';
@@ -35,12 +43,16 @@ const MODULE_MAP: Record<string, React.ReactElement> = {
 function ModuleLayout() {
   const { moduleId = '' } = useParams();
   const module = MODULE_MAP[moduleId];
+  usePageTitle(module ? getCourse(moduleId as ModuleId).title : 'Module not found');
 
   if (!module) {
     return (
-      <div className={styles.notFound}>
-        <h2>Module not found</h2>
-        <Link to="/" className="btn btn--primary">← Back to Dashboard</Link>
+      <div className={styles.modulePage}>
+        <main className={`${styles.moduleMain} ${styles.notFound}`}>
+          <h2>Module not found</h2>
+          <Link to="/courses" className="btn btn--primary">← Back to Courses</Link>
+        </main>
+        <SiteFooter />
       </div>
     );
   }
@@ -48,8 +60,8 @@ function ModuleLayout() {
   return (
     <div className={styles.modulePage}>
       <header className={styles.moduleNav}>
-        <Link to="/" className={styles.backLink} aria-label="Back to dashboard">
-          ← Dashboard
+        <Link to="/courses" className={styles.backLink} aria-label="Back to courses">
+          ← Courses
         </Link>
         <div className={styles.navRight}>
           <SpacedReviewButton />
@@ -63,6 +75,7 @@ function ModuleLayout() {
       <main className={styles.moduleMain}>
         {module}
       </main>
+      <SiteFooter />
     </div>
   );
 }
@@ -90,9 +103,15 @@ export default function App() {
 
   return (
     <HashRouter>
+      <ScrollToTop />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route element={<SiteLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
           <Route path="/module/:moduleId" element={<ModuleLayout />} />
         </Routes>
       </Suspense>
