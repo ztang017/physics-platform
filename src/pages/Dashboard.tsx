@@ -84,6 +84,16 @@ const MODULE_CARDS: ModuleCard[] = [
     description: 'Predict whether a block will slide, then verify against the real force vectors as the angle changes.',
   },
   {
+    id: 'energy',
+    title: 'Energy Ramp: Work, Energy & Power',
+    subtitle: 'Work & Energy',
+    emoji: '🔋',
+    gradient: 'linear-gradient(135deg, rgba(244,114,182,0.12), rgba(244,114,182,0.04))',
+    borderColor: 'rgba(244,114,182,0.3)',
+    path: '/module/energy',
+    description: 'Follow a block from ramp to rough patch to spring, and watch its energy change form but never disappear.',
+  },
+  {
     id: 'collision',
     title: '1D Elastic & Inelastic Collisions',
     subtitle: 'Momentum',
@@ -204,7 +214,7 @@ export function Dashboard() {
                   </span>
                   <span className={styles.statChip}>
                     <span className={styles.statChipIcon}>✅</span>
-                    <strong className="text-green">{completedModules.length}/4</strong> modules
+                    <strong className="text-green">{completedModules.length}/{MODULE_ORDER.length}</strong> modules
                   </span>
                 </div>
               </div>
@@ -284,7 +294,9 @@ export function Dashboard() {
               <div ref={modulesReveal.ref} className={`${styles.moduleGrid} ${styles.staggerGrid} ${modulesReveal.visible ? styles.revealed : ''}`}>
                 {MODULE_CARDS.map((card, i) => {
                   const isComplete = completedModules.includes(card.id);
-                  const isUnlocked = i === 0 || completedModules.includes(MODULE_ORDER[i - 1]);
+                  // A module someone already finished never re-locks — e.g. students who
+                  // completed Collisions before the Energy module was added before it.
+                  const isUnlocked = i === 0 || isComplete || completedModules.includes(MODULE_ORDER[i - 1]);
 
                   return (
                     <Link

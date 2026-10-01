@@ -8,6 +8,7 @@ const MODULE_LABELS: Record<ModuleId, string> = {
   kinematics: 'Kinematics',
   projectile: 'Projectile',
   incline: 'Incline',
+  energy: 'Energy',
   collision: 'Collision',
 };
 

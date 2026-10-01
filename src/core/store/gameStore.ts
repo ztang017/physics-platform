@@ -10,11 +10,12 @@ export type BadgeId =
   | 'trajectory-ace'     // Module 2: complete projectile module
   | 'force-whisperer'    // Module 3: first-attempt FBD
   | 'equilibrium-master' // Module 3: complete incline module
-  | 'conservationist'    // Module 4: perfect elastic collision
-  | 'momentum-guardian'  // Module 4: complete collision module
+  | 'energy-architect'   // Module 4: complete work, energy & power module
+  | 'conservationist'    // Module 5: perfect elastic collision
+  | 'momentum-guardian'  // Module 5: complete collision module
   | 'first-steps'        // Complete first module
-  | 'halfway-there'      // Complete 2 modules
-  | 'physics-champion'   // Complete all 4 modules
+  | 'halfway-there'      // Complete more than half of the modules
+  | 'physics-champion'   // Complete every module
   | 'sharp-shooter';     // Any module: perfect Explain phase, zero wrong answers
 
 export interface Badge {
@@ -62,6 +63,12 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
     description: 'Completed the Free-Body Diagram module.',
     emoji: '⚖️',
   },
+  'energy-architect': {
+    id: 'energy-architect',
+    name: 'Energy Architect',
+    description: 'Completed the Work, Energy & Power module.',
+    emoji: '🔋',
+  },
   'conservationist': {
     id: 'conservationist',
     name: 'Conservationist',
@@ -83,13 +90,13 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
   'halfway-there': {
     id: 'halfway-there',
     name: 'Halfway There',
-    description: 'Completed 2 out of 4 modules.',
+    description: 'Completed more than half of the modules.',
     emoji: '🏃',
   },
   'physics-champion': {
     id: 'physics-champion',
     name: 'Physics Champion',
-    description: 'Completed all 4 modules!',
+    description: 'Completed every module!',
     emoji: '🏆',
   },
   'sharp-shooter': {
@@ -115,14 +122,20 @@ export function getXPProgressInLevel(xp: number): number {
 
 // ─── Module IDs ───────────────────────────────────────────────────────────────
 
-export type ModuleId = 'kinematics' | 'projectile' | 'incline' | 'collision';
+export type ModuleId = 'kinematics' | 'projectile' | 'incline' | 'energy' | 'collision';
 
+// Follows the course's lecture order: energy is taught before momentum, and
+// the Collisions module already leans on kinetic energy.
 export const MODULE_ORDER: ModuleId[] = [
   'kinematics',
   'projectile',
   'incline',
+  'energy',
   'collision',
 ];
+
+/** The count at which "Halfway There" is earned: strictly more than half. */
+export const HALFWAY_MODULE_COUNT = Math.floor(MODULE_ORDER.length / 2) + 1;
 
 // ─── Game Store ───────────────────────────────────────────────────────────────
 
@@ -191,8 +204,8 @@ export const useGameStore = create<GameState>()(
         // Award milestone badges
         const { unlockBadge } = get();
         if (newCompleted.length === 1) unlockBadge('first-steps');
-        if (newCompleted.length === 2) unlockBadge('halfway-there');
-        if (newCompleted.length === 4) unlockBadge('physics-champion');
+        if (newCompleted.length === HALFWAY_MODULE_COUNT) unlockBadge('halfway-there');
+        if (MODULE_ORDER.every((m) => newCompleted.includes(m))) unlockBadge('physics-champion');
       },
 
       toggleMathMode: () => set((state) => ({ mathMode: !state.mathMode })),
