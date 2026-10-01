@@ -9,7 +9,16 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt' keeps a newly downloaded version waiting until the app decides
+      // it is safe to switch (see src/core/pwaUpdate.ts and UpdateManager), so a
+      // student is never reloaded mid-quiz. 'autoUpdate' would activate the new
+      // worker but leave the open page running old code until a manual reload.
+      registerType: 'prompt',
+      injectRegister: false,
+      workbox: {
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
+      },
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'PhysicsLab Interactive',
