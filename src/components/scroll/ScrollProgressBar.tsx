@@ -3,7 +3,7 @@ import styles from './ScrollProgressBar.module.css';
 
 /** A thin bar pinned to the very top of the viewport that fills as the
  *  visitor scrolls down the page — a standard "how much is left" cue for
- *  a long-scrolling page like the Dashboard. */
+ *  a long-scrolling page like the homepage. */
 export function ScrollProgressBar() {
   const [progress, setProgress] = useState(0);
 

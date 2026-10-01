@@ -7,7 +7,7 @@ export interface PhysicsTidbit {
   reality?: string;
 }
 
-// A handful are chosen at random each time the Dashboard loads, so the set
+// A handful are chosen at random each time the homepage loads, so the set
 // varies session to session (and student to student) without needing any
 // backend. Myths double as the old "Common Misconceptions" list, folded in
 // here instead of sitting in their own separate, easy-to-skip section.
