@@ -8,9 +8,10 @@ export interface WhatsNewItem {
 // whether returning visitors get a fresh popup for genuinely new content
 // (not used for the session gate itself, which always fires once per visit
 // regardless of version).
-export const WHATS_NEW_VERSION = '2026-10-03';
+export const WHATS_NEW_VERSION = '2026-10-04';
 
 export const WHATS_NEW_ITEMS: WhatsNewItem[] = [
+  { icon: '🔄', title: 'Updates now arrive by themselves', desc: "When a new version of PhysicsLab is released, your open tab picks it up automatically: straight away on the homepage and Courses, and the moment you leave a module or the Contact page, so you never lose your place or a half-written message." },
   { icon: '🎨', title: 'A fresh, cleaner design', desc: "The homepage now focuses on your progress, your badges and the Physics Corner. All five modules live on a new Courses page, the feedback form moved to Contact us, and every page now shares a footer with links to get around." },
   { icon: '📊', title: 'Energy bar charts and the Stop Zone', desc: "The Energy Ramp now lets you drag bars to build an energy chart before you see the result (and earn the Energy Accountant badge), then check it against the real thing. After the replay, park the block in the Stop Zone for the Perfect Parking badge — all with energy, no guessing." },
   { icon: '🤝', title: 'Momentum meets energy in Collisions', desc: "New concept notes and questions on systems that push themselves apart, building up to the classic block-on-a-sliding-wedge problem where you need both conservation laws." },

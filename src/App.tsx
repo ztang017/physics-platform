@@ -7,6 +7,7 @@ import { NotFound } from './pages/NotFound';
 import { SiteLayout } from './components/layout/SiteLayout';
 import { SiteFooter } from './components/layout/SiteFooter';
 import { ScrollToTop } from './components/layout/ScrollToTop';
+import { UpdateManager } from './components/layout/UpdateManager';
 import { usePageTitle } from './components/layout/usePageTitle';
 import { getCourse } from './core/courses';
 import { KinematicsModule } from './modules/kinematics/KinematicsModule';
@@ -104,6 +105,7 @@ export default function App() {
   return (
     <HashRouter>
       <ScrollToTop />
+      <UpdateManager />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route element={<SiteLayout />}>
