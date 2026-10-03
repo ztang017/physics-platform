@@ -397,3 +397,116 @@ describe('bucket in a vertical circle (Tutorial 5, Q1)', () => {
       .toBeCloseTo(bucketAt({ mass: 9, radius: 0.8, bottomSpeed: 7 }, 120).speed, 12);
   });
 });
+
+// ─── Animation physics: the car that cannot hold the bend, and the swinging bucket ──
+import {
+  bankedSlideAcceleration,
+  bucketSampleAt,
+  generateBucketTimeline,
+} from './circular';
+
+describe('bankedSlideAcceleration', () => {
+  const road: BankedParams = { radius: 60, angleDeg: 20, mu: 0.2 };
+
+  it('is zero anywhere inside the safe band', () => {
+    const { vMin, vMax } = bankedBand(road);
+    expect(bankedSlideAcceleration(road, (vMin + vMax) / 2)).toBe(0);
+    expect(bankedSlideAcceleration(road, designSpeed(60, 20))).toBe(0);
+  });
+
+  it('slides the car DOWN the slope (negative) when it is too slow, more so the slower it goes', () => {
+    const { vMin } = bankedBand(road);
+    const slow = bankedSlideAcceleration(road, vMin * 0.8);
+    const slower = bankedSlideAcceleration(road, vMin * 0.5);
+    expect(slow).toBeLessThan(0);
+    expect(slower).toBeLessThan(slow);
+  });
+
+  it('slides the car UP the slope (positive) when it is too fast, more so the faster it goes', () => {
+    const { vMax } = bankedBand(road);
+    const fast = bankedSlideAcceleration(road, vMax * 1.1);
+    const faster = bankedSlideAcceleration(road, vMax * 1.4);
+    expect(fast).toBeGreaterThan(0);
+    expect(faster).toBeGreaterThan(fast);
+  });
+
+  it('starts from zero right at the edge of the band', () => {
+    const { vMin, vMax } = bankedBand(road);
+    expect(Math.abs(bankedSlideAcceleration(road, vMin * 0.999))).toBeLessThan(0.1);
+    expect(Math.abs(bankedSlideAcceleration(road, vMax * 1.001))).toBeLessThan(0.1);
+  });
+});
+
+describe('generateBucketTimeline', () => {
+  const m = 1.5, r = 0.8;
+  const run = (bottomSpeed: number, duration = 6) => generateBucketTimeline({ mass: m, radius: r, bottomSpeed }, duration);
+  const energyPerKg = (s: { x: number; y: number; speed: number }) => 0.5 * s.speed ** 2 + G * s.y;
+
+  it('starts at the bottom of the circle, moving at the chosen speed', () => {
+    const first = run(5)[0];
+    expect(first.x).toBeCloseTo(0, 9);
+    expect(first.y).toBeCloseTo(-r, 9);
+    expect(first.speed).toBeCloseTo(5, 6);
+    expect(first.tension).toBeCloseTo(1.5 * G + (1.5 * 25) / 0.8, 3);
+  });
+
+  it('keeps the bucket exactly one rope-length from the pivot while the rope is taut', () => {
+    for (const s of run(7).filter((p) => p.onRope)) expect(Math.hypot(s.x, s.y)).toBeCloseTo(r, 6);
+  });
+
+  it('conserves energy along the rope (within 1%)', () => {
+    const samples = run(7);
+    const e0 = energyPerKg(samples[0]);
+    for (const s of samples.filter((p) => p.onRope)) expect(Math.abs(energyPerKg(s) - e0) / Math.abs(e0)).toBeLessThan(0.01);
+  });
+
+  it('goes right round the circle, again and again, when the speed beats √(5gr)', () => {
+    const samples = run(minLoopBottomSpeed(r) + 0.5);
+    expect(samples.every((s) => s.onRope)).toBe(true);
+    expect(Math.max(...samples.map((s) => s.y))).toBeGreaterThan(r * 0.99); // it reaches the top
+    const lowest = Math.min(...samples.map((s) => s.tension));
+    expect(lowest).toBeGreaterThan(0); // rope never goes slack
+  });
+
+  it('swings back without leaving the rope when the speed is below √(2gr)', () => {
+    const v = 3;
+    const samples = run(v);
+    expect(samples.every((s) => s.onRope)).toBe(true);
+    expect(Math.max(...samples.map((s) => s.y))).toBeLessThan(0.02); // never rises above the pivot
+    // the highest it gets matches the closed-form turn-around angle
+    const phiMax = turnAroundAngleDeg({ mass: m, radius: r, bottomSpeed: v })!;
+    const yTop = -r * Math.cos((phiMax * Math.PI) / 180);
+    expect(Math.max(...samples.map((s) => s.y))).toBeCloseTo(yTop, 1);
+  });
+
+  it('lets go of the rope at the closed-form slack angle when the speed is in between', () => {
+    const params: BucketParams = { mass: m, radius: r, bottomSpeed: 5 };
+    const samples = generateBucketTimeline(params, 4);
+    const firstFree = samples.findIndex((s) => !s.onRope);
+    expect(firstFree).toBeGreaterThan(0);
+    const phi = samples[firstFree - 1].phiDeg;
+    expect(phi).toBeCloseTo(slackAngleDeg(params)!, 0);
+  });
+
+  it('becomes a projectile after the rope goes slack: energy is still conserved and it falls', () => {
+    const samples = run(5, 4);
+    const free = samples.filter((s) => !s.onRope);
+    expect(free.length).toBeGreaterThan(20);
+    const e = energyPerKg(free[0]);
+    for (const s of free) expect(Math.abs(energyPerKg(s) - e) / Math.abs(e)).toBeLessThan(0.02);
+    expect(free[free.length - 1].y).toBeLessThan(free[0].y); // it ends up lower than where it let go
+  });
+
+  it('is independent of the mass in its motion', () => {
+    const a = generateBucketTimeline({ mass: 1, radius: r, bottomSpeed: 7 }, 1);
+    const b = generateBucketTimeline({ mass: 9, radius: r, bottomSpeed: 7 }, 1);
+    expect(a[30].x).toBeCloseTo(b[30].x, 9);
+    expect(a[30].y).toBeCloseTo(b[30].y, 9);
+  });
+
+  it('loops cleanly when asked for a time beyond the end', () => {
+    const samples = run(7, 2);
+    expect(bucketSampleAt(samples, 0).t).toBe(0);
+    expect(bucketSampleAt(samples, 2 + 0.5).t).toBeCloseTo(bucketSampleAt(samples, 0.5).t, 1);
+  });
+});

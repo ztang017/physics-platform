@@ -2,7 +2,6 @@ import { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import {
   type TurntableParams,
   type TurntableState,
-  G,
   RPM_TOLERANCE,
   SPIN_UP_TIME,
   computeTurntable,
@@ -68,9 +67,16 @@ function arrow(ctx: CanvasRenderingContext2D, x: number, y: number, dx: number, 
   ctx.lineTo(tx - ux * 9 - uy * 5, ty - uy * 9 + ux * 5);
   ctx.lineTo(tx - ux * 9 + uy * 5, ty - uy * 9 - ux * 5);
   ctx.closePath(); ctx.fill();
-  ctx.font = 'bold 11px JetBrains Mono, monospace';
+  // Put the label beyond the arrowhead, centred a little further out the longer the word is, with a white halo
+  ctx.font = 'bold 12px JetBrains Mono, monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(label, tx + ux * 14 - uy * 10, ty + uy * 14 + ux * 10 + 4);
+  const half = ctx.measureText(label).width / 2;
+  const lx = tx + ux * (12 + half);
+  const ly = ty + uy * 14 + 4;
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  ctx.strokeText(label, lx, ly);
+  ctx.fillText(label, lx, ly);
 }
 
 function drawScene(ctx: CanvasRenderingContext2D, params: TurntableParams, state: TurntableState, view: ViewFrame) {
@@ -268,40 +274,151 @@ function FrictionGauge({ state, maxFriction }: { state: TurntableState; maxFrict
   const mN = (v: number) => `${(v * 1000).toFixed(1)} mN`;
   return (
     <div className={styles.gauge} role="group" aria-label="Friction the coin needs compared with the most friction available">
-      <h4>Friction check</h4>
       <div className={styles.gaugeRow}>
-        <span className={styles.gaugeLabel}>Friction needed (mω²r)</span>
+        <span className={styles.gaugeLabel}>Friction needed</span>
         <div className={styles.gaugeTrack} aria-hidden="true">
           <div className={styles.gaugeFill} data-limit={atLimit} style={{ width: `${pct}%` }} />
-          <span className={styles.gaugeMark} />
         </div>
         <strong className={styles.gaugeValue}>{mN(state.friction)}</strong>
       </div>
       <div className={styles.gaugeRow}>
-        <span className={styles.gaugeLabel}>Most available (μmg)</span>
+        <span className={styles.gaugeLabel}>Most available</span>
         <div className={styles.gaugeTrack} aria-hidden="true">
           <div className={styles.gaugeFull} />
         </div>
         <strong className={styles.gaugeValue}>{mN(maxFriction)}</strong>
       </div>
       <p className={styles.gaugeNote} role="status">
-        {state.flying
-          ? 'The coin has left the turntable, so no friction acts on it any more.'
-          : atLimit
-            ? 'At the limit: friction cannot supply any more.'
-            : 'The coin stays on while the friction needed is below the most friction available.'}
+        {state.flying ? 'The coin has left, so no friction acts on it now.' : atLimit ? 'At the limit: friction cannot give any more.' : 'The coin holds on while the red bar stays below the purple one.'}
       </p>
     </div>
   );
 }
 
-// ─── Observe stage ────────────────────────────────────────────────────────────
+// ─── Observe stage: three short experiments, one at a time ───────────────────
 interface GameProps {
   bank: { attempts: number[]; cleared: boolean[]; onLock: (round: number, correct: boolean) => void };
   bucket: { attempts: number; cleared: boolean; onLock: (correct: boolean) => void };
 }
 
-function TurntableStage({
+type ObserveTab = 'turntable' | 'bank' | 'bucket';
+
+function TurntableTab({ params, rpmGuess, path }: { params: TurntableParams; rpmGuess: number | null; path: PathChoice | null }) {
+  const playback = useTurntablePlayback(params, true);
+  const { state, elapsed, playing, finished, slowMo } = playback;
+  const [view, setView] = useState<ViewFrame>('room');
+  const result = useMemo(() => computeTurntable(params), [params]);
+  const grade = rpmGuess !== null ? gradeRpmGuess(rpmGuess, result.slipRpm) : null;
+
+  const caption =
+    view === 'room'
+      ? state.flying
+        ? 'Nothing pulls the coin inward now, so it goes straight along the tangent.'
+        : 'Friction (red) pulls the coin inward, so it keeps turning. Its velocity (green) is along the tangent.'
+      : state.flying
+        ? 'From the turntable the coin seems flung outward, but nothing pushes it. The table just turns underneath.'
+        : 'From the turntable the coin looks still, so you would need an outward "centrifugal force". It is not real.';
+
+  const aCentripetal = state.omega * state.omega * params.radius;
+  const whatIf = [
+    { label: 'A heavier coin', rpm: slipRpm(params.radius, params.mu), note: 'no change: the mass cancels' },
+    { label: 'Twice as far from the centre', rpm: slipRpm(params.radius * 2, params.mu), note: 'slips sooner' },
+    { label: 'Twice the grip', rpm: slipRpm(params.radius, params.mu * 2), note: 'holds on longer' },
+  ];
+
+  return (
+    <div className={styles.tabBody}>
+      {(grade || path) && (
+        <div className={styles.feedbackStrip}>
+          {grade && (
+            <p>
+              <strong className={grade.isCorrect ? 'text-green' : 'text-amber'}>{grade.isCorrect ? '✓' : '✗'}</strong>{' '}
+              You guessed <strong>{rpmGuess} rpm</strong>. It slips at <strong>{result.slipRpm.toFixed(1)} rpm</strong>
+              {grade.isCorrect ? ' (close enough).' : '.'}
+            </p>
+          )}
+          {path && (
+            <p>
+              <strong className={path === 'tangent' ? 'text-green' : 'text-amber'}>{path === 'tangent' ? '✓' : '✗'}</strong>{' '}
+              {path === 'tangent' ? 'It leaves along the tangent. 🧭 No Such Force!' : 'It actually leaves along the tangent, not along the radius. Watch the dashed lines.'}
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className={styles.viewToggle} role="group" aria-label="Choose where you are watching from">
+        <button className={`btn ${view === 'room' ? 'btn--primary' : 'btn--secondary'}`} onClick={() => setView('room')} aria-pressed={view === 'room'}>
+          👁️ From the room
+        </button>
+        <button className={`btn ${view === 'turntable' ? 'btn--primary' : 'btn--secondary'}`} onClick={() => setView('turntable')} aria-pressed={view === 'turntable'}>
+          🎡 On the turntable
+        </button>
+      </div>
+
+      <TurntableCanvas params={params} state={state} view={view} />
+      <p className={styles.caption} role="status">{caption}</p>
+
+      <div className={styles.controlsRow}>
+        <button
+          className={`btn ${playing ? 'btn--secondary' : 'btn--primary'}`}
+          onClick={() => (playing ? playback.setPlaying(false) : finished ? playback.replay() : playback.setPlaying(true))}
+        >
+          {playing ? '⏸ Pause' : finished ? '↺ Replay' : '▶ Play'}
+        </button>
+        <button className="btn btn--secondary" onClick={() => playback.setSlowMo((s) => !s)} aria-pressed={slowMo}>
+          🐢 Slow {slowMo ? 'on' : 'off'}
+        </button>
+        <button className="btn btn--secondary" onClick={() => playback.seek(SPIN_UP_TIME - 0.6)}>
+          ⏭ Slip moment
+        </button>
+      </div>
+      <input
+        id="turntable-scrubber"
+        type="range"
+        min={0}
+        max={playback.duration}
+        step={0.01}
+        value={elapsed}
+        onChange={(e) => playback.seek(parseFloat(e.target.value))}
+        aria-label="Scrub through the turntable run"
+      />
+
+      <FrictionGauge state={state} maxFriction={result.maxFriction} />
+
+      <div className={styles.keyNumbers}>
+        <div><span>Turntable</span><strong>{radPerSecToRpm(state.omega).toFixed(1)} rpm</strong></div>
+        <div><span>Coin speed</span><strong>{state.speed.toFixed(2)} m/s</strong></div>
+        <div><span>Turning acceleration</span><strong>{state.flying ? '—' : `${aCentripetal.toFixed(2)} m/s²`}</strong></div>
+      </div>
+
+      <details className={styles.moreInfo}>
+        <summary>More: what-if, numbers and equations</summary>
+        <div className={styles.whatIf}>
+          <p className={styles.hint}>Your coin slips at {result.slipRpm.toFixed(1)} rpm. Change one thing at a time:</p>
+          {whatIf.map((row) => (
+            <div className={styles.whatIfRow} key={row.label}>
+              <span>{row.label}</span>
+              <strong>{row.rpm.toFixed(1)} rpm</strong>
+              <em>×{(row.rpm / result.slipRpm).toFixed(2)} · {row.note}</em>
+            </div>
+          ))}
+        </div>
+        <FormulaPanel
+          title="Circular Motion Equations"
+          formulas={[
+            { label: 'Speed on the circle', latex: 'v = \\omega r', liveValue: `= ${state.speed.toFixed(3)} m/s`, accentColor: 'green' },
+            { label: 'Centripetal acceleration', latex: 'a_c = \\omega^2 r = \\dfrac{v^2}{r}', liveValue: state.flying ? 'coin has left' : `= ${aCentripetal.toFixed(2)} m/s²`, accentColor: 'amber' },
+            { label: 'Friction needed', latex: 'f = m\\omega^2 r', liveValue: `= ${(state.friction * 1000).toFixed(1)} mN`, accentColor: 'cyan' },
+            { label: 'Most friction available', latex: 'f_{max} = \\mu_s m g', liveValue: `= ${(result.maxFriction * 1000).toFixed(1)} mN`, accentColor: 'violet' },
+            { label: 'Slipping speed', latex: '\\omega_{max} = \\sqrt{\\dfrac{\\mu_s g}{r}}', liveValue: `= ${result.slipOmega.toFixed(2)} rad/s`, accentColor: 'cyan' },
+          ]}
+        />
+      </details>
+    </div>
+  );
+}
+
+function ObserveStage({
   params,
   rpmGuess,
   path,
@@ -312,134 +429,37 @@ function TurntableStage({
   path: PathChoice | null;
   games: GameProps;
 }) {
-  const playback = useTurntablePlayback(params, true);
-  const { state, elapsed, playing, finished, slowMo } = playback;
-  const [view, setView] = useState<ViewFrame>('room');
-  const result = useMemo(() => computeTurntable(params), [params]);
-  const grade = rpmGuess !== null ? gradeRpmGuess(rpmGuess, result.slipRpm) : null;
-
-  const caption =
-    view === 'room'
-      ? state.flying
-        ? 'From the room: nothing is pulling the coin inward any more, so it moves in a straight line along the tangent, at the speed it had.'
-        : 'From the room: the coin goes in a circle because friction (red) keeps pulling it inward. Its velocity (green) is always along the tangent.'
-      : state.flying
-        ? 'From the turntable: the coin seems to be flung outward and backward. But nothing pushes it. The turntable is simply turning underneath it.'
-        : 'From the turntable: the coin does not move at all. To explain that you would have to invent an outward "centrifugal force" to balance friction. In the room view you never need one.';
-
-  const aCentripetal = state.omega * state.omega * params.radius;
-  const whatIf = [
-    { label: 'Same coin, twice as heavy', rpm: slipRpm(params.radius, params.mu), note: 'no change: the mass cancels' },
-    { label: 'Coin twice as far from the axis', rpm: slipRpm(params.radius * 2, params.mu), note: 'slips sooner' },
-    { label: 'Surface twice as rough (μ doubled)', rpm: slipRpm(params.radius, params.mu * 2), note: 'holds on longer' },
+  const [tab, setTab] = useState<ObserveTab>('turntable');
+  const tabs: { id: ObserveTab; label: string; done: boolean }[] = [
+    { id: 'turntable', label: '🪙 Turntable', done: false },
+    { id: 'bank', label: '🚗 Banked road', done: games.bank.cleared.every(Boolean) },
+    { id: 'bucket', label: '🪣 Bucket loop', done: games.bucket.cleared },
   ];
 
   return (
     <div className={styles.observeWrap}>
-      {grade && (
-        <div className={styles.predictionFeedback}>
-          <span>Your speed prediction:</span>
-          <strong className={grade.isCorrect ? 'text-green' : 'text-amber'}>
-            {grade.isCorrect ? '✓ Close enough' : '✗ Not quite'}
-          </strong>
-          <span className={styles.actualOutcome}>
-            You said {rpmGuess} rpm; it slips at {result.slipRpm.toFixed(1)} rpm ({grade.errorPercent >= 0 ? '+' : ''}{grade.errorPercent.toFixed(0)}%, within ±{RPM_TOLERANCE * 100}% counts)
-          </span>
-        </div>
-      )}
-      {path && (
-        <div className={styles.predictionFeedback}>
-          <span>Your path prediction:</span>
-          <strong className={path === 'tangent' ? 'text-green' : 'text-amber'}>
-            {path === 'tangent' ? '✓ Correct' : '✗ Not quite'}
-          </strong>
-          <span className={styles.actualOutcome}>
-            It leaves along the tangent{path === 'tangent' ? '. 🧭 No Such Force!' : ', not along the radius and not in a curve. Watch the dashed lines after release.'}
-          </span>
-        </div>
-      )}
-
-      <div className={styles.viewToggle} role="group" aria-label="Choose where you are watching from">
-        <button className={`btn ${view === 'room' ? 'btn--primary' : 'btn--secondary'}`} onClick={() => setView('room')} aria-pressed={view === 'room'}>
-          👁️ From the room
-        </button>
-        <button className={`btn ${view === 'turntable' ? 'btn--primary' : 'btn--secondary'}`} onClick={() => setView('turntable')} aria-pressed={view === 'turntable'}>
-          🎡 Riding the turntable
-        </button>
-      </div>
-
-      <TurntableCanvas params={params} state={state} view={view} />
-      <p className={styles.caption} role="status">{caption}</p>
-
-      <div className={styles.scrubberWrap}>
-        <div className={styles.playRow}>
+      <div className={styles.stageTabs} role="tablist" aria-label="Choose an experiment">
+        {tabs.map((t) => (
           <button
-            className={`btn ${playing ? 'btn--secondary' : 'btn--primary'}`}
-            onClick={() => (playing ? playback.setPlaying(false) : finished ? playback.replay() : playback.setPlaying(true))}
+            key={t.id}
+            role="tab"
+            aria-selected={tab === t.id}
+            className={`${styles.stageTab} ${tab === t.id ? styles.stageTabActive : ''}`}
+            onClick={() => setTab(t.id)}
           >
-            {playing ? '⏸ Pause' : finished ? '↺ Replay' : '▶ Play'}
+            {t.label} {t.done ? '✅' : ''}
           </button>
-          <button className="btn btn--secondary" onClick={() => playback.setSlowMo((s) => !s)} aria-pressed={slowMo}>
-            🐢 Slow motion {slowMo ? 'on' : 'off'}
-          </button>
-          <button className="btn btn--secondary" onClick={() => playback.seek(SPIN_UP_TIME - 0.6)}>
-            ⏭ Jump to just before it lets go
-          </button>
-        </div>
-        <label className="slider-label" htmlFor="turntable-scrubber">
-          ⏱ Scrub through the run
-          <span className="value">{state.flying ? 'Coin has let go' : 'Turntable speeding up'}</span>
-        </label>
-        <input
-          id="turntable-scrubber"
-          type="range"
-          min={0}
-          max={playback.duration}
-          step={0.01}
-          value={elapsed}
-          onChange={(e) => playback.seek(parseFloat(e.target.value))}
-          aria-label="Scrub through the turntable run"
-        />
-      </div>
-
-      <FrictionGauge state={state} maxFriction={result.maxFriction} />
-
-      <div className={styles.readoutsGrid}>
-        <div className={styles.readout}><span>Turntable speed now</span><strong className="text-cyan">{radPerSecToRpm(state.omega).toFixed(1)} rpm</strong></div>
-        <div className={styles.readout}><span>Angular velocity now (ω)</span><strong className="text-cyan">{state.omega.toFixed(2)} rad/s</strong></div>
-        <div className={styles.readout}><span>Coin speed (v = ωr)</span><strong className="text-green">{state.speed.toFixed(3)} m/s</strong></div>
-        <div className={styles.readout}><span>Centripetal accel. (ω²r)</span><strong className="text-amber">{state.flying ? '—' : `${aCentripetal.toFixed(2)} m/s²`}</strong></div>
-        <div className={styles.readout}><span>Slips at</span><strong className="text-cyan">{result.slipRpm.toFixed(1)} rpm</strong></div>
-        <div className={styles.readout}><span>Slip speed (ω)</span><strong className="text-cyan">{result.slipOmega.toFixed(2)} rad/s</strong></div>
-        <div className={styles.readout}><span>Acceleration at slip (μg)</span><strong className="text-amber">{result.slipAcceleration.toFixed(2)} m/s²</strong></div>
-      </div>
-
-      <div className={styles.whatIf}>
-        <h4>🔬 What if?</h4>
-        <p className={styles.hint}>Your coin slips at {result.slipRpm.toFixed(1)} rpm. Change one thing at a time and the rule ω = √(μg/r) tells you the new slipping speed:</p>
-        {whatIf.map((row) => (
-          <div className={styles.whatIfRow} key={row.label}>
-            <span>{row.label}</span>
-            <strong>{row.rpm.toFixed(1)} rpm</strong>
-            <em>×{(row.rpm / result.slipRpm).toFixed(2)} · {row.note}</em>
-          </div>
         ))}
       </div>
+      {tab !== 'turntable' && <p className={styles.optionalNote}>Optional challenge. Earns bonus XP.</p>}
 
-      <FormulaPanel
-        title="Circular Motion Equations"
-        formulas={[
-          { label: 'Speed on the circle', latex: 'v = \\omega r', liveValue: `= ${state.speed.toFixed(3)} m/s`, accentColor: 'green' },
-          { label: 'Centripetal acceleration', latex: 'a_c = \\omega^2 r = \\dfrac{v^2}{r}', liveValue: state.flying ? 'coin has left' : `= ${aCentripetal.toFixed(2)} m/s²`, accentColor: 'amber' },
-          { label: 'Friction needed', latex: 'f = m\\omega^2 r', liveValue: `= ${(state.friction * 1000).toFixed(1)} mN`, accentColor: 'cyan' },
-          { label: 'Most friction available', latex: 'f_{max} = \\mu_s m g', liveValue: `= ${(result.maxFriction * 1000).toFixed(1)} mN`, accentColor: 'violet' },
-          { label: 'Slipping speed', latex: '\\omega_{max} = \\sqrt{\\dfrac{\\mu_s g}{r}}', liveValue: `= ${result.slipOmega.toFixed(2)} rad/s`, accentColor: 'cyan' },
-        ]}
-      />
-
-      <h3 className={styles.gamesHeading}>Now try it on the road and on a rope</h3>
-      <BankedCurveGame attempts={games.bank.attempts} cleared={games.bank.cleared} onLock={games.bank.onLock} />
-      <BucketGame attempts={games.bucket.attempts} cleared={games.bucket.cleared} onLock={games.bucket.onLock} />
+      {tab === 'turntable' && <TurntableTab params={params} rpmGuess={rpmGuess} path={path} />}
+      <div hidden={tab !== 'bank'}>
+        <BankedCurveGame attempts={games.bank.attempts} cleared={games.bank.cleared} onLock={games.bank.onLock} active={tab === 'bank'} />
+      </div>
+      <div hidden={tab !== 'bucket'}>
+        <BucketGame attempts={games.bucket.attempts} cleared={games.bucket.cleared} onLock={games.bucket.onLock} active={tab === 'bucket'} />
+      </div>
     </div>
   );
 }
@@ -532,46 +552,35 @@ export function CircularModule() {
 
   const PredictPhase = (
     <div className={styles.predictWrap}>
-      <div className={styles.sliders}>
-        <div className="slider-wrap">
-          <label className="slider-label" htmlFor="circ-radius">Distance of the coin from the axis (r) <span className="value">{radiusCm} cm</span></label>
-          <input id="circ-radius" type="range" min="6" max="20" step="1" value={radiusCm} onChange={(e) => setRadiusCm(+e.target.value)} />
-        </div>
-        <div className="slider-wrap">
-          <label className="slider-label" htmlFor="circ-mu">Grip between coin and turntable (μₛ) <span className="value">{mu.toFixed(2)}</span></label>
-          <input id="circ-mu" type="range" min="0.2" max="0.8" step="0.05" value={mu} onChange={(e) => setMu(+e.target.value)} />
-        </div>
-        <div className="slider-wrap">
-          <label className="slider-label" htmlFor="circ-mass">Mass of the coin (m) <span className="value">{massG} g</span></label>
-          <input id="circ-mass" type="range" min="2" max="20" step="1" value={massG} onChange={(e) => setMassG(+e.target.value)} />
-        </div>
-      </div>
+      <p className={styles.scenario}>
+        A {massG} g coin sits {radiusCm} cm from the centre of a turntable (grip μₛ = {mu.toFixed(2)}). The turntable starts at rest and
+        speeds up slowly.
+      </p>
 
       <TurntableCanvas params={params} state={startState} view="room" />
 
-      <div className={styles.statusCard}>
-        <div className={styles.statusRow}>
-          <span>Most friction the turntable can give (μmg)</span>
-          <strong className="text-cyan">{(result.maxFriction * 1000).toFixed(1)} mN</strong>
+      <details className={styles.moreInfo}>
+        <summary>Change the coin or the turntable (optional)</summary>
+        <div className={styles.sliders}>
+          <div className="slider-wrap">
+            <label className="slider-label" htmlFor="circ-radius">Distance from the centre <span className="value">{radiusCm} cm</span></label>
+            <input id="circ-radius" type="range" min="6" max="20" step="1" value={radiusCm} onChange={(e) => setRadiusCm(+e.target.value)} />
+          </div>
+          <div className="slider-wrap">
+            <label className="slider-label" htmlFor="circ-mu">Grip (μₛ) <span className="value">{mu.toFixed(2)}</span></label>
+            <input id="circ-mu" type="range" min="0.2" max="0.8" step="0.05" value={mu} onChange={(e) => setMu(+e.target.value)} />
+          </div>
+          <div className="slider-wrap">
+            <label className="slider-label" htmlFor="circ-mass">Coin mass <span className="value">{massG} g</span></label>
+            <input id="circ-mass" type="range" min="2" max="20" step="1" value={massG} onChange={(e) => setMassG(+e.target.value)} />
+          </div>
         </div>
-        <div className={styles.statusRow}>
-          <span>The coin sits {radiusCm} cm from the axis, near the rim</span>
-          <strong className="text-amber">g = {G} m/s²</strong>
-        </div>
-        <p className={styles.hint}>
-          The turntable starts at rest and speeds up slowly, so the coin keeps up with it, until it can't. We treat the coin as being right
-          at the rim, so once it slips it is off the turntable straight away.
-        </p>
-      </div>
+      </details>
 
       <div className={styles.questionCard}>
-        <p className={styles.questionText}>
-          A {massG} g coin sits {radiusCm} cm from the axis of a turntable (μₛ = {mu.toFixed(2)}). The turntable speeds up slowly from rest.
-        </p>
-
         <div className={styles.dialBlock}>
           <label className="slider-label" htmlFor="circ-dial">
-            1. At what turntable speed will the coin slip off?
+            1. At what speed will the coin slip off? (within ±{RPM_TOLERANCE * 100}%)
             <span className="value">{rpmGuess === null ? 'move the dial' : `${rpmGuess} rpm`}</span>
           </label>
           <input
@@ -584,12 +593,9 @@ export function CircularModule() {
             onChange={(e) => setRpmGuess(+e.target.value)}
             aria-valuetext={rpmGuess === null ? 'no prediction yet' : `${rpmGuess} revolutions per minute`}
           />
-          <p className={styles.hint}>Within ±{RPM_TOLERANCE * 100}% counts as correct. Work it out: friction has to supply mω²r, and it can give at most μmg.</p>
         </div>
 
-        <p className={styles.questionText}>
-          2. Watching from the room, which way does the coin move at the instant it lets go?
-        </p>
+        <p className={styles.questionText}>2. Seen from the room, which way does it move the instant it lets go?</p>
         <div className={styles.predOptions} role="radiogroup" aria-label="Predicted path after release">
           {PATH_OPTIONS.map((option) => (
             <button
@@ -609,14 +615,14 @@ export function CircularModule() {
             🔮 Lock In Predictions
           </button>
         ) : (
-          <p className={styles.hint}>Answer both questions to lock in your prediction.</p>
+          <p className={styles.hint}>Answer both to lock in.</p>
         )}
       </div>
     </div>
   );
 
   const ObservePhase = (
-    <TurntableStage
+    <ObserveStage
       params={params}
       rpmGuess={rpmGuess}
       path={path}
@@ -631,19 +637,19 @@ export function CircularModule() {
     <div className={styles.module}>
       <div className={styles.moduleHeader}>
         <h2>🎡 Circular Motion Turntable</h2>
-        <p>Spin a turntable up until a coin lets go, then find the safe speeds on a banked road and swing a bucket over the top, to see what really keeps things moving in circles.</p>
+        <p>Spin a turntable until a coin lets go, then take a banked bend and swing a bucket over the top.</p>
       </div>
 
       <div className={styles.conceptWrap}>
         <ConceptNotes
           title="Circular Motion"
-          intro="Radians and rpm, why turning needs a force toward the centre, why there is no outward force, and the tutorial set-ups."
+          intro="Radians, rpm, and why turning needs a force toward the centre (but never an outward one)."
           sections={CIRCULAR_CONCEPTS}
         />
         <ConceptNotes
           variant="challenge"
           title="Circular Motion"
-          intro="Deriving centripetal acceleration by differentiating, angular acceleration that changes with time, and tension around a vertical circle."
+          intro="Calculus behind circular motion."
           sections={CIRCULAR_CHALLENGE}
         />
       </div>

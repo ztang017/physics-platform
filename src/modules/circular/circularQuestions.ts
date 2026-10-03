@@ -25,14 +25,6 @@ export const CIRCULAR_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     explanation: 'Everything on a rigid spinning disc turns through the same angle in the same time, so ω is the same for both. But v = ωr, so the coin at twice the radius moves at twice the speed. The outer coin covers a bigger circle in the same time.',
   },
   {
-    id: 'centripetal-speed-doubled',
-    question: 'A car goes round a bend of fixed radius. If it doubles its speed, what happens to the centripetal acceleration it needs?',
-    options: ['It quadruples', 'It doubles', 'It halves', 'It stays the same'],
-    correctIndex: 0,
-    hint: 'The formula is a = v²/r. Is the speed multiplied once, or squared?',
-    explanation: 'a = v²/r depends on the SQUARE of the speed, so doubling v multiplies a by 2² = 4. The net inward force must grow by the same factor, which is why a car that is fine at 30 km/h can skid at 60 km/h on the very same bend.',
-  },
-  {
     id: 'angular-accel-stopping',
     question: 'A fan blade spinning at 120 rad/s is switched off and slows steadily to rest in 6.0 s. What is its angular acceleration?',
     options: ['−20 rad/s²', '+20 rad/s²', '−720 rad/s²', '−0.05 rad/s²'],
@@ -54,38 +46,12 @@ export const CIRCULAR_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     explanation: 'The weight and the normal force are vertical and cancel each other. The only horizontal force on the coin is the static friction from the turntable, and it points toward the centre. Friction IS the centripetal force here. A "centrifugal force" is not a real force acting on the coin.',
   },
   {
-    id: 'path-after-release',
-    question: 'A ball is whirled in a horizontal circle on a string, and you watch from above. The string suddenly snaps. Ignoring the downward pull of gravity, which path does the ball follow, as seen from above?',
-    options: [
-      'A straight line along the direction it was moving at that instant (the tangent)',
-      'A straight line outward, along the radius',
-      'It keeps circling for a while, then flies off',
-      'A spiral that curves outward',
-    ],
-    correctIndex: 0,
-    hint: 'Once the string snaps, what real force is left acting sideways on the ball? And what does Newton\'s first law say about an object with no net force?',
-    explanation: 'With the string gone there is no sideways force at all, so by Newton\'s first law the ball continues in a straight line at constant velocity: the velocity it had at the moment of release, which was along the tangent to the circle. It is not flung outward. Nothing pushes it outward; it just stops being pulled inward.',
-  },
-  {
     id: 'mu-from-rpm',
     question: 'A coin on a turntable slips when the turntable reaches 60 rpm. The coin is 10 cm from the axis. What is the coefficient of static friction? (g = 9.8 m/s²)',
     options: ['0.40', '0.064', '0.040', '0.63'],
     correctIndex: 0,
     hint: 'At the point of slipping, friction is at its maximum: μmg = mω²r, so μ = ω²r/g. Convert the rpm to rad/s first, and remember that r must be in metres.',
     explanation: '60 rpm is ω = 2π = 6.28 rad/s, and r = 0.10 m. Then μ = ω²r/g = (39.5 × 0.10)/9.8 ≈ 0.40. The wrong answers come from slips: 0.063 is ωr/g (a square missing), 0.040 is v²/g (the radius squared instead of ω²), and 0.63 is just ωr, with the division by g forgotten.',
-  },
-  {
-    id: 'mass-cancels-turntable',
-    question: 'A coin is replaced by a heavier coin of the same material, placed at the same distance from the axis. Compared with the first coin, when does it slip?',
-    options: [
-      'At the same turntable speed: the extra weight and the extra friction cancel',
-      'Sooner, because a heavier coin needs a larger force',
-      'Later, because a heavier coin presses harder and has more friction',
-      'It cannot be predicted without knowing the mass',
-    ],
-    correctIndex: 0,
-    hint: 'Write the two sides of mω²r = μmg. Is there an m on both sides?',
-    explanation: 'The friction needed is mω²r and the most friction available is μmg. Both contain m, so it cancels, leaving ω² r = μ g. The slipping speed depends only on μ and r, not on the mass. A heavier coin needs more force to turn, but the turntable also grips it harder.',
   },
   {
     id: 'radius-quarter',
@@ -157,19 +123,6 @@ export const CIRCULAR_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     explanation: 'At the top, v_top² = gr. Energy conservation from the top down to the bottom gives v₀² = v_top² + 4gr = 5gr = 39.2, so v₀ ≈ 6.3 m/s. The wrong answers are the slips: 2.8 m/s is only the speed needed AT THE TOP, 4.0 m/s is √(2gr), the speed that just brings the bucket level with the centre, and 5.6 m/s is √(4gr), which would reach the top with zero speed. That is enough for a stiff rod but not for a rope.',
   },
   {
-    id: 'bank-icy-force',
-    question: 'A car goes round a banked bend on a perfectly icy road (no friction) at exactly the design speed. Which force supplies the centripetal force?',
-    options: [
-      'The horizontal part of the normal force from the road',
-      'Friction between the tyres and the road',
-      'The car\'s weight',
-      'A centrifugal force pointing outward that balances the normal force',
-    ],
-    correctIndex: 0,
-    hint: 'The normal force is perpendicular to the road surface. If the road is tilted toward the centre, which way does the normal force lean, and what does its horizontal part do?',
-    explanation: 'On a banked road the surface is tilted, so the normal force leans toward the centre of the bend. Its vertical part cancels the weight and its horizontal part is the only sideways force on the car, so it IS the centripetal force: N sin θ = mv²/R. That is the whole point of banking a road: the slope does the turning, not friction.',
-  },
-  {
     id: 'bank-design-speed',
     question: 'A bend of radius 60 m is banked at 20° (tan 20° ≈ 0.364). At what speed does a car need no friction at all to take it? (g = 9.8 m/s²)',
     options: ['14.6 m/s', '24 m/s', '214 m/s', '1.9 m/s'],
@@ -189,18 +142,5 @@ export const CIRCULAR_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     correctIndex: 0,
     hint: 'At the design speed the normal force supplies exactly the turning force needed. At a lower speed, less turning force is needed. Is the normal force then supplying too much or too little, and which way would that push the car?',
     explanation: 'At a lower speed the car needs less inward force than the normal force provides, so it would be pushed toward the inside, which is down the slope. Static friction opposes that tendency, so it acts up the slope. If the car is too slow even for friction to hold it, it slides down. At speeds above the design speed everything reverses: friction acts down the slope.',
-  },
-  {
-    id: 'bank-band-widens',
-    question: 'Compared with an icy banked road, what does tyre friction do to the range of safe speeds on the bend?',
-    options: [
-      'It widens it: the slowest safe speed goes down and the fastest goes up',
-      'It raises the slowest safe speed and lowers the fastest',
-      'It only raises the fastest safe speed',
-      'It makes no difference: friction only matters on flat roads',
-    ],
-    correctIndex: 0,
-    hint: 'On ice there is exactly one safe speed. Friction can act up the slope (stopping a slide down) or down the slope (stopping a slide up). What does having both options do to the range?',
-    explanation: 'On ice there is a single safe speed, the design speed. With friction, the road can push the car either up or down the slope, up to μN, so speeds both below and above the design speed become safe. The slowest safe speed falls, the fastest rises, and a rougher road widens the band further.',
   },
 ];
