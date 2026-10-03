@@ -337,4 +337,52 @@ export const STUDY_TOPICS: StudyTopic[] = [
     ],
     principle: "At the top the slowest taut speed has v_top² = gr. Energy conservation over the 2r drop gives v₀² = v_top² + 4gr = 5gr, so the bucket must pass the bottom at no less than √(5gr). The mass cancels. Below √(2gr) it swings back; between √(2gr) and √(5gr) the rope goes slack on the way up.",
   },
+  {
+    id: "kin-units",
+    moduleId: "kinematics",
+    question: "What does m/s² actually mean?",
+    keywords: ["m/s²", "m/s^2", "meters per second squared", "metres per second squared", "units of acceleration", "per second per second"],
+    prompts: [
+      "Read the unit out loud: 'metres per second, per second'. What does the first 'metres per second' measure?",
+      "If the velocity changes by 3 m/s every single second, what is the change in velocity per second?",
+      "So what does an acceleration of 3 m/s² tell you about the velocity after 1, 2 and 3 seconds, starting from rest?",
+    ],
+    principle: "m/s² means (m/s) per second. An acceleration of 3 m/s² means the velocity grows by 3 m/s every second: 3, 6, 9 m/s and so on. It is a rate of change of velocity, not a speed.",
+  },
+  {
+    id: "proj-sin-or-cos",
+    moduleId: "projectile",
+    question: "How do I know whether to use sine or cosine for a component?",
+    keywords: ["sin or cos", "sine or cosine", "cos or sin", "which trig", "soh cah toa", "sohcahtoa", "opposite adjacent", "sin vs cos"],
+    prompts: [
+      "Draw the right-angled triangle with the launch velocity as the long side. Which side touches the angle θ, and which side is across from it?",
+      "Cosine is adjacent ÷ hypotenuse and sine is opposite ÷ hypotenuse. Is the sideways part the side touching the angle, or the side across from it?",
+      "Check your answer at the extremes. At 0° the ball goes completely sideways, so the sideways part should be as big as possible. Which function equals 1 at 0°?",
+    ],
+    principle: "The side touching the angle (adjacent) uses cosine. The side across from the angle (opposite) uses sine. For a launch angle measured from the horizontal, the sideways part is v₀ cos θ and the upward part is v₀ sin θ. Test with 0° and 90° to catch a swap.",
+  },
+  {
+    id: "inc-mass-weight",
+    moduleId: "incline",
+    question: "What is the difference between mass and weight, and what is a newton?",
+    keywords: ["mass and weight", "weight and mass", "mass vs weight", "weight vs mass", "what is a newton", "difference between mass", "kg or n"],
+    prompts: [
+      "If you travelled to the Moon, which would change: the amount of matter in your body, or the pull of gravity on it?",
+      "Weight = mg. Which of those two letters is different on the Moon?",
+      "Which unit measures a force: kilograms or newtons?",
+    ],
+    principle: "Mass is the amount of matter, measured in kilograms, and it does not change from place to place. Weight is the pull of gravity on that mass, W = mg, a force measured in newtons. One newton is about the weight of a small apple.",
+  },
+  {
+    id: "inc-draw-fbd",
+    moduleId: "incline",
+    question: "How do I draw a free-body diagram?",
+    keywords: ["draw a free body", "how to draw a free body", "free body diagram", "free-body diagram", "draw the forces", "how do i draw the forces"],
+    prompts: [
+      "Pick ONE object and draw it as a simple box. Which object is it?",
+      "List everything touching it (surfaces, ropes, other blocks) and anything that pulls it from a distance (gravity). Each one gets an arrow pointing the way it pushes or pulls.",
+      "For each arrow ask: which way does this force point? A surface pushes at right angles to itself, friction acts along the surface against the sliding, and gravity points straight down.",
+    ],
+    principle: "A free-body diagram shows ONE object and an arrow for every force acting ON it. Include weight, normal force, friction, tension or applied pushes as they apply. Leave out forces the object exerts on other things, and never draw a force and its components together.",
+  },
 ];

@@ -5,17 +5,49 @@ import { Katex } from '../../components/ui/Katex';
 
 export const KINEMATICS_CONCEPTS: ConceptSection[] = [
   {
+    id: 'toolkit',
+    icon: '🧰',
+    title: 'Your Toolkit: Symbols, Units and Graphs',
+    summary: 'Physics uses short symbols and units as shorthand. Once you can read them, every formula is just a sentence.',
+    body: [
+      "Physicists write quantities as letters. The letter x stands for position (where something is), v for velocity (how fast, and which way), a for acceleration and t for time. A small mark next to a letter tells you when. A subscript 0 or i, as in x₀ or xᵢ, means 'at the start'. A subscript f, as in x_f, means 'at the end'.",
+      "The Greek letter Δ (say 'delta') means 'change in'. So Δx is the change in position: the final position minus the starting position. If you walk from the 2 m mark to the 7 m mark, then Δx = 7 − 2 = 5 m.",
+      "Every number needs a unit. Metres (m) measure distance and seconds (s) measure time. The word 'per' means 'divide by', so m/s ('metres per second') is a distance divided by a time. You will also see m/s², which means 'metres per second, per second'. A little 2 on a letter (like t²) means the number multiplied by itself, and ½ simply means one half.",
+      "A graph shows how one quantity changes as another one does. Time is usually along the bottom. The slope of a line (how steep it is) tells you how fast the quantity is changing. The area under a line adds up the total change. You will use both ideas in this module.",
+    ],
+    watchOut: 'Always check the units. If you are asked for a speed and your answer is in metres, something has gone wrong.',
+    interactive: (
+      <TryIt
+        resultLabel="Average velocity"
+        resultUnit="m/s"
+        formulaLatex={'v_{avg} = \\dfrac{\\Delta x}{\\Delta t} = \\dfrac{x_f - x_i}{t}'}
+        variables={[
+          { id: 'startPos', label: 'Starting position (xᵢ)', min: -10, max: 10, step: 1, defaultValue: 2, unit: 'm' },
+          { id: 'endPos', label: 'Final position (x_f)', min: -10, max: 20, step: 1, defaultValue: 12, unit: 'm' },
+          { id: 'elapsed', label: 'Time taken (t)', min: 1, max: 10, step: 1, defaultValue: 4, unit: 's' },
+        ]}
+        compute={({ startPos, endPos, elapsed }) => (endPos - startPos) / elapsed}
+        interpret={({ startPos, endPos, elapsed }, result) =>
+          `The position changed by Δx = ${endPos} − (${startPos}) = ${endPos - startPos} m in ${elapsed} s, so the average velocity is ${result.toFixed(2)} m/s${result < 0 ? ' (negative, so it moved in the negative direction)' : ''}.`
+        }
+      />
+    ),
+  },
+  {
     id: 'position-distance-displacement',
     icon: '📍',
     title: 'Position, Distance, and Displacement',
+    summary: 'Distance is how much ground you covered. Displacement is how far you ended up from where you started, in a particular direction.',
     body: [
-      'Position tells you where an object is, measured from some reference point you choose (the "origin"). Think of it like a mile-marker on a road — a single number, with a sign, telling you where you are along a line. Move the origin and every position value shifts, but the PHYSICS never changes — this is why physicists are free to put the origin wherever is most convenient.',
-      "Distance is the total length of the path traveled — it only ever adds up, so it can never be negative, and it doesn't care which direction you were going. Displacement is different: it's the CHANGE in position, Δx = x_final − x_initial, and it can be positive, negative, or zero depending on where you ended up relative to where you started.",
-      "Example: walk 5 m east, then 5 m back west. You've covered a distance of 10 m — your legs did real work either way — but your displacement is 0 m, because position-wise you ended up exactly where you started. A car's odometer measures distance; a GPS measuring 'how far from home' measures something closer to displacement.",
+      "Position tells you where something is, measured from a starting point you choose, called the origin. Think of the numbered markers beside a road. Position is one number with a sign: positive on one side of the origin and negative on the other.",
+      "Distance is the total length of the path you travelled. It only ever adds up, so it is never negative. Displacement is different. It is the change in position, final minus initial, and it can be positive, negative or zero.",
+      "Example: walk 5 m east, then 5 m back west. Your distance is 10 m, because you really did walk that far. Your displacement is 0 m, because you finished exactly where you started.",
+      "A car's odometer measures distance. The question 'how far am I from home right now?' is closer to displacement.",
     ],
+    watchOut: 'Moving the origin changes every position number, but it never changes a displacement. Put the origin wherever makes the problem easiest.',
     formulaLatex: '\\Delta x = x_f - x_i',
     symbols: [
-      { symbol: 'Δx', meaning: 'Displacement — the straight-line change in position', unit: 'm' },
+      { symbol: 'Δx', meaning: 'Displacement: the straight-line change in position', unit: 'm' },
       { symbol: 'x_f', meaning: 'Final position' },
       { symbol: 'x_i', meaning: 'Initial position' },
     ],
@@ -24,43 +56,71 @@ export const KINEMATICS_CONCEPTS: ConceptSection[] = [
     id: 'velocity-vs-speed',
     icon: '🏃',
     title: 'Velocity vs. Speed',
+    summary: 'Speed says how fast. Velocity says how fast and which way.',
     body: [
-      'Speed just tells you how fast something is moving — always a positive number, like "60 km/h". Velocity tells you speed AND direction, like "60 km/h north". In one dimension (a straight line), direction shows up as a sign: positive usually means moving one way along your chosen axis, negative the other.',
-      "This distinction matters more than it sounds: a car going around a circular track at a perfectly constant SPEED still has a constantly CHANGING velocity, because its direction keeps changing. That changing velocity is exactly why the car needs a continuous sideways force (more on that in the Forces module) — 'constant speed' does not mean 'no acceleration'.",
-      'Average velocity is total displacement divided by total time — it only cares about start and end points, not the twists and turns in between. Instantaneous velocity is what a speedometer-with-direction would read at one exact moment; mathematically, it\'s the slope of the position-time graph at that single instant.',
+      "Speed tells you how fast something is moving. It is never negative, for example '60 km/h'. Velocity tells you the speed and the direction, for example '60 km/h north'. On a straight line, the direction is shown by a sign: plus for one way and minus for the other.",
+      "Average velocity is the displacement divided by the time taken. It only cares about where you started and finished, not about the twists and turns in between.",
+      "Instantaneous velocity is the velocity at one exact moment, like a speedometer that also shows direction. On a position-time graph it is the slope of the line at that moment.",
     ],
+    watchOut: "A steady speed does not always mean a steady velocity. A car going round a track at 60 km/h keeps changing direction, so its velocity keeps changing. (You will meet circular motion in Module 6.)",
     formulaLatex: 'v_{avg} = \\dfrac{\\Delta x}{\\Delta t}',
     symbols: [
       { symbol: 'v_{avg}', meaning: 'Average velocity over the time interval', unit: 'm/s' },
       { symbol: 'Δx', meaning: 'Displacement during that interval', unit: 'm' },
-      { symbol: 'Δt', meaning: 'Elapsed time (t_final − t_initial)', unit: 's' },
+      { symbol: 'Δt', meaning: 'Elapsed time (final time minus initial time)', unit: 's' },
     ],
   },
   {
     id: 'acceleration',
     icon: '⚡',
-    title: 'Acceleration — the Rate Velocity Changes',
+    title: 'Acceleration: How Quickly Velocity Changes',
+    summary: 'Acceleration is how quickly velocity changes: speeding up, slowing down or turning.',
     body: [
-      "Acceleration measures how quickly velocity itself is changing: a = Δv/Δt. It has nothing to do with how fast you're going right now — a car cruising at a constant 100 km/h on a straight highway has ZERO acceleration, even though its speed is high. A car pulling away from a stoplight at just 20 km/h can have enormous acceleration, because its velocity is changing fast.",
-      'A common misconception ("impetus theory") is that a moving object needs a continuous push to keep moving, and will naturally slow down and stop on its own once that push is removed. That\'s false. By Newton\'s First Law, an object in motion stays in motion at constant velocity forever unless a net force — like friction or air resistance — acts on it. In everyday life things DO slow down, but only because friction is quietly doing exactly that: applying a force.',
-      "The sign of acceleration relative to velocity tells you the whole story: same sign (both positive or both negative) means speeding up; opposite signs mean slowing down, regardless of which direction is 'positive'. A car braking while moving in the negative direction is actually accelerating in the positive direction — this trips up almost everyone the first time they see it.",
+      "Acceleration measures how quickly velocity changes: a = Δv/Δt. An acceleration of 2 m/s² means that every second the velocity changes by 2 m/s. Starting from rest, you would be moving at 2, 4 and 6 m/s after 1, 2 and 3 seconds.",
+      "Acceleration is about CHANGE, not about being fast. A car cruising at a steady 100 km/h has zero acceleration. A car pulling away from a red light has a large acceleration, even though it is still moving slowly.",
+      "Compare the signs to see what is happening. If velocity and acceleration have the SAME sign, the object is speeding up. If the signs are OPPOSITE, it is slowing down. A car moving in the negative direction and braking has a positive acceleration.",
+      "Many people believe a moving object needs a steady push to keep going. It does not. Newton's First Law says an object keeps moving at a steady velocity unless a force acts on it. Everyday things slow down because friction and air resistance are forces pushing back.",
     ],
+    watchOut: 'Zero acceleration does not mean zero velocity. It means the velocity is not changing.',
     formulaLatex: 'a = \\dfrac{\\Delta v}{\\Delta t}',
     symbols: [
       { symbol: 'a', meaning: 'Acceleration', unit: 'm/s²' },
-      { symbol: 'Δv', meaning: 'Change in velocity (v_final − v_initial)', unit: 'm/s' },
-      { symbol: 'Δt', meaning: 'Elapsed time', unit: 's' },
+      { symbol: 'Δv', meaning: 'Change in velocity (final minus initial)', unit: 'm/s' },
+      { symbol: 'Δt', meaning: 'Time taken for that change', unit: 's' },
     ],
+    interactive: (
+      <TryIt
+        resultLabel="Acceleration"
+        resultUnit="m/s²"
+        formulaLatex={'a = \\dfrac{\\Delta v}{\\Delta t} = \\dfrac{v_f - v_i}{t}'}
+        variables={[
+          { id: 'vStart', label: 'Starting velocity (vᵢ)', min: -15, max: 15, step: 1, defaultValue: 4, unit: 'm/s' },
+          { id: 'vEnd', label: 'Final velocity (v_f)', min: -15, max: 15, step: 1, defaultValue: 0, unit: 'm/s' },
+          { id: 'accelTime', label: 'Time taken (t)', min: 1, max: 10, step: 1, defaultValue: 4, unit: 's' },
+        ]}
+        compute={({ vStart, vEnd, accelTime }) => (vEnd - vStart) / accelTime}
+        interpret={({ vStart, vEnd }, result) => {
+          if (result === 0) return 'The velocity did not change, so the acceleration is zero.';
+          const speedingUp = Math.abs(vEnd) > Math.abs(vStart) && Math.sign(vEnd) * Math.sign(vStart) >= 0;
+          return speedingUp
+            ? 'The speed is growing, so the object is speeding up. Notice that velocity and acceleration have the same sign.'
+            : 'The speed is shrinking (or the direction is reversing), so the object is slowing down. Notice that velocity and acceleration have opposite signs.';
+        }}
+      />
+    ),
   },
   {
     id: 'equations-of-motion',
     icon: '🧮',
     title: 'The Constant-Acceleration Equations',
+    summary: 'When acceleration stays the same, two short formulas give the velocity and the position at any time.',
     body: [
-      'When acceleration is constant (not changing over time — the situation this whole module simulates), two simple equations describe the ENTIRE motion, for any time t you plug in. They\'re worth memorizing because they show up constantly throughout physics.',
-      'The first says velocity grows steadily from its starting value at a constant rate a. The second says position is the starting position, plus what you\'d travel at the ORIGINAL velocity, plus an extra term that accounts for the fact that velocity was also changing along the way — that\'s where the "one-half" and the squared time come from.',
-      'Notice both equations reduce to the everyday case when a = 0: velocity stays at v₀ forever, and position grows linearly with time — exactly the "distance = speed × time" formula you already know intuitively.',
+      "In this module the acceleration stays constant. In that case two formulas describe the whole motion, for any time t. The first says: velocity now = starting velocity + acceleration × time.",
+      "The second gives the position. Start from where you began (x₀). Add the distance you would have covered at your starting velocity (v₀t). Then add a bonus (½at²), because your velocity was growing as you went. That bonus is where the half and the squared time come from.",
+      "If a = 0 the bonus disappears. The velocity never changes, and the position grows by speed × time, which you already know.",
+      "Worked example: a cyclist starts at 2 m/s and speeds up at 1 m/s². After 4 s, v = 2 + 1×4 = 6 m/s and x = 2×4 + ½×1×4² = 8 + 8 = 16 m from the start.",
     ],
+    watchOut: 'These formulas only work when the acceleration is constant. If the acceleration changes during the motion, they give wrong answers.',
     formulaLatex: 'v = v_0 + at \\qquad\\qquad x = x_0 + v_0 t + \\tfrac{1}{2}at^2',
     symbols: [
       { symbol: 'v', meaning: 'Velocity at time t', unit: 'm/s' },
@@ -68,27 +128,50 @@ export const KINEMATICS_CONCEPTS: ConceptSection[] = [
       { symbol: 'x', meaning: 'Position at time t', unit: 'm' },
       { symbol: 'x_0', meaning: 'Initial position, at t = 0', unit: 'm' },
       { symbol: 'a', meaning: 'Constant acceleration', unit: 'm/s²' },
-      { symbol: 't', meaning: 'Elapsed time since the start', unit: 's' },
+      { symbol: 't', meaning: 'Time since the start', unit: 's' },
     ],
+    interactive: (
+      <TryIt
+        resultLabel="Position after time t (starting at x₀ = 0)"
+        resultUnit="m"
+        formulaLatex={'x = v_0 t + \\tfrac{1}{2}at^2'}
+        variables={[
+          { id: 'eomV0', label: 'Starting velocity (v₀)', min: -10, max: 10, step: 1, defaultValue: 2, unit: 'm/s' },
+          { id: 'eomA', label: 'Acceleration (a)', min: -4, max: 4, step: 0.5, defaultValue: 1, unit: 'm/s²' },
+          { id: 'eomT', label: 'Time (t)', min: 0, max: 10, step: 1, defaultValue: 4, unit: 's' },
+        ]}
+        compute={({ eomV0, eomA, eomT }) => eomV0 * eomT + 0.5 * eomA * eomT * eomT}
+        interpret={({ eomV0, eomA, eomT }) =>
+          `After ${eomT} s the velocity is v = ${eomV0} + (${eomA})(${eomT}) = ${(eomV0 + eomA * eomT).toFixed(1)} m/s. The first part of the position (v₀t = ${(eomV0 * eomT).toFixed(1)} m) is the distance at the starting velocity; the rest (${(0.5 * eomA * eomT * eomT).toFixed(1)} m) is the bonus from accelerating.`
+        }
+      />
+    ),
   },
   {
     id: 'meeting-point',
     icon: '🤝',
     title: 'When Two Objects Meet',
+    summary: 'To find when two moving things meet, write each one\'s position formula and set the two equal.',
     body: [
-      "Some problems ask you to find WHEN and WHERE two separately-moving objects are in the same place at the same time — a ball thrown after another, two cars pulling away from different points, and so on. This isn't new physics: it's writing a position equation, x(t) = x₀ + v₀t + ½at², for EACH object separately, then setting the two expressions equal to each other and solving for the one shared value of t where they match.",
-      "The only subtlety is keeping a single, consistent clock for both objects. If the second object starts moving Δt seconds after the first, its own equation should use (t − Δt) in place of t everywhere — because by the shared clock time t, the second object has only actually been moving for (t − Δt) seconds.",
+      "Some problems ask WHEN and WHERE two moving objects are at the same place at the same time, such as a second ball thrown after the first. This is not new physics. Write the position formula for each object, set the two equal, and solve for t.",
+      "There is one trap: the clock. If the second object starts Δt seconds late, write (t − Δt) wherever its formula has a t. By the shared clock, it has only been moving for (t − Δt) seconds.",
     ],
+    watchOut: 'Use ONE clock for both objects. Mixing a separate clock for each is the most common mistake in these problems.',
     interactive: (
       <RevealAnswer
-        question="Ball A is thrown straight up at 20 m/s. Exactly 1 s later, Ball B is thrown straight up from the same point at 30 m/s. Measuring t from when Ball A is thrown, when do the two balls meet? (g = 10 m/s²)"
+        question="Ball A is thrown straight up at 20 m/s. Exactly 1 s later, Ball B is thrown straight up from the same point at 30 m/s. Measuring t from when Ball A is thrown, when do the two balls meet? (Use g = 10 m/s², so ½g = 5.)"
         answer={
           <>
-            <p>Write a position equation for each ball, both measured on the same clock t:</p>
-            <Katex latex={'x_A(t) = 20t - 5t^2'} displayMode />
-            <Katex latex={'x_B(t) = 30(t-1) - 5(t-1)^2 \\quad (t \\geq 1)'} displayMode />
-            <p>Set them equal and solve for t — expanding x_B and collecting terms gives t = <strong>1.75 s</strong>.</p>
-            <p>Checking both: x_A(1.75) = 20(1.75) − 5(1.75)² ≈ 19.7 m, and x_B(0.75) = 30(0.75) − 5(0.75)² ≈ 19.7 m — they agree, confirming the two balls pass each other about 19.7 m up.</p>
+            <p>Write a height formula for each ball, both on the same clock t. Ball A has been flying for t seconds:</p>
+            <Katex latex={'x_A = 20t - 5t^2'} displayMode />
+            <p>Ball B has only been flying for (t − 1) seconds:</p>
+            <Katex latex={'x_B = 30(t-1) - 5(t-1)^2'} displayMode />
+            <p>Expand Ball B. First, 30(t − 1) = 30t − 30. Then (t − 1)² = t² − 2t + 1, so −5(t − 1)² = −5t² + 10t − 5. Adding the two parts:</p>
+            <Katex latex={'x_B = 40t - 35 - 5t^2'} displayMode />
+            <p>The balls meet when x_A = x_B:</p>
+            <Katex latex={'20t - 5t^2 = 40t - 35 - 5t^2'} displayMode />
+            <p>The −5t² terms cancel (both balls feel the same gravity). That leaves 20t = 40t − 35, so 20t = 35 and <strong>t = 1.75 s</strong>.</p>
+            <p>Check: x_A = 20(1.75) − 5(1.75)² ≈ 19.7 m, and x_B = 30(0.75) − 5(0.75)² ≈ 19.7 m. Both balls are about 19.7 m up at that moment.</p>
           </>
         }
       />
@@ -98,11 +181,13 @@ export const KINEMATICS_CONCEPTS: ConceptSection[] = [
     id: 'reading-graphs',
     icon: '📈',
     title: 'Reading Motion Graphs',
+    summary: 'On a position-time graph the slope is the velocity. On a velocity-time graph the slope is the acceleration and the area is the displacement.',
     body: [
-      'Graphs let you "see" motion instead of just reading numbers. On a position-time (x-t) graph, the SLOPE at any point equals the velocity at that instant — a flat line means the object is momentarily at rest, a steep line means it\'s moving fast, and a downward-sloping line means it\'s moving in the negative direction.',
-      "On a velocity-time (v-t) graph, the slope equals acceleration, and — less obviously — the AREA under the curve between two times equals the displacement over that interval. This is because area = (height) × (width) = velocity × time, which is exactly the displacement for constant velocity, and calculus generalizes this to changing velocity too.",
-      'A parabola on the x-t graph and a straight diagonal line on the v-t graph are really the SAME motion described two different ways — constant acceleration. Learning to translate between the two views (and to a-t graphs too) is one of the most useful skills in introductory mechanics.',
+      "Graphs let you SEE motion. On a position-time (x-t) graph, the slope at any point is the velocity. A flat line means the object is at rest. A steep line means it is moving fast. A line sloping downward means it is moving in the negative direction.",
+      "On a velocity-time (v-t) graph, the slope is the acceleration. The area between the line and the time axis is the displacement. Why? Area is height × width, which here is velocity × time, and that is the distance travelled.",
+      "A straight sloping line on the v-t graph and a curved parabola on the x-t graph are the SAME motion shown in two ways: constant acceleration.",
     ],
+    watchOut: 'A graph is not a picture of the path. A rising line on a v-t graph does not mean the object is going uphill. It means the velocity is increasing.',
     interactive: (
       <TryIt
         resultLabel="Displacement (Δx)"
@@ -116,7 +201,7 @@ export const KINEMATICS_CONCEPTS: ConceptSection[] = [
         interpret={(vals, result) =>
           result === 0
             ? 'Zero velocity or zero time means nothing has moved yet.'
-            : `At a constant ${vals.v} m/s, the object ends up ${Math.abs(result).toFixed(1)} m ${result >= 0 ? 'ahead of' : 'behind'} where it started — this is the area under a flat line on a v-t graph.`
+            : `At a steady ${vals.v} m/s, the object ends up ${Math.abs(result).toFixed(1)} m ${result >= 0 ? 'ahead of' : 'behind'} where it started. That is the area under a flat line on a v-t graph.`
         }
       />
     ),
@@ -133,6 +218,7 @@ export const KINEMATICS_CHALLENGE: ConceptSection[] = [
     id: 'derivatives-of-motion',
     icon: '📐',
     title: 'Derivatives: The Calculus Behind the Slopes',
+    summary: "Velocity is the derivative of position and acceleration is the derivative of velocity: slopes, written in calculus notation.",
     body: [
       "You already know velocity is the slope of an x-t graph, and acceleration is the slope of a v-t graph. Calculus just gives that idea a name and a symbol: the slope AT AN INSTANT is called a derivative, written dx/dt.",
       'So velocity is formally defined as v(t) = dx/dt — the instantaneous rate of change of position. Acceleration is the derivative of velocity, a(t) = dv/dt, which makes it the SECOND derivative of position: a(t) = d²x/dt². Every "slope of the graph" statement from the basics section above is really this, just without the notation.',
@@ -147,6 +233,7 @@ export const KINEMATICS_CHALLENGE: ConceptSection[] = [
     id: 'integrating-variable-acceleration',
     icon: '∫',
     title: 'Integrating Variable Acceleration',
+    summary: "Integrating acceleration gives velocity, and integrating velocity gives position. This works even when the acceleration changes.",
     body: [
       "The constant-acceleration equations (v = v₀ + at, x = x₀ + v₀t + ½at²) aren't arbitrary — they're what you get from integrating a(t) = a (a constant) once to get v(t), then integrating again to get x(t). Integration is the reverse of differentiation: instead of finding a slope, you're finding the area under a graph, which accumulates change over time.",
       "This matters because real acceleration often ISN'T constant. Suppose a(t) = 6t (it grows steadily with time) and the object starts from rest at the origin. Integrating once: v(t) = ∫6t dt = 3t² + C. Since v(0) = 0, C = 0, so v(t) = 3t². Integrating again: x(t) = ∫3t² dt = t³ + C. Since x(0) = 0, C = 0, so x(t) = t³.",
@@ -172,6 +259,7 @@ export const KINEMATICS_CHALLENGE: ConceptSection[] = [
     id: 'terminal-velocity-ode',
     icon: '🪂',
     title: 'Terminal Velocity: A Differential Equation',
+    summary: "With air resistance the acceleration shrinks as you speed up, so the velocity levels off at a maximum called the terminal velocity.",
     body: [
       "Every equation so far assumed CONSTANT acceleration. But a falling object with air resistance doesn't accelerate at a constant rate — the faster it falls, the more the air pushes back, so its acceleration actually shrinks over time. Approximately, a = dv/dt = g − kv, where k is a constant capturing how strong the air resistance is. This is a differential equation: it relates v to its OWN derivative, not just to t directly.",
       "Solving it takes a technique called separation of variables: rearrange so every v term is on one side and every t term is on the other, dv/(g−kv) = dt, then integrate both sides. Starting from rest (v = 0 at t = 0), the result works out to v(t) = (g/k)(1 − e^(−kt)) — velocity that rises quickly at first, then FLATTENS OUT as e^(−kt) shrinks toward zero.",

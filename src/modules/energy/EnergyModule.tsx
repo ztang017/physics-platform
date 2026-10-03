@@ -249,7 +249,7 @@ function drawScene(ctx: CanvasRenderingContext2D, params: EnergyRampParams, samp
   ctx.beginPath(); ctx.moveTo(FOOT_X - run, GROUND_Y - rise); ctx.lineTo(FOOT_X - run, GROUND_Y); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = COLOR.gravitational;
-  ctx.font = 'bold 10px JetBrains Mono, monospace';
+  ctx.font = 'bold 12px JetBrains Mono, monospace';
   ctx.textAlign = 'left';
   ctx.fillText(`h = ${params.height.toFixed(1)} m`, Math.max(4, FOOT_X - run + 6), GROUND_Y - rise / 2);
 
@@ -277,7 +277,7 @@ function drawScene(ctx: CanvasRenderingContext2D, params: EnergyRampParams, samp
     ctx.strokeRect(zx, GROUND_Y - 34, zw, 34);
     ctx.setLineDash([]);
     ctx.fillStyle = COLOR.kinetic;
-    ctx.font = 'bold 10px JetBrains Mono, monospace';
+    ctx.font = 'bold 12px JetBrains Mono, monospace';
     ctx.textAlign = 'center';
     ctx.fillText('STOP ZONE', zx + zw / 2, GROUND_Y - 40);
   }
@@ -316,7 +316,7 @@ function drawScene(ctx: CanvasRenderingContext2D, params: EnergyRampParams, samp
   ctx.fillRect(-BLOCK_W / 2, -BLOCK_H, BLOCK_W, BLOCK_H);
   ctx.strokeRect(-BLOCK_W / 2, -BLOCK_H, BLOCK_W, BLOCK_H);
   ctx.fillStyle = COLOR.block;
-  ctx.font = 'bold 9px JetBrains Mono, monospace';
+  ctx.font = 'bold 11px JetBrains Mono, monospace';
   ctx.textAlign = 'center';
   ctx.fillText(`${params.mass}kg`, 0, -BLOCK_H / 2 + 3);
   ctx.restore();
@@ -328,7 +328,7 @@ function drawScene(ctx: CanvasRenderingContext2D, params: EnergyRampParams, samp
   ctx.fillText(`t = ${sample.t.toFixed(2)} s`, 8, 18);
   ctx.fillText(`v = ${Math.abs(sample.v).toFixed(2)} m/s`, 8, 34);
   ctx.fillStyle = COLOR.text;
-  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.font = '12px JetBrains Mono, monospace';
   ctx.fillText(`smooth ramp ${RAMP_ANGLE_DEG}°`, 8, 50);
 }
 

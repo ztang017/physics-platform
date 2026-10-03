@@ -104,17 +104,24 @@ export function validateFBD(
     {
       id: 'friction',
       mag: correct.isStationary ? correct.weightParallel : correct.frictionKinetic,
-      angleDeg: 180 - theta, // up the slope
+      angleDeg: theta, // up the slope: the ramp rises to the right, so up-slope points up and to the right
     },
   ];
 
   let matched = 0;
 
+  // A dragged arrow can only be placed to within a few pixels. Measuring the error against the
+  // WEIGHT (the longest arrow) gives every arrow the same pixel tolerance, so a short arrow such as
+  // kinetic friction is not held to a hopeless 2-pixel target. Static-versus-kinetic friction
+  // still differs by far more than this, so that mix-up is still caught.
+  const slack = 0.08 * correct.weight;
+
   for (const exp of expected) {
     const found = studentVectors.find((sv) => {
-      const magOk = Math.abs(sv.magnitude - exp.mag) / exp.mag < 0.08;
+      const magOk = Math.abs(sv.magnitude - exp.mag) <= Math.max(0.08 * exp.mag, slack);
+      const angleTol = Math.max(8, (Math.asin(Math.min(1, slack / exp.mag)) * 180) / Math.PI);
       const angDiff = Math.abs(((sv.angleDeg - exp.angleDeg + 540) % 360) - 180);
-      return magOk && angDiff <= 8;
+      return magOk && angDiff <= angleTol;
     });
     if (!found) {
       errors.push(`Missing or incorrect ${exp.id} vector`);

@@ -102,6 +102,17 @@ export const FORMULA_SHEET: SheetSection[] = [
         ],
       },
       {
+        label: 'Weight',
+        latex: 'W = mg',
+        caption: 'Mass is in kg. Weight is a force, in newtons.',
+        symbols: [{ symbol: 'g', meaning: 'Gravitational acceleration, about 9.8', unit: 'm/s²' }],
+      },
+      {
+        label: "Newton's second law",
+        latex: 'F_{net} = ma \\quad\\Rightarrow\\quad a = \\dfrac{F_{net}}{m}',
+        symbols: [{ symbol: 'F_{net}', meaning: 'All the forces on the object added up, with directions', unit: 'N' }],
+      },
+      {
         label: 'Normal force',
         latex: 'N = mg\\cos\\theta',
         symbols: [{ symbol: 'N', meaning: 'Normal force', unit: 'N' }],
@@ -112,6 +123,12 @@ export const FORMULA_SHEET: SheetSection[] = [
         symbols: [
           { symbol: 'μ_s, μ_k', meaning: 'Coefficients of static / kinetic friction' },
         ],
+      },
+      {
+        label: 'Acceleration down a slope',
+        latex: 'a = g\\sin\\theta - \\mu_k g\\cos\\theta',
+        caption: 'With no friction, a = g sin θ.',
+        symbols: [{ symbol: 'μ_k', meaning: 'Coefficient of kinetic friction' }],
       },
       {
         label: 'Critical angle',

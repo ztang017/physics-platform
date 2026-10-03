@@ -13,6 +13,7 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'measuring-turns',
     icon: '🔄',
     title: 'Measuring a Turn: Radians, ω, f and T',
+    summary: "A radian is another way to measure an angle. To change rpm into rad/s, multiply by 2π and divide by 60.",
     body: [
       "Anything that spins is described by how much it has turned and how fast. Angles in degrees work, but physics prefers RADIANS, because they make the formulas simple. One radian is the angle at which the arc along the edge of a circle is exactly as long as the circle's radius. A full turn, 360°, is 2π radians (about 6.28).",
       "Angular velocity (ω, the Greek letter omega) is how quickly the angle changes: ω = dθ/dt, measured in radians per second. Everyday machines are labelled in other units, so you will often convert. Frequency f is turns per second, and the period T is the time for one turn, so f = 1/T and ω = 2πf = 2π/T.",
@@ -46,6 +47,7 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'linear-from-angular',
     icon: '📏',
     title: 'Same Spin, Different Speeds: v = ωr',
+    summary: "Every point on a spinning disc turns at the same rate ω, but points further out travel faster: v = ωr.",
     body: [
       "Every point on a turning disc goes round once in the same time, so every point has the SAME angular velocity ω. But a point near the rim has a much bigger circle to cover than a point near the centre in that same time, so it moves faster. Its speed along the circle, the tangential speed, is v = ωr.",
       "Two coins on a record, one 5 cm from the centre and the other 10 cm, turn together at the same ω. The outer coin has twice the radius, so it moves at twice the speed. This is also why the tip of a blender blade, only a few centimetres out, can be moving at several metres per second.",
@@ -77,6 +79,7 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'centripetal-acceleration',
     icon: '🎯',
     title: 'Turning Needs an Acceleration: a = v²/r',
+    summary: "Going round a circle means accelerating toward the centre, even at a constant speed: a = v²/r.",
     body: [
       "Acceleration means a change in VELOCITY, and velocity is a vector: it has a direction as well as a size. An object going round a circle at a perfectly constant speed is still changing its direction every instant, so it is accelerating. That surprises almost everyone the first time.",
       "The acceleration points toward the centre of the circle, which is why it is called centripetal (\"centre-seeking\") acceleration. Its size is a = v²/r. Using v = ωr, that is the same as a = ω²r. Doubling the speed on the same circle needs FOUR times the acceleration, and a tighter bend (smaller r) needs more.",
@@ -109,8 +112,9 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'centripetal-is-a-job',
     icon: '🧲',
     title: 'Centripetal Is a Job, Not a New Force',
+    summary: "Centripetal is the name for the job of pointing toward the centre. A real force (friction, tension, gravity) does that job.",
     body: [
-      "\"Centripetal force\" is not a new kind of force to add to your list. It is the NAME for the job of pointing toward the centre. Some real force, one you already know, has to do that job: the tension in a string, static friction on a turntable or a road, gravity for a satellite, the normal force on a banked track, or a combination of these.",
+      "\"Centripetal force\" is not a new kind of force to add to your list. It is the NAME for the job of pointing toward the centre. Some real force, one you already know, has to do that job. It might be the tension in a string, static friction on a turntable or road, gravity for a satellite, the normal force on a banked track, or a mix of these.",
       "So when you draw a free-body diagram, draw only the real forces: weight, normal force, tension, friction and so on. Do NOT add an extra arrow labelled \"centripetal force\". Instead, add up the real forces that point toward the centre and say that this total equals mv²/r.",
       "For the coin on the turntable, the weight and the normal force are vertical and cancel. The only horizontal force is static friction from the turntable, pointing toward the centre. So friction IS the centripetal force: f = mω²r.",
     ],
@@ -123,9 +127,10 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'no-centrifugal-force',
     icon: '🚫',
     title: 'Why There Is No Outward Force',
+    summary: "There is no outward force. Things fly off in a straight line when the inward force stops.",
     body: [
       "In a car going round a bend you feel pushed toward the outside, as if a force were flinging you outward. But look at it from the road. You were moving in a straight line, and your body wanted to carry on that way (Newton's first law). The car turned, and the door pushed you inward so that you turned with it. The \"outward push\" you feel is just your own inertia.",
-      "The same is true when a string breaks while you whirl a ball, or when a coin slips off a turntable. Nothing flings it outward. Once nothing pulls it inward any more, it simply carries on in the direction it was already moving, which is along the TANGENT to the circle at that moment, not along the radius.",
+      "The same is true when a string breaks while you whirl a ball, or when a coin slips off a turntable. Nothing flings it outward. Once nothing pulls it inward any more, it simply carries on in the direction it was already moving. That direction is along the TANGENT to the circle, not along the radius.",
       "A \"centrifugal force\" appears only if you insist on describing everything from inside the spinning frame, such as someone riding on the turntable. That frame is accelerating, so Newton's laws seem to break, and people invent a fictitious outward force to patch them up. For these problems, work from the ground and you never need it. The Observe phase lets you watch the same coin from both views.",
     ],
   },
@@ -133,6 +138,7 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'four-step-method',
     icon: '🧭',
     title: 'A Four-Step Method for Any Circular Problem',
+    summary: "Draw the real forces, take \"toward the centre\" as positive, and set the total equal to mv²/r.",
     body: [
       "1. Draw the circle and mark the object at the moment you care about. Mark the direction to the centre.",
       "2. Draw the free-body diagram with only the real forces on the object (weight, normal force, tension, friction ...).",
@@ -144,6 +150,7 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'turntable-coin',
     icon: '🪙',
     title: 'The Coin on the Turntable',
+    summary: "A coin slips when the friction it needs (mω²r) reaches the most friction can give (μmg). The mass cancels.",
     body: [
       "Put a coin a distance r from the axis and speed the turntable up slowly. Friction supplies the centripetal force, so the friction needed is f = mω²r. Static friction has a maximum, μₛN = μₛmg (the normal force equals the weight). The coin stays on while mω²r ≤ μₛmg, and slips at the moment they are equal.",
       "Solve that for the slipping speed: ω² r = μₛ g, so ω = √(μₛg/r). Look at what happened to the mass: it cancelled. A heavier coin needs more friction but also has more friction available, so the slipping speed does not depend on the mass at all.",
@@ -175,6 +182,7 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'linked-cords',
     icon: '🔗',
     title: 'Masses on Cords: One Free-Body Diagram Each',
+    summary: "Each mass needs its own inward force, so the cord nearest the centre carries the biggest tension.",
     body: [
       "When two masses whirl together on cords, treat each mass separately. Each one is on its own circle and needs its own centripetal force. Start from the OUTERMOST mass: only one cord pulls on it (toward the centre), so that cord's tension supplies all of its centripetal force.",
       "The next cord in has a harder job. It has to supply the centripetal force for ITS mass and also pull inward on the outer cord. So its tension is the sum of the two. That is why the cord nearest the centre always has the largest tension, and why it is the one that snaps first as you spin faster.",
@@ -204,6 +212,7 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'puck-and-hanging-mass',
     icon: '🪢',
     title: 'A Puck Held in Orbit by a Hanging Mass',
+    summary: "The tension from the hanging weight is the puck's centripetal force, which gives v = √(mgR/M).",
     body: [
       "A puck circles on a frictionless table, held by a string that runs through a hole in the middle of the table and down to a mass hanging beneath it. The hanging mass is not accelerating, so the string must hold it up with a tension equal to its weight: T = mg.",
       "The same string pulls the puck toward the hole, and that tension is the puck's only horizontal force, so it IS the centripetal force: T = Mv²/R. Equate the two tensions and solve: v = √(mgR/M). A heavier hanging mass pulls harder, so the puck must go faster to stay on its circle.",
@@ -236,11 +245,12 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'vertical-circle',
     icon: '🪣',
     title: 'Whirling in a Vertical Circle',
+    summary: "In a vertical circle the speed keeps changing. The tension is biggest at the bottom, and the rope goes slack if the bucket is too slow at the top.",
     body: [
       "Swing a bucket in a vertical circle and its speed is NOT constant: gravity speeds it up on the way down and slows it on the way up. So the net force has two parts. The part pointing toward the centre (radial) keeps changing the direction, and must equal mv²/r. The part along the path (tangential) changes the speed.",
-      "At the lowest point the rope pulls up (toward the centre) and the weight pulls down (away from it), so T − mg = mv²/r, giving T = mg + mv²/r. The rope has to hold the weight AND provide the turning force, so the tension is at its largest here.",
-      "At the top, both the rope and the weight point toward the centre, so T + mg = mv²/r. The slowest the bucket can go and still keep the rope tight is when the tension just drops to zero and gravity alone provides the turning force: mg = mv²/r, so v_min = √(gr). Go slower and the rope goes slack and the bucket leaves its circle.",
-      "At a general point, measured by an angle φ from the lowest point, the tangential force is mg sin φ (slowing the bucket as it climbs) and the radial equation is T − mg cos φ = mv²/r.",
+      "At the lowest point the rope pulls up (toward the centre) and the weight pulls down (away from it). So T − mg = mv²/r, which gives T = mg + mv²/r. The rope has to hold the weight AND provide the turning force, so the tension is at its largest here.",
+      "At the top, both the rope and the weight point toward the centre, so T + mg = mv²/r. The slowest speed that keeps the rope tight is when the tension just drops to zero. Then gravity alone provides the turning force: mg = mv²/r, so v_min = √(gr). Go slower and the rope goes slack and the bucket leaves its circle.",
+      "At a general point, measured by an angle φ from the lowest point, the tangential force is mg sin φ (slowing the bucket as it climbs). The radial equation is T − mg cos φ = mv²/r.",
     ],
     formulaLatex: 'T_{bottom} = mg + \\dfrac{mv^2}{r} \\qquad T_{top} = \\dfrac{mv^2}{r} - mg \\qquad v_{min,\\,top} = \\sqrt{gr}',
     symbols: [
@@ -267,11 +277,12 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'banked-curves',
     icon: '🛣️',
     title: 'Banked Curves: Letting the Slope Help',
+    summary: "A tilted road lets the normal force help turn the car, and friction widens the range of safe speeds on both sides.",
     body: [
       "On a flat road only friction can turn a car, which is why a curve is dangerous on ice. Engineers therefore TILT (bank) the road. The normal force is always perpendicular to the surface, so on a banked road it leans toward the centre of the bend, and its horizontal part pushes the car round.",
       "First take a perfectly icy road, with no friction at all. The only forces are the weight mg (down) and the normal force N (perpendicular to the road, at angle θ from the vertical). Vertically nothing accelerates: N cos θ = mg. Horizontally, toward the centre: N sin θ = mv²/R. Divide the second equation by the first and both N and m disappear: tan θ = v²/(Rg). So there is exactly one speed at which the car needs no friction, the design speed v₀ = √(Rg tan θ).",
-      "Now add friction. Go slower than v₀ and the normal force provides too much turning force, so the car tends to slide DOWN the slope toward the inside; friction acts UP the slope to stop it. Go faster and the car tends to slide UP and out; friction acts DOWN the slope. At each end of the safe band friction is at its limit, f = μₛN.",
-      "To find the two limiting speeds, write Newton's second law twice, once along the slope and once at right angles to it (or horizontally and vertically), put f = μₛN, and solve once with friction pointing up the slope (the slowest speed) and once with it pointing down (the fastest). A rougher road gives a wider band. The worked example below carries this through with numbers.",
+      "Now add friction. Go slower than v₀ and the normal force provides too much turning force. The car tends to slide DOWN the slope toward the inside, so friction acts UP the slope to stop it. Go faster and the car tends to slide UP and out; friction acts DOWN the slope. At each end of the safe band friction is at its limit, f = μₛN.",
+      "To find the two limiting speeds, write Newton's second law twice: once along the slope and once at right angles to it. Put f = μₛN. Then solve once with friction pointing up the slope (the slowest speed) and once with it pointing down (the fastest). A rougher road gives a wider band. The worked example below carries this through with numbers.",
     ],
     formulaLatex: '\\tan\\theta = \\dfrac{v_0^2}{Rg} \\;\\Rightarrow\\; v_0 = \\sqrt{Rg\\tan\\theta} \\qquad f = \\mu_s N \\ \\text{at each end of the safe band}',
     symbols: [
@@ -304,6 +315,7 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     id: 'rotational-kinematics',
     icon: '⏱️',
     title: 'Speeding Up and Slowing Down: Angular Acceleration α',
+    summary: "Angular acceleration does for angular velocity what ordinary acceleration does for velocity.",
     body: [
       "If ω is changing, the rate of change is the angular acceleration α = dω/dt, in rad/s². Everything you learned about straight-line motion carries over, with the angle taking the place of position: angular displacement θ replaces x, ω replaces v, and α replaces a.",
       "When α is constant the equations are exactly the constant-acceleration equations from the kinematics module, dressed in Greek letters. A blender slowing to a stop has a negative α: it is the SIGN that says it is slowing, because ω is positive.",
@@ -344,6 +356,7 @@ export const CIRCULAR_CHALLENGE: ConceptSection[] = [
     id: 'centripetal-from-calculus',
     icon: '∂',
     title: 'Deriving a = ω²r by Differentiating',
+    summary: "Differentiating a circular path twice shows that the acceleration points to the centre and has size ω²R.",
     body: [
       "Describe a point moving round a circle of radius R at constant ω by its position vector r(t) = R(cos ωt, sin ωt). Differentiate once for the velocity and again for the acceleration, using the chain rule (each differentiation brings down a factor of ω):",
       "v(t) = Rω(−sin ωt, cos ωt) has constant size Rω and is perpendicular to r, which proves that the velocity is along the tangent. a(t) = −Rω²(cos ωt, sin ωt) = −ω² r(t): the acceleration has size ω²R and points opposite to the position vector, that is, toward the centre. Because v · a = 0, it never changes the speed, only the direction.",
@@ -372,6 +385,7 @@ export const CIRCULAR_CHALLENGE: ConceptSection[] = [
     id: 'angular-calculus',
     icon: '∫',
     title: 'Angular Acceleration That Changes with Time',
+    summary: "If the angular acceleration changes with time, integrate it once to get ω and again to get the angle.",
     body: [
       "The constant-α equations only work when α is constant. In general ω = dθ/dt and α = dω/dt, so going the other way you integrate: ω(t) = ω₀ + ∫α dt and θ(t) = θ₀ + ∫ω dt. If a motor ramps up so that α = ct, then ω = ½ct² and θ = ct³/6 (starting from rest at angle zero).",
     ],
@@ -398,6 +412,7 @@ export const CIRCULAR_CHALLENGE: ConceptSection[] = [
     id: 'vertical-circle-tension',
     icon: '📐',
     title: 'Tension Around a Vertical Circle',
+    summary: "Combining energy and Newton's second law gives the rope tension at every point of a vertical circle.",
     body: [
       "Let the bucket have speed v₀ at the bottom. Energy conservation (from the work-energy module) gives its speed at an angle φ above the bottom: v² = v₀² − 2gr(1 − cos φ). The radial equation is T − mg cos φ = mv²/r. Substituting v² gives the tension at every point on the circle:",
       "T(φ) = mv₀²/r − 2mg + 3mg cos φ. Check the two ends: at the bottom (φ = 0) it gives mv₀²/r + mg, and at the top (φ = π) it gives mv₀²/r − 5mg. The rope stays taut all the way round only if T ≥ 0 at the top, which requires v₀² ≥ 5gr. So to complete the circle the bucket must pass the bottom at no less than √(5gr). (Compare the minimum speed at the TOP, √(gr): the extra speed at the bottom pays for the climb of 2r, since v_top² = v₀² − 4gr.)",
@@ -434,6 +449,7 @@ export const CIRCULAR_CHALLENGE: ConceptSection[] = [
     id: 'bucket-slack-point',
     icon: '📍',
     title: 'Where the Rope Goes Slack',
+    summary: "Setting the tension to zero tells you where the rope goes slack.",
     body: [
       "If the bottom speed is between √(2gr) and √(5gr), the bucket rises above the level of the centre but cannot make the top. Somewhere on the way the tension reaches zero and the rope goes slack, after which the bucket flies off as a projectile. Find that point by setting T(φ) = mv₀²/r − 2mg + 3mg cos φ equal to zero:",
       "cos φ = (2g − v₀²/r) / (3g). A real answer above 90° exists only when 2gr < v₀² < 5gr. Below √(2gr) the bucket never rises above the centre, so it swings back with the rope still tight; at √(5gr) or more the slack point has been pushed all the way to the top and beyond.",

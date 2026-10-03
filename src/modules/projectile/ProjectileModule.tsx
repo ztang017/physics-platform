@@ -14,6 +14,22 @@ import styles from './ProjectileModule.module.css';
 
 export const PROJECTILE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
   {
+    id: 'drop-and-fire',
+    question: "One ball is dropped from a table. At the same instant another ball is fired sideways, fast, from the same height. Which one hits the floor first? (Ignore air resistance.)",
+    options: ["They hit at the same time", "The dropped ball", "The ball fired sideways", "It depends on how fast the second ball was fired"],
+    correctIndex: 0,
+    hint: "Gravity only changes the up-and-down motion. Both balls start with zero downward velocity, from the same height.",
+    explanation: "Sideways motion and up-and-down motion are independent. Both balls start with no downward velocity and fall the same height under the same gravity, so they take the same time to land. The fired ball just lands further away.",
+  },
+  {
+    id: 'components-calc',
+    question: "A ball is kicked at 10 m/s at 60° above the horizontal. What is its sideways velocity? (cos 60° = 0.5, sin 60° ≈ 0.87)",
+    options: ["5 m/s", "8.7 m/s", "10 m/s", "0 m/s"],
+    correctIndex: 0,
+    hint: "The sideways part is next to the angle, so it uses cosine: vₓ = v₀ cos θ.",
+    explanation: "The sideways part is vₓ = v₀ cos θ = 10 × 0.5 = 5 m/s. The 8.7 m/s answer is the upward part, v₀ sin θ. A common slip is to swap sine and cosine.",
+  },
+  {
     id: 'horizontal-force',
     question: 'What force acts on the projectile in the horizontal direction (ignoring air resistance)?',
     options: ['Gravity', 'The launch force', 'No force — horizontal velocity is constant', 'Friction'],
@@ -50,8 +66,8 @@ export const PROJECTILE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     question: 'Two projectiles are launched at the same speed, one at 30° and one at 60°. How do their ranges compare?',
     options: ['The 60° shot goes farther', 'The 30° shot goes farther', 'They land at exactly the same range', 'It depends on the mass of each one'],
     correctIndex: 2,
-    hint: 'Range depends on sin(2θ). Compute 2×30° = 60° and 2×60° = 120° — are sin(60°) and sin(120°) the same value or different?',
-    explanation: 'sin(60°) = sin(120°) ≈ 0.866, so any pair of launch angles that add up to 90° (called complementary angles) produces exactly equal range — one just gets there quickly and low, the other slowly and high.',
+    hint: "Range depends on sin(2θ). Work out 2 × 30° and 2 × 60°, then compare the sine of each.",
+    explanation: "sin 60° and sin 120° are both about 0.87, so the two angles give the same range. Any two angles that add up to 90° (like 30° and 60°) land in the same place. The lower shot gets there quickly and stays low. The higher shot takes longer and goes higher.",
   },
   {
     id: 'relative-velocity-same-line',
@@ -66,8 +82,8 @@ export const PROJECTILE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     question: 'A boat aimed straight across a river travels at 6 m/s relative to the water. The river\'s current flows at 8 m/s, perpendicular to the boat\'s heading. What is the boat\'s actual speed relative to the shore?',
     options: ['14 m/s', '10 m/s', '8 m/s', '2 m/s'],
     correctIndex: 1,
-    hint: 'The boat\'s own velocity and the current point in PERPENDICULAR directions — exactly like the horizontal and vertical pieces of a launch velocity. How do you combine two perpendicular vectors into one resultant?',
-    explanation: 'Because the two velocities are perpendicular, they combine like the legs of a right triangle: resultant = √(6² + 8²) = √(36+64) = √100 = 10 m/s. The boat is NOT actually moving in the direction it\'s pointed — the current drags it downstream even while the boat "aims" straight across, the same tip-to-tail vector addition used for launch velocity components.',
+    hint: "The boat's velocity and the current are at right angles, like the two short sides of a right-angled triangle. The actual velocity is the long side. Which rule gives it?",
+    explanation: "The two velocities are at right angles, so they form the short sides of a right-angled triangle. The actual velocity is the long side: √(6² + 8²) = √100 = 10 m/s. The boat does not move where it points: the current drags it downstream as well.",
   },
 ];
 
@@ -104,7 +120,9 @@ function ProjectileCanvas({
   const rafRef = useRef<number>(0);
   const [animProgress, setAnimProgress] = useState(0); // 0..1 of flight played back
 
-  useHiDPICanvas(canvasRef, W, H);
+  // The shared canvas hook clears the picture whenever layout resizes the canvas, so repaint when that happens.
+  const [redrawTick, setRedrawTick] = useState(0);
+  useHiDPICanvas(canvasRef, W, H, () => setRedrawTick((n) => n + 1));
 
   const fullTrajectory = useMemo(() => generateTrajectory(params), [params]);
   const totalFlightT = useMemo(() => getTimeOfFlight(params), [params]);
@@ -159,7 +177,7 @@ function ProjectileCanvas({
     ctx.fillRect(wall.cx - 4, wall.cy, 8, ORIGIN_Y - wall.cy);
     ctx.strokeRect(wall.cx - 4, wall.cy, 8, ORIGIN_Y - wall.cy);
     ctx.fillStyle = '#dc2626';
-    ctx.font = 'bold 10px JetBrains Mono, monospace';
+    ctx.font = 'bold 12px JetBrains Mono, monospace';
     ctx.textAlign = 'center';
     ctx.fillText(`${MISSION.wallHeight}m`, wall.cx, wall.cy - 6);
 
@@ -228,7 +246,7 @@ function ProjectileCanvas({
       ctx.lineWidth = 2;
       ctx.stroke();
       ctx.fillStyle = '#b45309';
-      ctx.font = '10px JetBrains Mono';
+      ctx.font = '12px JetBrains Mono';
       ctx.textAlign = 'left';
       ctx.fillText(
         fired ? 'Your prediction' : `${((cx - ORIGIN_X) / SCALE).toFixed(0)}m`,
@@ -239,14 +257,14 @@ function ProjectileCanvas({
     // Axis labels
     ctx.setLineDash([]);
     ctx.fillStyle = 'rgba(23,27,38,0.4)';
-    ctx.font = '10px JetBrains Mono';
+    ctx.font = '12px JetBrains Mono';
     for (let x = 0; x <= 120; x += 20) {
       const { cx } = worldToCanvas(x, 0);
       if (cx > W) break;
       ctx.fillText(`${x}m`, cx - 8, ORIGIN_Y + 16);
     }
 
-  }, [params, crosshair, fired, animProgress, fullTrajectory, totalFlightT]);
+  }, [params, crosshair, fired, animProgress, fullTrajectory, totalFlightT, redrawTick]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();

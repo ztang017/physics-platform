@@ -2,8 +2,11 @@ import { type ReactNode, useState } from 'react';
 import { Katex } from '../ui/Katex';
 import styles from './ConceptNotes.module.css';
 
+/** Symbols containing _, ^ or a backslash are written as LaTeX and rendered as math. */
+const LATEX_SYMBOL = /[_^\\]/;
+
 export interface FormulaSymbol {
-  /** The symbol as it appears in the formula, e.g. "θ" or "μₛ" — plain text, not LaTeX. */
+  /** The symbol as it appears in the formula, e.g. "θ" or "μₛ". Plain text, unless it contains _, ^ or a backslash, in which case it is rendered as LaTeX (e.g. "v_{ground}"). */
   symbol: string;
   meaning: string;
   unit?: string;
@@ -13,8 +16,13 @@ export interface ConceptSection {
   id: string;
   icon: string;
   title: string;
+  /** One sentence, in everyday words, that a student could say back to a friend.
+   *  Shown first so the section can be skimmed before (or instead of) reading it all. */
+  summary?: string;
   /** Plain-language paragraphs. No prior physics background assumed. */
   body: string[];
+  /** The mistake beginners make most often with this idea, shown after the explanation. */
+  watchOut?: string;
   formulaLatex?: string;
   formulaCaption?: string;
   /** Plain-English definition of every symbol used in formulaLatex, so a
@@ -81,9 +89,21 @@ export function ConceptNotes({ title, intro, sections, variant = 'basics' }: Con
 
                 {isOpen && (
                   <div className={styles.sectionBody}>
+                    {s.summary && (
+                      <p className={styles.summary}>
+                        <span className={styles.summaryLabel}>In plain words</span>
+                        {s.summary}
+                      </p>
+                    )}
                     {s.body.map((para, i) => (
                       <p key={i}>{para}</p>
                     ))}
+                    {s.watchOut && (
+                      <p className={styles.watchOut}>
+                        <span className={styles.watchOutLabel}>Watch out</span>
+                        {s.watchOut}
+                      </p>
+                    )}
 
                     {s.formulaLatex && (
                       <div className={styles.formulaBlock}>
@@ -93,7 +113,7 @@ export function ConceptNotes({ title, intro, sections, variant = 'basics' }: Con
                           <dl className={styles.symbolList}>
                             {s.symbols.map((sym) => (
                               <div key={sym.symbol} className={styles.symbolRow}>
-                                <dt className={styles.symbolTerm}>{sym.symbol}</dt>
+                                <dt className={styles.symbolTerm}>{LATEX_SYMBOL.test(sym.symbol) ? <Katex latex={sym.symbol} /> : sym.symbol}</dt>
                                 <dd className={styles.symbolDef}>
                                   {sym.meaning}
                                   {sym.unit && <span className={styles.symbolUnit}> ({sym.unit})</span>}

@@ -2,46 +2,118 @@ import { type ConceptSection } from '../../components/concepts/ConceptNotes';
 import { TryIt } from '../../components/concepts/TryIt';
 import { RevealAnswer } from '../../components/concepts/RevealAnswer';
 import { Katex } from '../../components/ui/Katex';
+import { SlopeSplit } from '../../components/concepts/diagrams/SlopeSplit';
 
 export const INCLINE_CONCEPTS: ConceptSection[] = [
+  {
+    id: 'what-is-a-force',
+    icon: '💪',
+    title: 'Forces 101: Pushes, Pulls and Newtons',
+    summary: 'A force is a push or a pull, measured in newtons. Weight is the pull of gravity, and it is not the same thing as mass.',
+    body: [
+      "A force is a push or a pull on an object. Forces are measured in newtons (N). One newton is roughly the weight of a small apple. A force has a size AND a direction, so we draw forces as arrows: the longer the arrow, the bigger the force.",
+      "Mass (in kilograms) is how much matter an object contains. Weight is the downward pull of gravity on that mass: weight = mass × g, where g is about 9.8 (newtons per kilogram, which is the same as m/s²). A 5 kg block weighs 5 × 9.8 = 49 N. On the Moon your mass would be the same but your weight would be much smaller. Questions that say g = 10 are just rounding to keep the sums easy.",
+      "A free-body diagram (FBD) is a quick sketch of ONE object, drawn as a box or a dot, with an arrow for every force acting ON it. Leave out forces the object exerts on other things. Drawing a careful free-body diagram is the most useful habit in mechanics, and it is the first step in this module's simulation.",
+    ],
+    watchOut: 'Mass and weight are different. Mass is in kilograms. Weight is a force, in newtons.',
+    formulaLatex: 'W = mg',
+    symbols: [
+      { symbol: 'W', meaning: 'Weight: the pull of gravity on the object', unit: 'N' },
+      { symbol: 'm', meaning: 'Mass of the object', unit: 'kg' },
+      { symbol: 'g', meaning: 'Gravitational acceleration, about 9.8', unit: 'm/s²' },
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Weight"
+        resultUnit="N"
+        formulaLatex={'W = mg'}
+        variables={[
+          { id: 'weightMass', label: 'Mass (m)', min: 1, max: 100, step: 1, defaultValue: 60, unit: 'kg' },
+          { id: 'weightG', label: 'Gravity (g): Moon 1.6, Earth 9.8, Jupiter 24.8', min: 1.6, max: 24.8, step: 0.1, defaultValue: 9.8, unit: 'm/s²' },
+        ]}
+        compute={({ weightMass, weightG }) => weightMass * weightG}
+        interpret={({ weightMass, weightG }) =>
+          `The mass is ${weightMass} kg wherever you are. The weight changes with g: here it is ${(weightMass * weightG).toFixed(0)} N, compared with ${(weightMass * 9.8).toFixed(0)} N on Earth.`
+        }
+      />
+    ),
+  },
+  {
+    id: 'newtons-laws',
+    icon: '🍎',
+    title: "Newton's Three Laws in Plain Words",
+    summary: 'No net force means no change in velocity. A net force makes a mass accelerate (F = ma). Forces come in equal and opposite pairs.',
+    body: [
+      "First law: if the forces on an object cancel out (the net force is zero), its velocity does not change. A resting object stays at rest. A moving object keeps moving in a straight line at a steady speed.",
+      "Second law: if the forces do NOT cancel, the object accelerates in the direction of the net force. F_net = ma, or a = F_net ÷ m. For the same force, a heavy object accelerates less than a light one.",
+      "Third law: when object A pushes on object B, B pushes back on A with a force of the same size in the opposite direction. The two forces act on DIFFERENT objects.",
+    ],
+    watchOut: 'The two forces in a third-law pair act on different objects, which is why they never cancel each other. Only forces acting on the SAME object can cancel.',
+    formulaLatex: 'F_{net} = ma',
+    symbols: [
+      { symbol: 'F_{net}', meaning: 'Net force: all the forces on the object added up, with directions', unit: 'N' },
+      { symbol: 'm', meaning: 'Mass of the object', unit: 'kg' },
+      { symbol: 'a', meaning: 'Acceleration of the object', unit: 'm/s²' },
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Acceleration"
+        resultUnit="m/s²"
+        formulaLatex={'a = \\dfrac{F_{net}}{m}'}
+        variables={[
+          { id: 'lawForce', label: 'Net force (F)', min: 0, max: 100, step: 5, defaultValue: 30, unit: 'N' },
+          { id: 'lawMass', label: 'Mass (m)', min: 1, max: 20, step: 1, defaultValue: 6, unit: 'kg' },
+        ]}
+        compute={({ lawForce, lawMass }) => lawForce / lawMass}
+        interpret={({ lawMass }, result) =>
+          result === 0
+            ? 'No net force means no acceleration: the velocity stays the same (the first law).'
+            : `Try doubling the mass to ${lawMass * 2} kg: the same force now gives half the acceleration, ${(result / 2).toFixed(2)} m/s².`
+        }
+      />
+    ),
+  },
   {
     id: 'normal-force',
     icon: '👉',
     title: 'What Is the Normal Force?',
+    summary: 'A surface pushes back on whatever rests on it, at right angles to the surface.',
     body: [
-      'When two surfaces touch, they push against each other — this is the normal force (N), and it always points perpendicular ("normal" in the geometric, right-angle sense — not "ordinary") to the surface, never along it.',
-      "Crucially, a surface can only PUSH, never pull. That's why the normal force always points away from the surface, into whatever is resting on it. Squeeze a spring between your hands and you'll feel exactly this: a push straight back at you along the direction you're compressing it, never a sideways drag.",
-      "On a FLAT floor, the normal force simply balances weight, so N = mg and nobody thinks twice about it. The interesting physics on a slope is that the surface is tilted, so N is no longer straight up — it tilts WITH the ramp, and only cancels the part of gravity that presses directly into it (see the next section).",
+      "When two surfaces touch, they push on each other. This push is the normal force, N. In physics 'normal' means 'at right angles to', not 'ordinary'. The normal force always points straight out of the surface.",
+      "A surface can only PUSH, never pull. So the normal force always points away from the surface, toward whatever is resting on it. Squeeze a spring between your hands and you feel exactly this: a push straight back along the line of the squeeze.",
+      "On a flat floor, the normal force just balances the weight, so N = mg, and nobody thinks twice about it. On a slope the surface is tilted, so N tilts with it. It then balances only the part of the weight that presses into the slope (see two sections down).",
     ],
-    formulaLatex: 'N = mg\\cos\\theta \\quad \\text{(on an incline)}',
+    watchOut: 'On a slope, N is NOT equal to mg. It is smaller, and it does not point straight up.',
+    formulaLatex: 'N = mg\\cos\\theta \\quad \\text{(on a slope)}',
     symbols: [
-      { symbol: 'N', meaning: 'Normal force — the surface pushing back', unit: 'N' },
+      { symbol: 'N', meaning: 'Normal force: the surface pushing back', unit: 'N' },
       { symbol: 'm', meaning: 'Mass of the object', unit: 'kg' },
       { symbol: 'g', meaning: 'Gravitational acceleration', unit: 'm/s²' },
-      { symbol: 'θ', meaning: 'Incline angle from the horizontal', unit: 'degrees' },
+      { symbol: 'θ', meaning: 'Angle of the slope from the horizontal', unit: 'degrees' },
     ],
   },
   {
     id: 'normal-force-stacking',
     icon: '📦',
     title: 'Normal Force in a Stack',
+    summary: 'Each surface only supports what is resting directly on it. Work from the top box down.',
     body: [
-      "N = mg only tells the whole story when a single object sits directly on the ground with nothing else involved. As soon as objects are STACKED — a box on a box, a book on a box on a table — each surface only has to react to whatever is ACTUALLY pressing on it, not automatically 'the whole weight'.",
-      "The trick is to work from the TOP down. Isolate the topmost object by itself: the only thing touching it from below is the object right underneath, so that contact force has to equal just the top object's own weight — nothing more. Move down one level, and THAT surface now supports everything above it: the object directly on it, plus everything that object is itself holding up.",
-      "This is why the table under a stack of boxes has to push back with the COMBINED weight of everything above it, even though no single box between the table and the top one 'feels' that whole total directly — the load simply passes down, one contact force at a time, growing by one box's weight at each level.",
+      "N = mg is the whole story only when one object sits alone on the ground. When objects are stacked (a box on a box, a book on a box on a table), each surface only has to support what is actually pressing on it.",
+      "Work from the TOP down. For the top box, the only thing touching it from below is the box under it, and that push just has to equal the top box's own weight. Move down one level: that surface supports everything above it.",
+      "So the table under a stack must push up with the COMBINED weight of everything above it. The load passes down one contact at a time, growing by one box's weight at each level.",
     ],
     interactive: (
       <TryIt
-        resultLabel="Normal force the table exerts on the bottom box"
+        resultLabel="Force the table pushes up on the bottom box"
         resultUnit="N"
         formulaLatex={'N_{table} = (m_{top} + m_{bottom})\\,g'}
         variables={[
           { id: 'topMass', label: 'Top box mass', min: 1, max: 10, step: 1, defaultValue: 3, unit: 'kg' },
           { id: 'bottomMass', label: 'Bottom box mass', min: 1, max: 15, step: 1, defaultValue: 5, unit: 'kg' },
         ]}
-        compute={({ topMass, bottomMass }) => (topMass + bottomMass) * 10}
+        compute={({ topMass, bottomMass }) => (topMass + bottomMass) * 9.8}
         interpret={({ topMass }, result) =>
-          `The table pushes up on the bottom box with ${result.toFixed(0)} N — the COMBINED weight. But the bottom box only has to push up on the top box with ${(topMass * 10).toFixed(0)} N, since that's all that's actually resting on it.`
+          `The table pushes up on the bottom box with ${result.toFixed(0)} N, the COMBINED weight. But the bottom box only pushes up on the top box with ${(topMass * 9.8).toFixed(0)} N, because that is all that rests on it.`
         }
       />
     ),
@@ -49,32 +121,54 @@ export const INCLINE_CONCEPTS: ConceptSection[] = [
   {
     id: 'decomposing-gravity',
     icon: '📐',
-    title: 'Decomposing Gravity on a Slope',
+    title: 'Splitting Gravity on a Slope',
+    summary: 'On a slope, split the weight into a part that pulls the block down the slope (mg sin θ) and a part that presses it into the slope (mg cos θ).',
     body: [
-      "Weight (mg) always points straight down toward the center of the Earth — the incline's tilt doesn't change that. But it's often far more useful to split that single downward force into two perpendicular pieces relative to the SLOPE'S OWN orientation: one pressing directly INTO the surface, and one pulling the object DOWN along the slope.",
-      "This is the exact same 'launch velocity into components' trick used in the Projectile module, just applied to a force instead of a velocity: cosine gives the piece perpendicular to the surface, sine gives the piece parallel to it — because θ is the angle between the incline and the horizontal ground.",
-      'As the incline gets steeper (θ increases), sin θ grows and cos θ shrinks — so more of gravity acts along the slope (pulling the block down) and less presses into the surface. That\'s the mathematical reason steep ramps make things slide faster, and near-flat ramps barely move them at all: at θ = 0° there is no "down the slope" at all, and at θ = 90° the entire weight acts along the (now vertical) surface.',
+      "Weight (mg) always points straight down. The slope's tilt does not change that. But it helps to split the weight into two parts lined up with the slope. One part presses INTO the surface and the other pulls the block DOWN along the slope.",
+      "It is the same trick as splitting a launch velocity in Module 2, this time applied to a force. The angle between the weight and the 'into the slope' direction is the same θ as the slope's angle (the diagram shows this). So the part into the slope uses cosine, and the part down the slope uses sine.",
+      "As the slope gets steeper, sin θ grows and cos θ shrinks. More of the weight pulls along the slope and less presses into it. That is why steep ramps make things slide faster. At 0° there is no pull along the slope at all. At 90° the whole weight acts along the (now vertical) surface.",
     ],
+    watchOut: 'The two parts are not extra forces. They are just a different way of writing the same weight. Never draw both the weight and its parts as separate forces on your free-body diagram.',
     formulaLatex: 'W_\\parallel = mg\\sin\\theta \\qquad W_\\perp = mg\\cos\\theta',
     symbols: [
-      { symbol: 'W_\\parallel', meaning: 'Weight component parallel to the slope (pulls it down the ramp)', unit: 'N' },
-      { symbol: 'W_\\perp', meaning: 'Weight component perpendicular to the slope (presses into it)', unit: 'N' },
+      { symbol: 'W_\\parallel', meaning: 'Part of the weight along the slope (pulls the block down the ramp)', unit: 'N' },
+      { symbol: 'W_\\perp', meaning: 'Part of the weight at right angles to the slope (presses into it)', unit: 'N' },
       { symbol: 'm', meaning: 'Mass of the block', unit: 'kg' },
-      { symbol: 'g', meaning: 'Gravitational acceleration', unit: 'm/s²' },
-      { symbol: 'θ', meaning: 'Incline angle from the horizontal', unit: 'degrees' },
+      { symbol: 'θ', meaning: 'Angle of the slope from the horizontal', unit: 'degrees' },
+    ],
+    interactive: <SlopeSplit />,
+  },
+  {
+    id: 'slope-acceleration',
+    icon: '🛷',
+    title: 'How Fast Does It Slide?',
+    summary: 'Once a block slides, use F = ma along the slope. With no friction the acceleration is g sin θ, whatever the mass.',
+    body: [
+      "Once the block is sliding, apply F = ma along the slope. The pull down the slope is mg sin θ. Friction (kinetic friction, μₖN = μₖ mg cos θ) pushes back up the slope. So the net force down the slope is mg sin θ − μₖ mg cos θ.",
+      "Divide by m (it cancels) to get the acceleration: a = g sin θ − μₖ g cos θ. With no friction at all it becomes a = g sin θ. On a 30° slope that is g ÷ 2, about 4.9 m/s², whatever the mass of the block.",
+    ],
+    formulaLatex: 'a = g\\sin\\theta - \\mu_k g\\cos\\theta \\qquad (\\text{no friction: } a = g\\sin\\theta)',
+    symbols: [
+      { symbol: 'a', meaning: 'Acceleration down the slope', unit: 'm/s²' },
+      { symbol: 'μₖ', meaning: 'Coefficient of kinetic friction' },
     ],
     interactive: (
       <TryIt
-        resultLabel="Component pulling down the slope"
-        resultUnit="N"
-        formulaLatex={'W_\\parallel = mg\\sin\\theta'}
+        resultLabel="Acceleration down the slope"
+        resultUnit="m/s²"
+        formulaLatex={'a = g\\sin\\theta - \\mu_k g\\cos\\theta'}
         variables={[
-          { id: 'mass', label: 'Mass (m)', min: 1, max: 20, step: 1, defaultValue: 5, unit: 'kg' },
-          { id: 'theta', label: 'Incline Angle (θ)', min: 5, max: 85, step: 1, defaultValue: 30, unit: '°' },
+          { id: 'slideAngle', label: 'Slope angle (θ)', min: 5, max: 85, step: 1, defaultValue: 30, unit: '°' },
+          { id: 'slideMu', label: 'Kinetic friction (μₖ)', min: 0, max: 0.8, step: 0.05, defaultValue: 0.2, unit: '' },
         ]}
-        compute={({ mass, theta }) => mass * 9.8 * Math.sin((theta * Math.PI) / 180)}
-        interpret={({ mass, theta }) =>
-          `At ${theta}°, the surface only has to push back with ${(mass * 9.8 * Math.cos((theta * Math.PI) / 180)).toFixed(1)} N to support the block — the rest of gravity pulls it along the slope.`
+        compute={({ slideAngle, slideMu }) => {
+          const t = (slideAngle * Math.PI) / 180;
+          return Math.max(0, 9.8 * Math.sin(t) - slideMu * 9.8 * Math.cos(t));
+        }}
+        interpret={({ slideAngle, slideMu }, result) =>
+          result === 0
+            ? `At ${slideAngle}° with μₖ = ${slideMu.toFixed(2)}, friction is too strong for the block to speed up (it would not slide, or it slides at a steady speed).`
+            : `With no friction the acceleration would be ${(9.8 * Math.sin((slideAngle * Math.PI) / 180)).toFixed(2)} m/s². Friction takes ${(9.8 * Math.sin((slideAngle * Math.PI) / 180) - result).toFixed(2)} m/s² off that.`
         }
       />
     ),
@@ -83,18 +177,21 @@ export const INCLINE_CONCEPTS: ConceptSection[] = [
     id: 'static-vs-kinetic-friction',
     icon: '🧲',
     title: 'Static vs. Kinetic Friction',
+    summary: 'Friction resists sliding. Static friction holds a still object, up to a limit. Kinetic friction acts once it slides, and is usually a bit smaller.',
     body: [
-      "Friction resists sliding between two surfaces, and comes from microscopic roughness and molecular attraction between them, even on surfaces that feel smooth. Static friction acts on objects that aren't yet moving relative to each other, and automatically adjusts its strength — from zero up to a maximum — to prevent sliding, exactly like a helper matching whatever push you apply, until it can't keep up any more.",
-      "Kinetic friction takes over once the object IS sliding, and is usually a bit SMALLER than the maximum static friction — which is why it typically takes more force to get something moving from rest than to keep it moving once it's already sliding.",
-      'Both depend on the normal force N (more force pressing surfaces together means more friction) and a coefficient (μ, the Greek letter "mu") that captures how rough or slippery the specific pair of materials is — rubber on dry concrete has a high μ; steel on ice has a very low one. The coefficient does NOT depend on the size of the contact area, which is why this simple model works surprisingly well.',
-      'If the force trying to cause sliding (here, the down-slope pull of gravity, mg sin θ) exceeds the maximum static friction, the object starts to slide, and kinetic friction takes over.',
+      "Friction is a force that resists sliding between two surfaces. It comes from tiny bumps and from the surfaces sticking to each other, even when they feel smooth.",
+      "Static friction acts while the surfaces are NOT sliding. It adjusts itself, from zero up to a maximum, to match whatever is pulling the object. Think of a helper who pushes back exactly as hard as needed, until they cannot keep up any more.",
+      "Kinetic friction takes over once the object IS sliding. It is usually a bit smaller than the maximum static friction. That is why it is harder to get something moving than to keep it moving.",
+      "Both depend on the normal force N: the harder the surfaces are pressed together, the more friction. They also depend on a coefficient μ (the Greek letter 'mu') for that pair of materials. Rubber on a dry road has a high μ. Steel on ice has a very low one. The contact area does not matter in this simple model.",
+      "The block slides when the pull down the slope (mg sin θ) is bigger than the maximum static friction.",
     ],
+    watchOut: 'Friction is NOT always μN. That is only the MAXIMUM static friction, or the friction while sliding. A block sitting still on a gentle slope has less friction than μN: just enough to cancel the pull.',
     formulaLatex: 'f_{s,max} = \\mu_s N \\qquad\\qquad f_k = \\mu_k N',
     symbols: [
       { symbol: 'f_{s,max}', meaning: 'Maximum static friction before sliding begins', unit: 'N' },
       { symbol: 'f_k', meaning: 'Kinetic friction, once sliding', unit: 'N' },
       { symbol: 'μ_s', meaning: 'Coefficient of static friction (depends on the two materials)' },
-      { symbol: 'μ_k', meaning: 'Coefficient of kinetic friction (usually slightly less than μ_s)' },
+      { symbol: 'μ_k', meaning: 'Coefficient of kinetic friction (usually a bit less than μ_s)' },
       { symbol: 'N', meaning: 'Normal force pressing the surfaces together', unit: 'N' },
     ],
   },
@@ -102,31 +199,50 @@ export const INCLINE_CONCEPTS: ConceptSection[] = [
     id: 'critical-angle',
     icon: '📏',
     title: 'The Critical Angle',
+    summary: 'A block just starts to slip when tan θ = μₛ. The mass does not matter.',
     body: [
-      'As you tilt a ramp higher, at some angle the block just barely starts to slip. At that exact critical angle, the force pulling it down the slope (mg sin θ) exactly equals the maximum static friction holding it in place (μₛ mg cos θ).',
-      "Setting those equal and canceling mg from both sides leaves sin θ / cos θ = μₛ — and sin/cos is exactly the definition of tangent, giving a beautifully simple result: tan θ_critical = μₛ. Notice mass completely cancels out: a heavy block and a light block made of the SAME material slip at exactly the same angle.",
-      "This gives a simple real experiment for measuring a surface's coefficient of static friction without any force sensors at all: place an object on the material, slowly tilt it, note the angle at which it just starts to slide, and take the tangent of that angle.",
+      "Tilt a ramp higher and higher. At some angle the block just begins to slip. At exactly that angle, the pull down the slope (mg sin θ) equals the maximum static friction (μₛ mg cos θ).",
+      "Cancel mg from both sides and you get sin θ ÷ cos θ = μₛ. And sin ÷ cos is the definition of tan, so tan θ = μₛ. The mass cancelled, so a heavy block and a light block of the same material slip at the same angle.",
+      "This gives an experiment that needs no force meter: tilt the surface until the object just starts to slide, then take the tangent of that angle to find μₛ.",
     ],
     formulaLatex: '\\tan\\theta_{critical} = \\mu_s',
     symbols: [
       { symbol: 'θ_{critical}', meaning: 'The tilt angle at which sliding just begins', unit: 'degrees' },
-      { symbol: 'μ_s', meaning: 'Coefficient of static friction of the surface pair' },
+      { symbol: 'μ_s', meaning: 'Coefficient of static friction for the pair of surfaces' },
     ],
+    interactive: (
+      <TryIt
+        resultLabel="Critical angle"
+        resultUnit="°"
+        formulaLatex={'\\theta_{critical} = \\tan^{-1}(\\mu_s)'}
+        variables={[
+          { id: 'critMu', label: 'Static friction (μₛ)', min: 0.1, max: 1.5, step: 0.05, defaultValue: 0.5, unit: '' },
+        ]}
+        compute={({ critMu }) => (Math.atan(critMu) * 180) / Math.PI}
+        interpret={({ critMu }) =>
+          critMu >= 1
+            ? 'With μₛ of 1 or more, the surface has to be tilted past 45° before the block slips: very grippy.'
+            : 'Below this angle the block stays put, whatever its mass. Above it, the block slides.'
+        }
+      />
+    ),
   },
   {
     id: 'accelerating-reference-frames',
     icon: '🛗',
-    title: 'Accelerating Reference Frames: The Elevator Effect',
+    title: 'The Elevator Effect',
+    summary: 'In an elevator that speeds up while going up, the floor pushes harder on you, so a scale reads more than your normal weight.',
     body: [
-      "Every normal-force calculation so far assumed the ground underneath is NOT accelerating. Stand on a scale inside an accelerating elevator, though, and the reading changes — even though your actual weight (mg) hasn't changed at all. The scale is reporting the NORMAL FORCE, and that depends on your acceleration too, not just gravity.",
-      "Apply Newton's Second Law to you alone, taking 'up' as positive: N − mg = ma, where a is the elevator's acceleration (positive if accelerating upward, negative if accelerating downward). Solving for N gives N = m(g + a) — heavier than your resting weight when accelerating upward, lighter when accelerating downward.",
-      "A useful shortcut: treat it as if gravity were temporarily a different, 'effective' value, g_eff = g + a. Every formula you already know for a stationary incline or floor still works — just substitute g_eff wherever you'd normally use g. This is why a downward-accelerating elevator makes a block on a frictionless incline inside it slide SLOWER than it would sitting still: the effective gravity pulling it down the slope has temporarily shrunk.",
+      "So far we assumed the ground is not accelerating. Stand on a scale in an accelerating elevator and the reading changes, even though your weight has not. The scale shows the normal force, and that depends on the acceleration as well as on gravity.",
+      "Take UP as positive and use F = ma on yourself: N − mg = ma. So N = m(g + a). If the elevator accelerates upward (a is positive), N is bigger than mg and you feel heavier. If it accelerates downward (a is negative), N is smaller and you feel lighter.",
+      "A handy shortcut: pretend gravity has changed to g_eff = g + a. Every formula you know for a floor or a slope still works if you use g_eff in place of g. So a block on a frictionless slope inside a downward-accelerating elevator slides more slowly than usual.",
     ],
+    watchOut: "'Accelerating upward' includes slowing down while moving downward. What matters is the direction of the ACCELERATION, not the direction the elevator is travelling.",
     formulaLatex: 'N = m(g + a) \\qquad\\qquad g_{eff} = g + a',
     symbols: [
       { symbol: 'N', meaning: 'Normal force (what a scale would read)', unit: 'N' },
       { symbol: 'a', meaning: "The elevator's acceleration (positive = upward, negative = downward)", unit: 'm/s²' },
-      { symbol: 'g_{eff}', meaning: 'Effective gravity felt inside the accelerating elevator' },
+      { symbol: 'g_{eff}', meaning: 'Effective gravity felt inside the accelerating elevator', unit: 'm/s²' },
     ],
     interactive: (
       <TryIt
@@ -134,12 +250,12 @@ export const INCLINE_CONCEPTS: ConceptSection[] = [
         resultUnit="N"
         formulaLatex={'N = m(g + a)'}
         variables={[
-          { id: 'mass', label: 'Person\'s mass', min: 30, max: 100, step: 5, defaultValue: 60, unit: 'kg' },
+          { id: 'mass', label: "Person's mass", min: 30, max: 100, step: 5, defaultValue: 60, unit: 'kg' },
           { id: 'elevatorAccel', label: 'Elevator acceleration (+ up / − down)', min: -5, max: 5, step: 0.5, defaultValue: 2, unit: 'm/s²' },
         ]}
-        compute={({ mass, elevatorAccel }) => mass * (10 + elevatorAccel)}
+        compute={({ mass, elevatorAccel }) => mass * (9.8 + elevatorAccel)}
         interpret={({ mass, elevatorAccel }, result) =>
-          `Resting weight would read ${(mass * 10).toFixed(0)} N. With the elevator accelerating at ${elevatorAccel} m/s², the scale instead reads ${result.toFixed(0)} N — ${elevatorAccel > 0 ? 'heavier, since the elevator is speeding up going up (or slowing down going down)' : elevatorAccel < 0 ? 'lighter, since the elevator is speeding up going down (or slowing down going up)' : 'unchanged, since there is no acceleration'}.`
+          `Resting weight would read ${(mass * 9.8).toFixed(0)} N. With the elevator accelerating at ${elevatorAccel} m/s², the scale reads ${result.toFixed(0)} N: ${elevatorAccel > 0 ? 'heavier, because the elevator is accelerating upward' : elevatorAccel < 0 ? 'lighter, because the elevator is accelerating downward' : 'the same, because there is no acceleration'}.`
         }
       />
     ),
@@ -147,31 +263,33 @@ export const INCLINE_CONCEPTS: ConceptSection[] = [
   {
     id: 'contact-forces',
     icon: '🧱',
-    title: 'Contact Forces Between Pushed Objects',
+    title: 'Contact Forces Between Pushed Blocks',
+    summary: 'To find the push between touching blocks, first find the shared acceleration, then apply F = ma to just one block.',
     body: [
-      "Blocks don't need a slope to require a careful free-body diagram. Push two blocks that are touching each other, and the block in FRONT only feels a contact push from the block BEHIND it — nothing else is touching it horizontally. That single contact force is entirely what accelerates the front block, by Newton's Second Law applied to it alone.",
-      "The trick to these problems: first treat the touching objects as ONE combined system to find their shared acceleration, using F = ma with the TOTAL mass. Then isolate just ONE of the objects — usually the one with only a single force acting on it — and apply F = ma to it individually. The only unknown left in that equation is the contact force itself.",
-      "Newton's Third Law then guarantees the force the front block pushes back on the block behind it is exactly equal and opposite — same size, opposite direction, no matter what the two masses are.",
+      "Blocks do not need a slope to need a careful diagram. Imagine two touching blocks on a smooth table. You push block 1, and block 1 pushes block 2. Block 2 is only pushed by block 1, so that one contact force is what accelerates it.",
+      "Step 1: treat both blocks as ONE object with the total mass, to find the shared acceleration: a = F ÷ (m₁ + m₂). Step 2: look at block 2 alone. The only horizontal force on it is the push from block 1, so that contact force is m₂ × a.",
+      "Newton's third law then says block 2 pushes back on block 1 with exactly the same force, in the opposite direction, whatever the masses are.",
     ],
+    watchOut: 'The contact force is smaller than your push. Part of your push is used up accelerating block 1 itself.',
     formulaLatex: 'a = \\dfrac{F}{m_1+m_2} \\qquad\\qquad F_{contact} = m_2 a',
     symbols: [
-      { symbol: 'F', meaning: 'The single external push applied to the front block', unit: 'N' },
-      { symbol: 'm_1, m_2', meaning: 'Mass of the pushed (front) block and the block behind it', unit: 'kg' },
-      { symbol: 'F_{contact}', meaning: "The contact force transmitted to the block being pushed from behind", unit: 'N' },
+      { symbol: 'F', meaning: 'Your push on block 1', unit: 'N' },
+      { symbol: 'm_1, m_2', meaning: 'Mass of block 1 (the one you push) and of block 2 (the one it pushes)', unit: 'kg' },
+      { symbol: 'F_{contact}', meaning: 'The push between the two blocks', unit: 'N' },
     ],
     interactive: (
       <TryIt
-        resultLabel="Contact force on the back block"
+        resultLabel="Contact force on block 2"
         resultUnit="N"
         formulaLatex={'F_{contact} = F \\cdot \\dfrac{m_2}{m_1+m_2}'}
         variables={[
-          { id: 'appliedForce', label: 'Applied force (F)', min: 10, max: 100, step: 5, defaultValue: 50, unit: 'N' },
-          { id: 'm1', label: 'Front block mass (m₁)', min: 1, max: 10, step: 1, defaultValue: 4, unit: 'kg' },
-          { id: 'm2', label: 'Back block mass (m₂)', min: 1, max: 10, step: 1, defaultValue: 6, unit: 'kg' },
+          { id: 'appliedForce', label: 'Your push (F)', min: 10, max: 100, step: 5, defaultValue: 50, unit: 'N' },
+          { id: 'm1', label: 'Block 1 mass (the one you push)', min: 1, max: 10, step: 1, defaultValue: 4, unit: 'kg' },
+          { id: 'm2', label: 'Block 2 mass (the one block 1 pushes)', min: 1, max: 10, step: 1, defaultValue: 6, unit: 'kg' },
         ]}
         compute={({ appliedForce, m1, m2 }) => (appliedForce * m2) / (m1 + m2)}
         interpret={({ appliedForce, m1, m2 }, result) =>
-          `The whole system accelerates at ${(appliedForce / (m1 + m2)).toFixed(2)} m/s². Only ${result.toFixed(1)} N of the ${appliedForce} N push actually reaches the back block — the rest (${(appliedForce - result).toFixed(1)} N) goes into accelerating the front block itself.`
+          `Both blocks accelerate at ${(appliedForce / (m1 + m2)).toFixed(2)} m/s². Only ${result.toFixed(1)} N of your ${appliedForce} N push reaches block 2. The other ${(appliedForce - result).toFixed(1)} N goes into accelerating block 1 itself.`
         }
       />
     ),
@@ -184,6 +302,7 @@ export const INCLINE_CHALLENGE: ConceptSection[] = [
     id: 'newtons-second-law-as-ode',
     icon: '📐',
     title: "Newton's Second Law as a Differential Equation",
+    summary: "F = ma is really an equation about a second derivative. Solving it by integrating twice gives the motion.",
     body: [
       "F = ma looks like simple algebra, but a is really a derivative — a = d²x/dt² — which makes Newton's Second Law a DIFFERENTIAL EQUATION: it relates a function (position) to its own second derivative. Solving 'the motion' really means solving this equation for x(t).",
       "On the incline, once you know the block is sliding, the net force along the slope is constant: F_net = mg sinθ − μₖmg cosθ. Since F_net = ma and this is constant, a is constant too, so m(d²x/dt²) = mg sinθ − μₖmg cosθ, giving a single constant value of a.",
