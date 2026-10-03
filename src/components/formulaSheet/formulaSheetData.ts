@@ -230,9 +230,27 @@ export const FORMULA_SHEET: SheetSection[] = [
         symbols: [{ symbol: 'a tan', meaning: 'Acceleration along the circle (changes the speed)', unit: 'm/s²' }],
       },
       {
+        label: 'Banked curve, no friction',
+        latex: '\\tan\\theta = \\dfrac{v_0^2}{Rg} \\qquad v_0 = \\sqrt{Rg\\tan\\theta}',
+        caption: 'The design speed: the slope alone supplies the centripetal force.',
+        symbols: [{ symbol: 'θ', meaning: 'Banking angle', unit: 'degrees' }],
+      },
+      {
+        label: 'Banked curve with friction',
+        latex: 'N = m\\left(g\\cos\\theta + \\dfrac{v^2}{R}\\sin\\theta\\right) \\qquad mg\\sin\\theta \\mp \\mu_s N = \\dfrac{mv^2}{R}\\cos\\theta',
+        caption: 'Solve once with friction up the slope (the − sign, giving v_min) and once with it down the slope (the + sign, giving v_max).',
+        symbols: [{ symbol: 'μₛ', meaning: 'Coefficient of static friction' }],
+      },
+      {
         label: 'Vertical circle (rope)',
         latex: 'T_{bottom} = mg + \\dfrac{mv^2}{r} \\qquad T_{top} = \\dfrac{mv^2}{r} - mg \\qquad v_{min,\\,top} = \\sqrt{gr}',
         symbols: [{ symbol: 'T', meaning: 'Tension in the rope', unit: 'N' }],
+      },
+      {
+        label: 'Vertical circle: any angle and the full loop',
+        latex: 'T(\\varphi) = \\dfrac{mv_0^2}{r} - 2mg + 3mg\\cos\\varphi \\qquad v_{0,\\,min} = \\sqrt{5gr}',
+        caption: 'φ is measured from the lowest point. The rope stays taut all the way round only if v₀ ≥ √(5gr).',
+        symbols: [{ symbol: 'v₀', meaning: 'Speed at the lowest point', unit: 'm/s' }],
       },
     ],
   },

@@ -196,3 +196,204 @@ describe('toTurntableFrame (what a rider on the turntable sees)', () => {
     expect(rel.y).toBeLessThan(0);
   });
 });
+
+// ─── Phase 2: banked curve ────────────────────────────────────────────────────
+import {
+  bankAngleFromDesignSpeed,
+  bankedBand,
+  bankedForcesAt,
+  bucketAt,
+  bucketOutcome,
+  designSpeed,
+  gradeSpeedGuess,
+  maxAngleDeg,
+  minLoopBottomSpeed,
+  minTopSpeed,
+  slackAngleDeg,
+  turnAroundAngleDeg,
+  type BankedParams,
+  type BucketParams,
+} from './circular';
+
+describe('banked curve (Tutorial 5, Q6)', () => {
+  const ROAD: BankedParams = { radius: 60, angleDeg: 20, mu: 0.2 };
+
+  it('needs no friction at the design speed v0 = √(Rg tanθ)', () => {
+    const v0 = designSpeed(60, 20);
+    expect(v0).toBeCloseTo(14.63, 2);
+    const f = bankedForcesAt({ ...ROAD, mu: 0 }, v0);
+    expect(f.friction).toBeCloseTo(0, 9);
+    expect(f.status).toBe('holds');
+  });
+
+  it('shrinks the safe band to the single design speed on ice', () => {
+    const band = bankedBand({ ...ROAD, mu: 0 });
+    expect(band.vMin).toBeCloseTo(band.designSpeed, 9);
+    expect(band.vMax).toBeCloseTo(band.designSpeed, 9);
+  });
+
+  it('gives the worked-example band (9.48 to 18.9 m/s) around the design speed', () => {
+    const band = bankedBand(ROAD);
+    expect(band.vMin).toBeCloseTo(9.48, 2);
+    expect(band.vMax).toBeCloseTo(18.91, 2);
+    expect(band.vMin).toBeLessThan(band.designSpeed);
+    expect(band.vMax).toBeGreaterThan(band.designSpeed);
+  });
+
+  it('puts friction exactly at its limit at both ends of the band, pointing opposite ways', () => {
+    const { vMin, vMax } = bankedBand(ROAD);
+    const low = bankedForcesAt(ROAD, vMin);
+    const high = bankedForcesAt(ROAD, vMax);
+    expect(low.friction).toBeCloseTo(low.maxFriction, 9);    // up the slope: stopping a slide down
+    expect(high.friction).toBeCloseTo(-high.maxFriction, 9); // down the slope: stopping a slide up
+    expect(low.status).toBe('holds');
+    expect(high.status).toBe('holds');
+  });
+
+  it('classifies speeds outside the band', () => {
+    const { vMin, vMax } = bankedBand(ROAD);
+    expect(bankedForcesAt(ROAD, vMin * 0.95).status).toBe('slides-down');
+    expect(bankedForcesAt(ROAD, vMax * 1.05).status).toBe('slides-up');
+    expect(bankedForcesAt(ROAD, (vMin + vMax) / 2).status).toBe('holds');
+  });
+
+  it('widens the band as friction grows', () => {
+    const rough = bankedBand({ ...ROAD, mu: 0.4 });
+    const smooth = bankedBand({ ...ROAD, mu: 0.1 });
+    expect(rough.vMin).toBeLessThan(smooth.vMin);
+    expect(rough.vMax).toBeGreaterThan(smooth.vMax);
+  });
+
+  it('lets a car stay parked when friction alone beats the slope (μ ≥ tanθ)', () => {
+    expect(bankedBand({ radius: 60, angleDeg: 10, mu: 0.3 }).vMin).toBe(0);
+    expect(bankedForcesAt({ radius: 60, angleDeg: 10, mu: 0.3 }, 0).status).toBe('holds');
+  });
+
+  it('has no upper limit when μ tanθ ≥ 1', () => {
+    expect(bankedBand({ radius: 60, angleDeg: 45, mu: 1.2 }).vMax).toBe(Infinity);
+  });
+
+  it('matches the form in terms of v0 (tanθ = v0²/Rg), as the tutorial asks', () => {
+    const R = 40, v0 = 12, mu = 0.2;
+    const angle = bankAngleFromDesignSpeed(v0, R);
+    expect(designSpeed(R, angle)).toBeCloseTo(v0, 9);
+    const band = bankedBand({ radius: R, angleDeg: angle, mu });
+    const vMinV0 = Math.sqrt((R * G * (v0 * v0 - mu * R * G)) / (R * G + mu * v0 * v0));
+    const vMaxV0 = Math.sqrt((R * G * (v0 * v0 + mu * R * G)) / (R * G - mu * v0 * v0));
+    expect(band.vMin).toBeCloseTo(vMinV0, 9);
+    expect(band.vMax).toBeCloseTo(vMaxV0, 9);
+    expect(band.vMin).toBeCloseTo(7.82, 2);
+    expect(band.vMax).toBeCloseTo(15.49, 2);
+  });
+
+  it('lets a slider land on the design speed of an icy road, but still catches clearly wrong speeds', () => {
+    const ice: BankedParams = { radius: 50, angleDeg: 15, mu: 0 };
+    const v0 = designSpeed(50, 15);
+    expect(bankedForcesAt(ice, Math.round(v0 * 10) / 10).status).toBe('holds'); // nearest 0.1 m/s
+    expect(bankedForcesAt(ice, v0 * 0.95).status).toBe('slides-down');
+    expect(bankedForcesAt(ice, v0 * 1.05).status).toBe('slides-up');
+  });
+
+  it('makes the normal force grow with speed', () => {
+    expect(bankedForcesAt(ROAD, 15).normal).toBeGreaterThan(bankedForcesAt(ROAD, 5).normal);
+  });
+
+  it('grades a speed guess within ±5%', () => {
+    expect(gradeSpeedGuess(9.7, 9.48).isCorrect).toBe(true);
+    expect(gradeSpeedGuess(10.2, 9.48).isCorrect).toBe(false);
+  });
+});
+
+// ─── Phase 2: bucket in a vertical circle ─────────────────────────────────────
+describe('bucket in a vertical circle (Tutorial 5, Q1)', () => {
+  const base = { mass: 1.5, radius: 0.8 };
+  const at = (bottomSpeed: number): BucketParams => ({ ...base, bottomSpeed });
+
+  it('has the tension at the bottom equal to mg + mv²/r', () => {
+    const s = bucketAt(at(4), 0);
+    expect(s.tension).toBeCloseTo(1.5 * G + (1.5 * 16) / 0.8, 9);
+    expect(s.tension).toBeCloseTo(44.7, 1);
+  });
+
+  it('has the tension at the top equal to mv²/r − mg', () => {
+    const top = bucketAt(at(7), 180);
+    expect(top.speed ** 2).toBeCloseTo(49 - 4 * G * 0.8, 9);
+    expect(top.tension).toBeCloseTo((1.5 * top.speed ** 2) / 0.8 - 1.5 * G, 9);
+  });
+
+  it('matches the closed form T(φ) = mv0²/r − 2mg + 3mg cos φ at every angle', () => {
+    const p = at(7);
+    for (let phi = 0; phi <= 180; phi += 15) {
+      const closed = (1.5 * 49) / 0.8 - 2 * 1.5 * G + 3 * 1.5 * G * Math.cos((phi * Math.PI) / 180);
+      expect(bucketAt(p, phi).tension).toBeCloseTo(closed, 9);
+    }
+  });
+
+  it('has the bottom tension exceed the top tension by exactly 6mg, at any speed', () => {
+    for (const v of [6.3, 7, 9]) {
+      expect(bucketAt(at(v), 0).tension - bucketAt(at(v), 180).tension).toBeCloseTo(6 * 1.5 * G, 9);
+    }
+  });
+
+  it('has the radial force equal m v²/r and equal to T − mg cos φ', () => {
+    const p = at(7);
+    for (const phi of [0, 40, 90, 140]) {
+      const s = bucketAt(p, phi);
+      expect(s.radialForce).toBeCloseTo((1.5 * s.speed ** 2) / 0.8, 9);
+      expect(s.tension - 1.5 * G * Math.cos((phi * Math.PI) / 180)).toBeCloseTo(s.radialForce, 9);
+    }
+  });
+
+  it('has the tangential force slow the bucket on the way up, and vanish at the bottom and top', () => {
+    const p = at(7);
+    expect(bucketAt(p, 0).tangentialForce).toBeCloseTo(0, 9);
+    expect(bucketAt(p, 90).tangentialForce).toBeCloseTo(-1.5 * G, 9);
+    expect(bucketAt(p, 180).tangentialForce).toBeCloseTo(0, 9);
+  });
+
+  it('finds the slowest loop speeds: √(5gr) at the bottom, √(gr) at the top', () => {
+    expect(minLoopBottomSpeed(0.8)).toBeCloseTo(6.26, 2);
+    expect(minTopSpeed(0.8)).toBeCloseTo(2.8, 2);
+    const atMin = bucketAt(at(minLoopBottomSpeed(0.8)), 180);
+    expect(atMin.speed).toBeCloseTo(minTopSpeed(0.8), 9);
+    expect(atMin.tension).toBeCloseTo(0, 9);
+  });
+
+  it('classifies the three outcomes by the bottom speed', () => {
+    expect(bucketOutcome(at(3))).toBe('swings-back');   // below √(2gr) ≈ 3.96
+    expect(bucketOutcome(at(5))).toBe('goes-slack');    // between 3.96 and 6.26
+    expect(bucketOutcome(at(6.5))).toBe('completes');
+    expect(bucketOutcome(at(minLoopBottomSpeed(0.8)))).toBe('completes');
+  });
+
+  it('puts the slack point where the tension reaches zero, above the level of the centre', () => {
+    const p = at(5);
+    const phi = slackAngleDeg(p)!;
+    expect(phi).toBeGreaterThan(90);
+    expect(phi).toBeLessThan(180);
+    expect(bucketAt(p, phi).tension).toBeCloseTo(0, 6);
+    expect(bucketAt(p, phi - 5).tension).toBeGreaterThan(0);
+    expect(slackAngleDeg(at(3))).toBeNull();
+    expect(slackAngleDeg(at(6.5))).toBeNull();
+  });
+
+  it('puts the turn-around point below level and keeps the tension positive on the way', () => {
+    const p = at(3);
+    const phi = turnAroundAngleDeg(p)!;
+    expect(phi).toBeLessThan(90);
+    expect(bucketAt(p, phi).speed).toBeCloseTo(0, 6);
+    for (let a = 0; a <= phi; a += 5) expect(bucketAt(p, a).tension).toBeGreaterThan(0);
+    expect(turnAroundAngleDeg(at(5))).toBeNull();
+  });
+
+  it('reports how far round the bucket gets in every case', () => {
+    expect(maxAngleDeg(at(3))).toBeCloseTo(turnAroundAngleDeg(at(3))!, 9);
+    expect(maxAngleDeg(at(5))).toBeCloseTo(slackAngleDeg(at(5))!, 9);
+    expect(maxAngleDeg(at(7))).toBe(180);
+  });
+
+  it('is mass-independent for the speed', () => {
+    expect(bucketAt({ mass: 1, radius: 0.8, bottomSpeed: 7 }, 120).speed)
+      .toBeCloseTo(bucketAt({ mass: 9, radius: 0.8, bottomSpeed: 7 }, 120).speed, 12);
+  });
+});

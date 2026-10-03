@@ -74,7 +74,7 @@ const COURSES: Record<ModuleId, Course> = {
     emoji: '🎡',
     accent: '#2563eb',
     path: '/module/circular',
-    description: 'Spin a turntable up until a coin lets go, and discover why it flies off straight, not outward, and what really keeps things moving in circles.',
+    description: 'Spin a turntable up until a coin lets go, find the safe speeds on a banked road, and swing a bucket over the top, to see what really keeps things moving in circles.',
     lecture: 'Lectures 2 & 5',
   },
 };

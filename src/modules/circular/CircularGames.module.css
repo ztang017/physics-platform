@@ -1,0 +1,37 @@
+.canvas { width: 100%; max-width: 600px; height: auto; display: block; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+
+.gameCard { background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); max-width: 640px; }
+.gameHeader { display: flex; gap: var(--space-3); align-items: flex-start; }
+.gameHeader h4 { color: var(--text-primary); display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.gameHeader p { font-size: 0.88rem; line-height: 1.5; }
+.gameIcon { font-size: 1.6rem; line-height: 1; }
+.gameStatus { font-size: 0.85rem; color: var(--text-secondary); align-self: center; }
+.optionalTag { font-size: 0.68rem; font-weight: 600; color: var(--accent-cyan); background: rgba(79,70,229,0.08); border-radius: var(--radius-full); padding: 2px var(--space-2); }
+
+.hint { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+.playRow { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+.roundTabs { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.roundTab { padding: var(--space-2) var(--space-4); background: var(--bg-base); border: 1px solid var(--border-default); border-radius: var(--radius-full); color: var(--text-secondary); cursor: pointer; font-size: 0.85rem; font-family: var(--font-sans); min-height: 44px; }
+.roundTab:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+.roundTab:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+.roundTabActive { border-color: var(--accent-cyan); background: rgba(79,70,229,0.08); color: var(--accent-cyan); font-weight: 600; }
+.roundTitle { font-weight: 600; color: var(--text-primary); }
+.givens { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); font-size: 0.85rem; color: var(--text-secondary); padding: var(--space-3); background: var(--bg-base); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+.givens strong { font-family: var(--font-mono); color: var(--text-primary); }
+
+.answerBlock { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--border-subtle); }
+.questionText { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); line-height: 1.5; }
+.feedbackList { margin: 0; padding-left: var(--space-5); font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+
+.verdictGood { padding: var(--space-3) var(--space-4); background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.3); border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.88rem; line-height: 1.5; }
+.verdictBad { padding: var(--space-3) var(--space-4); background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.25); border-radius: var(--radius-md); color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; }
+
+.readouts { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-2); }
+.readouts div { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3); background: var(--bg-base); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+.readouts span { font-size: 0.72rem; color: var(--text-muted); }
+.readouts strong { font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-primary); }
+
+@media (max-width: 640px) {
+  .gameCard { padding: var(--space-4); }
+}

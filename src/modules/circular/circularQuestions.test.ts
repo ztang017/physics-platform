@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { CIRCULAR_EXPLAIN_QUESTIONS } from './circularQuestions';
-import { G, muFromSlip, rpmToRadPerSec } from '../../core/physics/circular';
+import { G, bankedBand, bankedForcesAt, designSpeed, minLoopBottomSpeed, minTopSpeed, muFromSlip, rpmToRadPerSec } from '../../core/physics/circular';
 
 const byId = (id: string) => {
   const q = CIRCULAR_EXPLAIN_QUESTIONS.find((item) => item.id === id);
@@ -81,5 +81,40 @@ describe('numeric Explain answers match the physics', () => {
     expect(correct('bucket-top-minimum')).toBe('2.8 m/s');
     expect(G * 0.8).toBeCloseTo(7.84, 2);                 // forgot the square root
     expect(Math.sqrt(2 * G * 0.8)).toBeCloseTo(3.96, 2);  // √(2gr)
+  });
+});
+
+describe('phase 2 numeric Explain answers match the physics', () => {
+  it('full loop: slowest bottom speed on a 0.80 m rope is √(5gr) ≈ 6.3 m/s', () => {
+    expect(minLoopBottomSpeed(0.8)).toBeCloseTo(6.26, 2);
+    expect(correct('full-loop-bottom-speed')).toBe('6.3 m/s');
+    expect(minTopSpeed(0.8)).toBeCloseTo(2.8, 2);                 // the top-speed slip
+    expect(Math.sqrt(2 * G * 0.8)).toBeCloseTo(3.96, 2);          // level with the centre
+    expect(Math.sqrt(4 * G * 0.8)).toBeCloseTo(5.6, 1);           // arrives at the top with zero speed
+  });
+
+  it('banked design speed: R = 60 m, θ = 20° gives 14.6 m/s', () => {
+    expect(designSpeed(60, 20)).toBeCloseTo(14.63, 2);
+    expect(correct('bank-design-speed')).toBe('14.6 m/s');
+    expect(Math.sqrt(60 * G)).toBeCloseTo(24.25, 2);              // forgot tan θ
+    expect(60 * G * Math.tan((20 * Math.PI) / 180)).toBeCloseTo(214, 0); // forgot the square root
+    expect(Math.sqrt(G * Math.tan((20 * Math.PI) / 180))).toBeCloseTo(1.89, 2); // forgot R
+  });
+
+  it('banked friction direction: slower than v0 means friction up the slope', () => {
+    const road = { radius: 60, angleDeg: 20, mu: 0.2 };
+    const slow = bankedForcesAt(road, 0.8 * designSpeed(60, 20));
+    const fast = bankedForcesAt(road, 1.2 * designSpeed(60, 20));
+    expect(slow.friction).toBeGreaterThan(0);   // positive = up the slope
+    expect(fast.friction).toBeLessThan(0);
+    expect(correct('bank-friction-slow')).toMatch(/^Up the slope/);
+  });
+
+  it('friction widens the band on both sides, as the question says', () => {
+    const ice = bankedBand({ radius: 60, angleDeg: 20, mu: 0 });
+    const grip = bankedBand({ radius: 60, angleDeg: 20, mu: 0.2 });
+    expect(grip.vMin).toBeLessThan(ice.vMin);
+    expect(grip.vMax).toBeGreaterThan(ice.vMax);
+    expect(correct('bank-band-widens')).toMatch(/^It widens it/);
   });
 });
