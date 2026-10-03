@@ -10,6 +10,7 @@ const MODULE_LABELS: Record<ModuleId, string> = {
   incline: 'Incline',
   energy: 'Energy',
   collision: 'Collision',
+  circular: 'Circular',
 };
 
 function matchTopic(query: string): StudyTopic | null {

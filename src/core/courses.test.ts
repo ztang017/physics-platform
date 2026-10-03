@@ -58,8 +58,8 @@ describe('progressMessage', () => {
 
   it('names the next module and how many remain', () => {
     const message = progressMessage(['kinematics', 'projectile']);
-    expect(message).toContain('2 of 5');
-    expect(message).toContain('3 to go');
+    expect(message).toContain(`2 of ${MODULE_ORDER.length}`);
+    expect(message).toContain(`${MODULE_ORDER.length - 2} to go`);
     expect(message).toContain(getCourse('incline').title);
   });
 

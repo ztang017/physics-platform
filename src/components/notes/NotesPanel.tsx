@@ -10,6 +10,7 @@ const TABS: { id: NotesSection; label: string; icon: string }[] = [
   { id: 'incline',    label: 'Incline',    icon: '⚖️' },
   { id: 'energy',     label: 'Energy',     icon: '🔋' },
   { id: 'collision',  label: 'Collision',  icon: '💥' },
+  { id: 'circular',   label: 'Circular',   icon: '🎡' },
 ];
 
 /** A persistent notebook the student can jot ideas into while working through

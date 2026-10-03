@@ -15,6 +15,7 @@ import { ProjectileModule } from './modules/projectile/ProjectileModule';
 import { InclineModule } from './modules/incline/InclineModule';
 import { EnergyModule } from './modules/energy/EnergyModule';
 import { CollisionModule } from './modules/collision/CollisionModule';
+import { CircularModule } from './modules/circular/CircularModule';
 import { MathToggle } from './components/ui/MathToggle';
 import { XPBar } from './components/ui/XPBar';
 import { FormulaSheet } from './components/formulaSheet/FormulaSheet';
@@ -39,6 +40,7 @@ const MODULE_MAP: Record<string, React.ReactElement> = {
   incline:    <InclineModule />,
   energy:     <EnergyModule />,
   collision:  <CollisionModule />,
+  circular:   <CircularModule />,
 };
 
 function ModuleLayout() {

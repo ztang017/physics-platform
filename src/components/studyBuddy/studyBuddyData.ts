@@ -252,4 +252,65 @@ export const STUDY_TOPICS: StudyTopic[] = [
     ],
     principle: "Momentum conservation links the two speeds (m₁v₁ + m₂v₂ = 0) but can't fix their size. Energy conservation supplies the size: the potential energy lost becomes the kinetic energy of BOTH objects. Leaving out the heavy wedge's small kinetic energy is the classic mistake.",
   },
+  // ─── Circular motion ──────────────────────────────────────────────────────
+  {
+    id: 'circ-centrifugal',
+    moduleId: 'circular',
+    question: "Why does it feel like something is pushing me outward when a car turns? Isn't that a centrifugal force?",
+    keywords: ['centrifugal', 'outward force', 'pushed outward', 'pushed to the outside', 'flung out', 'thrown outward', 'fictitious force'],
+    prompts: [
+      "Before the car turned, you were moving in a straight line. What does Newton's first law say your body wants to keep doing when no force acts on it?",
+      "Now the car turns. Which real force makes YOU turn with the car, and which direction does it point?",
+      "If the door stopped pushing you inward (say you slid out through an open door), which way would you actually move: straight outward, or straight along the way you were already going?",
+    ],
+    principle: "There is no outward force on you. You feel pushed outward because your body tends to keep going straight (inertia) while the car turns, and the door has to push you inward to make you turn. In the Observe view from the room you never need a centrifugal force; it only appears if you insist on describing things from inside the spinning frame.",
+  },
+  {
+    id: 'circ-coin-slips',
+    moduleId: 'circular',
+    question: "How do I work out the speed at which the coin slips off the turntable?",
+    keywords: ['coin slips', 'slips off', 'slip off', 'coin on a turntable', 'turntable', 'when does the coin', 'static friction limit', 'record player'],
+    prompts: [
+      "Which real force acts sideways on the coin, and which way does it point? That force has to do the job of the centripetal force.",
+      "How much friction does the coin NEED to keep going in its circle (in terms of m, ω and r)? And what is the MOST static friction can give (in terms of μ, m and g)?",
+      "The coin slips at the moment those two are equal. Write the equation and look at the masses: what happens to m? Then solve for ω, and convert to rpm if the question asks for it.",
+    ],
+    principle: "Friction supplies the centripetal force, so the force needed is mω²r. Static friction can give at most μₛmg. The coin slips when mω²r = μₛmg, so ω = √(μₛg/r), and the mass cancels. Convert rad/s to rpm by multiplying by 60 ÷ 2π. Run it backwards to find μₛ = ω²r/g from a measured slipping speed.",
+  },
+  {
+    id: 'circ-rpm-units',
+    moduleId: 'circular',
+    question: "My circular motion answers come out wrong by a huge factor when the question gives rpm.",
+    keywords: ['rpm', 'rad/s', 'revolutions per minute', 'convert rpm', 'angular velocity units', 'radians per second', 'revolutions'],
+    prompts: [
+      "The formulas v = ωr and a = ω²r only work if ω is in radians per second. What unit was the speed given in?",
+      "How many radians are there in one full revolution?",
+      "How many seconds are there in one minute? Combine the two: what do you multiply the rpm by, and what do you divide by?",
+    ],
+    principle: "ω (rad/s) = rpm × 2π ÷ 60. One revolution is 2π radians and one minute is 60 seconds. Always convert before using v = ωr or a = ω²r, and give distances in metres. A 60 rpm record turns once a second, so its ω is about 6.3 rad/s, not 60.",
+  },
+  {
+    id: 'circ-centripetal-fbd',
+    moduleId: 'circular',
+    question: "Do I draw a centripetal force on my free-body diagram?",
+    keywords: ['centripetal force', 'free body diagram circular', 'fbd circular', 'which force is centripetal', 'draw the centripetal', 'net force toward the centre'],
+    prompts: [
+      "Is centripetal force a new kind of force, or is it the name for what some other force is doing? Name a real force in your problem that points toward the centre.",
+      "List the real forces: weight, normal force, tension, friction. Which of them (or which parts of them) point toward the centre, and which point away?",
+      "Add up those toward-the-centre parts (subtract any pointing away) and set the total equal to mv²/r. Do you still need an extra arrow?",
+    ],
+    principle: "Never add a separate 'centripetal force' arrow. Draw only the real forces, take 'toward the centre' as positive, add up their components along that direction, and set the total equal to mv²/r (or mω²r). The real force can be friction, tension, a normal force, gravity, or a mix.",
+  },
+  {
+    id: 'circ-vertical-circle',
+    moduleId: 'circular',
+    question: "Why does the bucket have to move fast enough at the top of the circle, and how do I find the minimum speed?",
+    keywords: ['vertical circle', 'bucket', 'top of the circle', 'rope slack', 'goes slack', 'minimum speed at the top', 'water stays in', 'loop the loop'],
+    prompts: [
+      "At the very top, which way do the weight and the tension each point: toward the centre or away from it?",
+      "At the slowest possible speed the rope is just barely taut. What number is the tension then?",
+      "With the tension at that value, which force alone supplies the centripetal force? Write 'that force = mv²/r' and see what happens to the mass.",
+    ],
+    principle: "At the top both the tension and the weight point toward the centre: T + mg = mv²/r. The rope stays taut while T ≥ 0, so the slowest speed is where T = 0 and gravity alone does the job: mg = mv²/r, giving v = √(gr). The mass cancels. At the bottom the tension must also hold up the weight: T = mg + mv²/r.",
+  },
 ];

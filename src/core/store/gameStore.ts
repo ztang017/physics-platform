@@ -15,6 +15,8 @@ export type BadgeId =
   | 'energy-architect'   // Module 4: complete work, energy & power module
   | 'conservationist'    // Module 5: perfect elastic collision
   | 'momentum-guardian'  // Module 5: complete collision module
+  | 'no-such-force'      // Module 6: predicted the tangent path of a released coin on the first lock-in
+  | 'spin-doctor'        // Module 6: complete circular motion module
   | 'first-steps'        // Complete first module
   | 'halfway-there'      // Complete more than half of the modules
   | 'physics-champion'   // Complete every module
@@ -95,6 +97,18 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
     description: 'Completed the Collisions module.',
     emoji: '💥',
   },
+  'no-such-force': {
+    id: 'no-such-force',
+    name: 'No Such Force',
+    description: 'Predicted on your first lock-in that a coin that lets go of the turntable flies off along the tangent, not outward.',
+    emoji: '🧭',
+  },
+  'spin-doctor': {
+    id: 'spin-doctor',
+    name: 'Spin Doctor',
+    description: 'Completed the Circular Motion module.',
+    emoji: '🎡',
+  },
   'first-steps': {
     id: 'first-steps',
     name: 'First Steps',
@@ -136,16 +150,18 @@ export function getXPProgressInLevel(xp: number): number {
 
 // ─── Module IDs ───────────────────────────────────────────────────────────────
 
-export type ModuleId = 'kinematics' | 'projectile' | 'incline' | 'energy' | 'collision';
+export type ModuleId = 'kinematics' | 'projectile' | 'incline' | 'energy' | 'collision' | 'circular';
 
 // Follows the course's lecture order: energy is taught before momentum, and
-// the Collisions module already leans on kinetic energy.
+// the Collisions module already leans on kinetic energy. Circular motion and
+// rotation come last (Lecture 5 and Tutorial 5 onwards).
 export const MODULE_ORDER: ModuleId[] = [
   'kinematics',
   'projectile',
   'incline',
   'energy',
   'collision',
+  'circular',
 ];
 
 /** The count at which "Halfway There" is earned: strictly more than half. */

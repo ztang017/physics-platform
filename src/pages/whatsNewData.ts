@@ -8,12 +8,13 @@ export interface WhatsNewItem {
 // whether returning visitors get a fresh popup for genuinely new content
 // (not used for the session gate itself, which always fires once per visit
 // regardless of version).
-export const WHATS_NEW_VERSION = '2026-10-05';
+export const WHATS_NEW_VERSION = '2026-10-06';
 
 export const WHATS_NEW_ITEMS: WhatsNewItem[] = [
+  { icon: '🎡', title: 'New module: Circular Motion', desc: "Spin a turntable up until a coin lets go: predict the speed it slips at (a dial, no multiple choice) and the path it takes, then watch from the room and from the turntable to see why there is no outward force. Includes 15 questions that build up to the cords, puck and bucket problems from the tutorial, and a calculus Challenge section. Earn the No Such Force and Spin Doctor badges." },
   { icon: '🔄', title: 'Updates now arrive by themselves', desc: "When a new version of PhysicsLab is released, your open tab picks it up automatically: straight away on the homepage and Courses, and the moment you leave a module or the Contact page, so you never lose your place or a half-written message." },
   { icon: '🔃', title: 'One-time step: do a hard refresh', desc: "If you had PhysicsLab open before this update, hard refresh once so your tab switches over: Ctrl+Shift+R on Windows or Linux, Cmd+Shift+R on a Mac, or close the tab and reopen the site on a phone. It also fixes things any time the site looks out of date." },
-  { icon: '🎨', title: 'A fresh, cleaner design', desc: "The homepage now focuses on your progress, your badges and the Physics Corner. All five modules live on a new Courses page, the feedback form moved to Contact us, and every page now shares a footer with links to get around." },
+  { icon: '🎨', title: 'A fresh, cleaner design', desc: "The homepage now focuses on your progress, your badges and the Physics Corner. Every module lives on a new Courses page, the feedback form moved to Contact us, and every page now shares a footer with links to get around." },
   { icon: '📊', title: 'Energy bar charts and the Stop Zone', desc: "The Energy Ramp now lets you drag bars to build an energy chart before you see the result (and earn the Energy Accountant badge), then check it against the real thing. After the replay, park the block in the Stop Zone for the Perfect Parking badge — all with energy, no guessing." },
   { icon: '🤝', title: 'Momentum meets energy in Collisions', desc: "New concept notes and questions on systems that push themselves apart, building up to the classic block-on-a-sliding-wedge problem where you need both conservation laws." },
   { icon: '🔋', title: 'New module: Work, Energy & Power', desc: "A fifth module following the course's work-and-energy lecture: predict what a block does on a ramp, rough patch and spring, watch a live energy ledger, then test yourself on ten questions. It sits before Collisions, and has its own Challenge Yourself calculus section." },

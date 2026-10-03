@@ -5,6 +5,7 @@ import { PROJECTILE_EXPLAIN_QUESTIONS } from '../modules/projectile/ProjectileMo
 import { INCLINE_EXPLAIN_QUESTIONS } from '../modules/incline/InclineModule';
 import { ENERGY_EXPLAIN_QUESTIONS } from '../modules/energy/EnergyModule';
 import { COLLISION_EXPLAIN_QUESTIONS } from '../modules/collision/CollisionModule';
+import { CIRCULAR_EXPLAIN_QUESTIONS } from '../modules/circular/circularQuestions';
 
 export interface ReviewQuestion extends ExplainQuestion {
   moduleId: ModuleId;
@@ -17,6 +18,7 @@ const MODULE_TITLES: Record<ModuleId, string> = {
   incline: 'Incline & Forces',
   energy: 'Work, Energy & Power',
   collision: 'Collisions',
+  circular: 'Circular Motion',
 };
 
 function tag(moduleId: ModuleId, questions: ExplainQuestion[]): ReviewQuestion[] {
@@ -31,6 +33,7 @@ export const ALL_EXPLAIN_QUESTIONS: ReviewQuestion[] = [
   ...tag('incline', INCLINE_EXPLAIN_QUESTIONS),
   ...tag('energy', ENERGY_EXPLAIN_QUESTIONS),
   ...tag('collision', COLLISION_EXPLAIN_QUESTIONS),
+  ...tag('circular', CIRCULAR_EXPLAIN_QUESTIONS),
 ];
 
 export function findReviewQuestion(moduleId: ModuleId, questionId: string): ReviewQuestion | undefined {
