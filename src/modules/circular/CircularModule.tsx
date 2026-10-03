@@ -21,6 +21,7 @@ import { useSessionStore } from '../../core/store/sessionStore';
 import { ConceptNotes } from '../../components/concepts/ConceptNotes';
 import { CIRCULAR_CONCEPTS, CIRCULAR_CHALLENGE } from './circularConcepts';
 import { CIRCULAR_EXPLAIN_QUESTIONS } from './circularQuestions';
+import { BankedCurveGame, BucketGame } from './CircularGames';
 import styles from './CircularModule.module.css';
 
 // ─── Scene geometry ───────────────────────────────────────────────────────────
@@ -295,14 +296,21 @@ function FrictionGauge({ state, maxFriction }: { state: TurntableState; maxFrict
 }
 
 // ─── Observe stage ────────────────────────────────────────────────────────────
+interface GameProps {
+  bank: { attempts: number[]; cleared: boolean[]; onLock: (round: number, correct: boolean) => void };
+  bucket: { attempts: number; cleared: boolean; onLock: (correct: boolean) => void };
+}
+
 function TurntableStage({
   params,
   rpmGuess,
   path,
+  games,
 }: {
   params: TurntableParams;
   rpmGuess: number | null;
   path: PathChoice | null;
+  games: GameProps;
 }) {
   const playback = useTurntablePlayback(params, true);
   const { state, elapsed, playing, finished, slowMo } = playback;
@@ -428,6 +436,10 @@ function TurntableStage({
           { label: 'Slipping speed', latex: '\\omega_{max} = \\sqrt{\\dfrac{\\mu_s g}{r}}', liveValue: `= ${result.slipOmega.toFixed(2)} rad/s`, accentColor: 'cyan' },
         ]}
       />
+
+      <h3 className={styles.gamesHeading}>Now try it on the road and on a rope</h3>
+      <BankedCurveGame attempts={games.bank.attempts} cleared={games.bank.cleared} onLock={games.bank.onLock} />
+      <BucketGame attempts={games.bucket.attempts} cleared={games.bucket.cleared} onLock={games.bucket.onLock} />
     </div>
   );
 }
@@ -448,6 +460,11 @@ export function CircularModule() {
   const [rpmGuess, setRpmGuess] = useState<number | null>(null);
   const [path, setPath] = useState<PathChoice | null>(null);
   const [predictionLocked, setPredictionLocked] = useState(false);
+  // Phase 2 games: attempts and clears per Safe Speed Band round, and for the bucket
+  const [bankAttempts, setBankAttempts] = useState([0, 0, 0]);
+  const [bankCleared, setBankCleared] = useState([false, false, false]);
+  const [bucketAttempts, setBucketAttempts] = useState(0);
+  const [bucketCleared, setBucketCleared] = useState(false);
 
   const params: TurntableParams = useMemo(
     () => ({ radius: radiusCm / 100, mu, mass: massG / 1000 }),
@@ -472,6 +489,26 @@ export function CircularModule() {
     setPOEPhase('observe');
   };
 
+  const handleBankLock = (round: number, correct: boolean) => {
+    const attempts = bankAttempts.map((n, i) => (i === round ? n + 1 : n));
+    const cleared = bankCleared.map((c, i) => (i === round ? c || correct : c));
+    setBankAttempts(attempts);
+    setBankCleared(cleared);
+    if (correct && !bankCleared[round]) addXP(15);
+    // Safe Driver: every round cleared, and each one on its very first check
+    if (cleared.every(Boolean) && !bankCleared.every(Boolean) && attempts.every((n) => n === 1)) {
+      unlockBadge('safe-driver');
+    }
+  };
+
+  const handleBucketLock = (correct: boolean) => {
+    setBucketAttempts((n) => n + 1);
+    if (correct && !bucketCleared) {
+      setBucketCleared(true);
+      addXP(20);
+    }
+  };
+
   const handleComplete = (score: number, perfectExplain: boolean) => {
     addXP(50 + score);
     unlockBadge('spin-doctor');
@@ -487,6 +524,10 @@ export function CircularModule() {
     setRpmGuess(null);
     setPath(null);
     setPredictionLocked(false);
+    setBankAttempts([0, 0, 0]);
+    setBankCleared([false, false, false]);
+    setBucketAttempts(0);
+    setBucketCleared(false);
   };
 
   const PredictPhase = (
@@ -574,13 +615,23 @@ export function CircularModule() {
     </div>
   );
 
-  const ObservePhase = <TurntableStage params={params} rpmGuess={rpmGuess} path={path} />;
+  const ObservePhase = (
+    <TurntableStage
+      params={params}
+      rpmGuess={rpmGuess}
+      path={path}
+      games={{
+        bank: { attempts: bankAttempts, cleared: bankCleared, onLock: handleBankLock },
+        bucket: { attempts: bucketAttempts, cleared: bucketCleared, onLock: handleBucketLock },
+      }}
+    />
+  );
 
   return (
     <div className={styles.module}>
       <div className={styles.moduleHeader}>
         <h2>🎡 Circular Motion Turntable</h2>
-        <p>Spin a turntable up until a coin lets go, then find out what really keeps things moving in circles, and what does not.</p>
+        <p>Spin a turntable up until a coin lets go, then find the safe speeds on a banked road and swing a bucket over the top, to see what really keeps things moving in circles.</p>
       </div>
 
       <div className={styles.conceptWrap}>

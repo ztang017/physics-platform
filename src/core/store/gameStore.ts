@@ -16,6 +16,7 @@ export type BadgeId =
   | 'conservationist'    // Module 5: perfect elastic collision
   | 'momentum-guardian'  // Module 5: complete collision module
   | 'no-such-force'      // Module 6: predicted the tangent path of a released coin on the first lock-in
+  | 'safe-driver'        // Module 6: all three Safe Speed Band rounds cleared on the first check
   | 'spin-doctor'        // Module 6: complete circular motion module
   | 'first-steps'        // Complete first module
   | 'halfway-there'      // Complete more than half of the modules
@@ -102,6 +103,12 @@ export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, 'unlockedAt'>> = {
     name: 'No Such Force',
     description: 'Predicted on your first lock-in that a coin that lets go of the turntable flies off along the tangent, not outward.',
     emoji: '🧭',
+  },
+  'safe-driver': {
+    id: 'safe-driver',
+    name: 'Safe Driver',
+    description: 'Cleared all three Safe Speed Band rounds on the first check each.',
+    emoji: '🚗',
   },
   'spin-doctor': {
     id: 'spin-doctor',

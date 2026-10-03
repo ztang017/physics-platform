@@ -8,9 +8,10 @@ export interface WhatsNewItem {
 // whether returning visitors get a fresh popup for genuinely new content
 // (not used for the session gate itself, which always fires once per visit
 // regardless of version).
-export const WHATS_NEW_VERSION = '2026-10-06';
+export const WHATS_NEW_VERSION = '2026-10-07';
 
 export const WHATS_NEW_ITEMS: WhatsNewItem[] = [
+  { icon: '🚗', title: 'Circular Motion: banked roads and a bucket loop', desc: "After the turntable, take a banked bend on ice, then on grippy tyres, and work out the safe speeds (Safe Speed Band, with a Safe Driver badge for three first tries). Then swing a bucket on a rope, slide round the circle watching the tension, and find the slowest speed that gets it over the top. Five new questions and notes on banked curves and where a rope goes slack." },
   { icon: '🎡', title: 'New module: Circular Motion', desc: "Spin a turntable up until a coin lets go: predict the speed it slips at (a dial, no multiple choice) and the path it takes, then watch from the room and from the turntable to see why there is no outward force. Includes 15 questions that build up to the cords, puck and bucket problems from the tutorial, and a calculus Challenge section. Earn the No Such Force and Spin Doctor badges." },
   { icon: '🔄', title: 'Updates now arrive by themselves', desc: "When a new version of PhysicsLab is released, your open tab picks it up automatically: straight away on the homepage and Courses, and the moment you leave a module or the Contact page, so you never lose your place or a half-written message." },
   { icon: '🔃', title: 'One-time step: do a hard refresh', desc: "If you had PhysicsLab open before this update, hard refresh once so your tab switches over: Ctrl+Shift+R on Windows or Linux, Cmd+Shift+R on a Mac, or close the tab and reopen the site on a phone. It also fixes things any time the site looks out of date." },

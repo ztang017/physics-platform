@@ -264,6 +264,43 @@ export const CIRCULAR_CONCEPTS: ConceptSection[] = [
     ),
   },
   {
+    id: 'banked-curves',
+    icon: '🛣️',
+    title: 'Banked Curves: Letting the Slope Help',
+    body: [
+      "On a flat road only friction can turn a car, which is why a curve is dangerous on ice. Engineers therefore TILT (bank) the road. The normal force is always perpendicular to the surface, so on a banked road it leans toward the centre of the bend, and its horizontal part pushes the car round.",
+      "First take a perfectly icy road, with no friction at all. The only forces are the weight mg (down) and the normal force N (perpendicular to the road, at angle θ from the vertical). Vertically nothing accelerates: N cos θ = mg. Horizontally, toward the centre: N sin θ = mv²/R. Divide the second equation by the first and both N and m disappear: tan θ = v²/(Rg). So there is exactly one speed at which the car needs no friction, the design speed v₀ = √(Rg tan θ).",
+      "Now add friction. Go slower than v₀ and the normal force provides too much turning force, so the car tends to slide DOWN the slope toward the inside; friction acts UP the slope to stop it. Go faster and the car tends to slide UP and out; friction acts DOWN the slope. At each end of the safe band friction is at its limit, f = μₛN.",
+      "To find the two limiting speeds, write Newton's second law twice, once along the slope and once at right angles to it (or horizontally and vertically), put f = μₛN, and solve once with friction pointing up the slope (the slowest speed) and once with it pointing down (the fastest). A rougher road gives a wider band. The worked example below carries this through with numbers.",
+    ],
+    formulaLatex: '\\tan\\theta = \\dfrac{v_0^2}{Rg} \\;\\Rightarrow\\; v_0 = \\sqrt{Rg\\tan\\theta} \\qquad f = \\mu_s N \\ \\text{at each end of the safe band}',
+    symbols: [
+      { symbol: 'θ', meaning: 'Banking angle of the road', unit: 'degrees' },
+      { symbol: 'v₀', meaning: 'Design speed: the speed at which no friction is needed', unit: 'm/s' },
+      { symbol: 'R', meaning: 'Radius of the bend', unit: 'm' },
+      { symbol: 'N', meaning: 'Normal force, perpendicular to the road surface', unit: 'N' },
+    ],
+    interactive: (
+      <RevealAnswer
+        question="A bend of radius 60 m is banked at 20°, and the tyres have μₛ = 0.20. Find the design speed and the slowest and fastest safe speeds. (g = 9.8 m/s², tan 20° = 0.364)"
+        answer={
+          <>
+            <p>Design speed (no friction needed):</p>
+            <Katex latex={'v_0 = \\sqrt{Rg\\tan\\theta} = \\sqrt{60 \\times 9.8 \\times 0.364} \\approx 14.6\\ \\text{m/s}'} displayMode />
+            <p>Use the same two equations for both ends of the band, with a = v²/R (the centripetal acceleration), cos 20° = 0.940 and sin 20° = 0.342. Across the slope: N = m(g cos θ + a sin θ) = m(9.21 + 0.342a). Along the slope, taking down-the-slope (toward the centre) as positive: mg sin θ ∓ μN = m a cos θ.</p>
+            <p><strong>Slowest speed</strong>: friction at its limit pointing UP the slope, so it takes away from the downhill pull:</p>
+            <Katex latex={'3.35 - 0.20\\,(9.21 + 0.342a) = 0.940a \\;\\Rightarrow\\; 1.51 = 1.008a \\;\\Rightarrow\\; a \\approx 1.50\\ \\text{m/s}^2'} displayMode />
+            <Katex latex={'v_{min} = \\sqrt{aR} = \\sqrt{1.50 \\times 60} \\approx 9.5\\ \\text{m/s}'} displayMode />
+            <p><strong>Fastest speed</strong>: friction at its limit pointing DOWN the slope, so it adds to the downhill pull:</p>
+            <Katex latex={'3.35 + 0.20\\,(9.21 + 0.342a) = 0.940a \\;\\Rightarrow\\; 5.19 = 0.871a \\;\\Rightarrow\\; a \\approx 5.96\\ \\text{m/s}^2'} displayMode />
+            <Katex latex={'v_{max} = \\sqrt{aR} = \\sqrt{5.96 \\times 60} \\approx 18.9\\ \\text{m/s}'} displayMode />
+            <p>So the safe band is about 9.5 to 18.9 m/s, centred on the design speed of 14.6 m/s. If a question gives you the design speed v₀ instead of the angle, find θ first from tan θ = v₀²/(Rg). To get a formula for the band, solve the same two equations with letters instead of numbers.</p>
+          </>
+        }
+      />
+    ),
+  },
+  {
     id: 'rotational-kinematics',
     icon: '⏱️',
     title: 'Speeding Up and Slowing Down: Angular Acceleration α',
@@ -389,6 +426,33 @@ export const CIRCULAR_CHALLENGE: ConceptSection[] = [
           vcSpeed * vcSpeed < 5 * 9.8
             ? `For a 1 kg mass on a 1 m rope. At ${vcSpeed} m/s the bucket cannot complete the circle: the rope goes slack somewhere before the top (the tension goes negative). The minimum speed at the bottom is √(5gr) ≈ 7.0 m/s.${vcAngle === 180 ? ' Here at the top the result is negative: not possible for a rope.' : ''}`
             : `For a 1 kg mass on a 1 m rope. The tension is positive all the way round, because ${vcSpeed} m/s is above the minimum √(5gr) ≈ 7.0 m/s. It is biggest at the bottom and smallest at the top.`
+        }
+      />
+    ),
+  },
+  {
+    id: 'bucket-slack-point',
+    icon: '📍',
+    title: 'Where the Rope Goes Slack',
+    body: [
+      "If the bottom speed is between √(2gr) and √(5gr), the bucket rises above the level of the centre but cannot make the top. Somewhere on the way the tension reaches zero and the rope goes slack, after which the bucket flies off as a projectile. Find that point by setting T(φ) = mv₀²/r − 2mg + 3mg cos φ equal to zero:",
+      "cos φ = (2g − v₀²/r) / (3g). A real answer above 90° exists only when 2gr < v₀² < 5gr. Below √(2gr) the bucket never rises above the centre, so it swings back with the rope still tight; at √(5gr) or more the slack point has been pushed all the way to the top and beyond.",
+    ],
+    formulaLatex: 'T(\\varphi_s) = 0 \\;\\Rightarrow\\; \\cos\\varphi_s = \\dfrac{2g - v_0^2/r}{3g} \\qquad (2gr < v_0^2 < 5gr)',
+    symbols: [
+      { symbol: 'φ s', meaning: 'Angle round from the bottom at which the rope goes slack', unit: 'degrees' },
+    ],
+    interactive: (
+      <TryIt
+        resultLabel="Angle at which the rope goes slack"
+        resultUnit="°"
+        formulaLatex={'\\varphi_s = \\cos^{-1}\\!\\left(\\dfrac{2g - v_0^2/r}{3g}\\right)'}
+        variables={[
+          { id: 'slackSpeed', label: 'Speed at the bottom (v₀), for a 1 m rope', min: 4.5, max: 6.9, step: 0.1, defaultValue: 5, unit: 'm/s' },
+        ]}
+        compute={({ slackSpeed }) => (Math.acos((2 * 9.8 - slackSpeed * slackSpeed) / (3 * 9.8)) * 180) / Math.PI}
+        interpret={({ slackSpeed }) =>
+          `The rope goes slack ${((Math.acos((2 * 9.8 - slackSpeed * slackSpeed) / (3 * 9.8)) * 180) / Math.PI).toFixed(0)}° round from the bottom. Push v₀ up toward √(5gr) ≈ 7.0 m/s and the slack point climbs toward the top (180°).`
         }
       />
     ),

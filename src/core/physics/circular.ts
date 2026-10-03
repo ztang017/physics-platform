@@ -157,3 +157,152 @@ export function toTurntableFrame(x: number, y: number, tableAngle: number): { x:
   const s = Math.sin(tableAngle);
   return { x: x * c + y * s, y: -x * s + y * c };
 }
+
+// ─── Speed-guess grading (phase 2 games) ──────────────────────────────────────
+/** A speed within this fraction of the true value counts as correct in the games. */
+export const SPEED_TOLERANCE = 0.05;
+
+export function gradeSpeedGuess(guess: number, actual: number, tolerance = SPEED_TOLERANCE): RpmGrade {
+  return gradeRpmGuess(guess, actual, tolerance);
+}
+
+// ─── Banked curve (Tutorial 5, Q6) ────────────────────────────────────────────
+// A car on a banked bend, drawn in cross-section with the outside of the bend
+// higher. The centripetal acceleration a = v²/R is horizontal and points toward
+// the centre of the bend, which is partly DOWN the slope. All forces are per
+// kilogram, so the car's mass never appears.
+export interface BankedParams {
+  /** Radius of the bend (m). */
+  radius: number;
+  /** Banking angle of the road (degrees). */
+  angleDeg: number;
+  /** Coefficient of static friction between the tyres and the road. */
+  mu: number;
+}
+
+const rad = (deg: number) => (deg * Math.PI) / 180;
+
+/** v0 = √(R g tanθ): the speed at which no friction is needed at all. */
+export const designSpeed = (radius: number, angleDeg: number) => Math.sqrt(radius * G * Math.tan(rad(angleDeg)));
+
+/** tanθ = v0²/(Rg): the banking angle a road needs for a given design speed. */
+export const bankAngleFromDesignSpeed = (v0: number, radius: number) =>
+  (Math.atan((v0 * v0) / (radius * G)) * 180) / Math.PI;
+
+export interface BankedBand {
+  designSpeed: number;
+  /** Slowest speed at which the car does not slide down. Zero if friction alone can hold a parked car. */
+  vMin: number;
+  /** Fastest speed at which the car does not slide up and out. Infinity if friction can hold any speed. */
+  vMax: number;
+}
+
+export function bankedBand({ radius, angleDeg, mu }: BankedParams): BankedBand {
+  const t = Math.tan(rad(angleDeg));
+  return {
+    designSpeed: Math.sqrt(radius * G * t),
+    vMin: t <= mu ? 0 : Math.sqrt((radius * G * (t - mu)) / (1 + mu * t)),
+    vMax: mu * t >= 1 ? Infinity : Math.sqrt((radius * G * (t + mu)) / (1 - mu * t)),
+  };
+}
+
+/** A little give (N/kg of friction) so a slider can land on the design speed of an icy road, where only one speed holds. */
+export const HOLD_TOLERANCE = 0.05;
+
+export type BankStatus = 'slides-down' | 'holds' | 'slides-up';
+
+export interface BankedForces {
+  /** Normal force per kg (N/kg): g cosθ + (v²/R) sinθ. */
+  normal: number;
+  /** Friction needed per kg, positive UP the slope: g sinθ − (v²/R) cosθ. */
+  friction: number;
+  /** The most friction available per kg: μ × normal. */
+  maxFriction: number;
+  /** Centripetal acceleration v²/R (m/s²). */
+  centripetal: number;
+  status: BankStatus;
+}
+
+export function bankedForcesAt({ radius, angleDeg, mu }: BankedParams, speed: number): BankedForces {
+  const theta = rad(angleDeg);
+  const centripetal = (speed * speed) / radius;
+  const normal = G * Math.cos(theta) + centripetal * Math.sin(theta);
+  const friction = G * Math.sin(theta) - centripetal * Math.cos(theta);
+  const maxFriction = mu * normal;
+  const slack = HOLD_TOLERANCE;
+  const status: BankStatus =
+    friction > maxFriction + slack ? 'slides-down' : friction < -maxFriction - slack ? 'slides-up' : 'holds';
+  return { normal, friction, maxFriction, centripetal, status };
+}
+
+// ─── Bucket in a vertical circle (Tutorial 5, Q1) ─────────────────────────────
+// φ is the angle round from the lowest point: 0° at the bottom, 90° level with
+// the centre, 180° at the top. Energy conservation gives the speed at any φ.
+export interface BucketParams {
+  mass: number;
+  radius: number;
+  /** Speed at the lowest point (m/s). */
+  bottomSpeed: number;
+}
+
+/** √(5gr): the slowest bottom speed that keeps the rope taut all the way round. */
+export const minLoopBottomSpeed = (radius: number) => Math.sqrt(5 * G * radius);
+/** √(gr): the slowest speed at the top that keeps the rope taut. */
+export const minTopSpeed = (radius: number) => Math.sqrt(G * radius);
+
+export type BucketOutcome = 'swings-back' | 'goes-slack' | 'completes';
+
+export function bucketOutcome({ radius, bottomSpeed }: BucketParams): BucketOutcome {
+  const v2 = bottomSpeed * bottomSpeed;
+  if (v2 <= 2 * G * radius) return 'swings-back';
+  if (v2 < 5 * G * radius) return 'goes-slack';
+  return 'completes';
+}
+
+/** Where the rope goes slack (degrees from the bottom), or null if it never does. */
+export function slackAngleDeg({ radius, bottomSpeed }: BucketParams): number | null {
+  const v2 = bottomSpeed * bottomSpeed;
+  if (v2 <= 2 * G * radius || v2 >= 5 * G * radius) return null;
+  return (Math.acos((2 * G - v2 / radius) / (3 * G)) * 180) / Math.PI;
+}
+
+/** Where a bucket that swings back comes to rest for an instant, or null if it climbs higher than level. */
+export function turnAroundAngleDeg({ radius, bottomSpeed }: BucketParams): number | null {
+  const v2 = bottomSpeed * bottomSpeed;
+  if (v2 > 2 * G * radius) return null;
+  return (Math.acos(1 - v2 / (2 * G * radius)) * 180) / Math.PI;
+}
+
+/** The furthest round the bucket gets while the rope stays taut (degrees). */
+export function maxAngleDeg(params: BucketParams): number {
+  switch (bucketOutcome(params)) {
+    case 'completes': return 180;
+    case 'goes-slack': return slackAngleDeg(params)!;
+    case 'swings-back': return turnAroundAngleDeg(params)!;
+  }
+}
+
+export interface BucketState {
+  speed: number;
+  /** Rope tension: m v²/r + m g cos φ. Negative would mean the rope pushing, which it cannot, so the rope is slack there. */
+  tension: number;
+  /** Component of the net force along the path (negative = slowing the bucket down): −m g sin φ. */
+  tangentialForce: number;
+  /** Net force toward the centre, which must equal m v²/r. */
+  radialForce: number;
+  /** Height above the lowest point (m). */
+  height: number;
+}
+
+export function bucketAt({ mass, radius, bottomSpeed }: BucketParams, phiDeg: number): BucketState {
+  const phi = rad(phiDeg);
+  const height = radius * (1 - Math.cos(phi));
+  const v2 = Math.max(0, bottomSpeed * bottomSpeed - 2 * G * height);
+  return {
+    speed: Math.sqrt(v2),
+    tension: (mass * v2) / radius + mass * G * Math.cos(phi),
+    tangentialForce: -mass * G * Math.sin(phi),
+    radialForce: (mass * v2) / radius,
+    height,
+  };
+}

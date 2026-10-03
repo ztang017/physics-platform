@@ -313,4 +313,28 @@ export const STUDY_TOPICS: StudyTopic[] = [
     ],
     principle: "At the top both the tension and the weight point toward the centre: T + mg = mv²/r. The rope stays taut while T ≥ 0, so the slowest speed is where T = 0 and gravity alone does the job: mg = mv²/r, giving v = √(gr). The mass cancels. At the bottom the tension must also hold up the weight: T = mg + mv²/r.",
   },
+  {
+    id: 'circ-banked-friction',
+    moduleId: 'circular',
+    question: "On a banked curve, which way does friction act, and why is there a lowest AND a highest safe speed?",
+    keywords: ['banked', 'banking', 'bank angle', 'banked curve', 'highway curve', 'safe speed band', 'vmin', 'vmax', 'maximum speed on a curve'],
+    prompts: [
+      "At the design speed the car needs no friction at all. If it goes slower, does the road's normal force provide too much turning force, or too little? Which way would that push the car along the slope?",
+      "Friction always opposes the tendency to slide. If the car tends to slide down the slope, which way does friction point? What about a car that tends to slide up?",
+      "At each end of the safe band friction is at its limit, f = μN. Write Newton's second law along the slope and at right angles to it, once for each direction of friction. What changes between the two cases?",
+    ],
+    principle: "At the design speed v₀ = √(Rg tan θ) the slope alone supplies the centripetal force. Slower, the car tends to slide down the slope so friction acts up it; faster, it tends to slide up so friction acts down. At each limit f = μₛN, and solving gives v_min and v_max. A larger μₛ widens the band on both sides.",
+  },
+  {
+    id: 'circ-full-loop',
+    moduleId: 'circular',
+    question: "How do I find the slowest speed at the bottom that gets the bucket all the way round?",
+    keywords: ['complete the loop', 'full loop', 'all the way round', 'slowest speed at the bottom', 'bottom speed', 'rope goes slack before', 'minimum speed at the bottom'],
+    prompts: [
+      "Start at the top. What is the slowest speed there that keeps the rope taut? (Think about what the tension is, and what alone supplies the centripetal force.)",
+      "Now go from the top down to the bottom. How much height does the bucket lose, and what happens to its kinetic energy?",
+      "Write energy conservation between the top and the bottom. What is v₀² in terms of g and r, and does the mass appear?",
+    ],
+    principle: "At the top the slowest taut speed has v_top² = gr. Energy conservation over the 2r drop gives v₀² = v_top² + 4gr = 5gr, so the bucket must pass the bottom at no less than √(5gr). The mass cancels. Below √(2gr) it swings back; between √(2gr) and √(5gr) the rope goes slack on the way up.",
+  },
 ];
