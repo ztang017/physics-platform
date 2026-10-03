@@ -18,6 +18,30 @@ const EMPTY_VECTORS: Record<PlacedVector['id'], { dx: number; dy: number }> = {
 
 export const INCLINE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
   {
+    id: 'mass-vs-weight',
+    question: "A 5 kg block is taken from the Earth to the Moon. What happens to its mass and its weight?",
+    options: ["Its mass stays 5 kg and its weight gets smaller", "Both stay the same", "Both get smaller", "Its mass gets smaller and its weight stays the same"],
+    correctIndex: 0,
+    hint: "Mass is how much matter there is. Weight is the pull of gravity on that matter, W = mg. Which of the two depends on g?",
+    explanation: "Mass is the amount of matter, so it does not change. Weight = mg, and g is smaller on the Moon, so the weight is smaller (about one sixth). Kilograms measure mass; newtons measure weight.",
+  },
+  {
+    id: 'second-law-basic',
+    question: "A 2 kg cart is pushed along a smooth table by a net force of 10 N. What is its acceleration?",
+    options: ["5 m/s²", "20 m/s²", "0.2 m/s²", "12 m/s²"],
+    correctIndex: 0,
+    hint: "Newton's second law: F = ma, so a = F ÷ m.",
+    explanation: "a = F ÷ m = 10 ÷ 2 = 5 m/s². The 20 comes from multiplying instead of dividing, and 0.2 from dividing the wrong way round.",
+  },
+  {
+    id: 'third-law-pair',
+    question: "A book rests on a table, and the table pushes up on the book. What is the third-law partner of that force?",
+    options: ["The book pushing down on the table", "The book's weight", "The ground pushing up on the table", "The book's mass"],
+    correctIndex: 0,
+    hint: "A third-law pair acts between the same two objects, in opposite directions. The table pushes on the book, so what does the book do to the table?",
+    explanation: "The partner of 'table pushes up on book' is 'book pushes down on table'. The weight of the book is a different force (gravity pulling on the book) that happens to be equal in size here. Pairs always act on different objects.",
+  },
+  {
     id: 'normal-direction',
     question: 'Why does the normal force point perpendicular to the surface — not straight up?',
     options: [
@@ -35,8 +59,8 @@ export const INCLINE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     question: 'A 3 kg box rests on top of a 5 kg box, which sits still on a table. What is the normal force between the two boxes (the force the 5 kg box exerts upward on the 3 kg box)? (g = 10 m/s²)',
     options: ['80 N', '30 N', '50 N', '15 N'],
     correctIndex: 1,
-    hint: 'Isolate just the TOP box by itself, ignoring the table and the bottom box\'s own weight for a moment — what single force must the bottom box supply to hold up just what\'s resting on it?',
-    explanation: 'Looking at the top box alone, only its own weight (3 kg × 10 m/s² = 30 N) needs to be balanced — the bottom box only has to push up hard enough to support what\'s directly touching it. The full 80 N (both boxes\' combined weight) is what the TABLE must supply to the bottom box, since the table supports everything above it. Each surface only ever has to react to what\'s immediately pressing on it — normal force isn\'t automatically "the whole weight," even when it looks that way for a single block.',
+    hint: "Look at the top box on its own. What single force holds it up?",
+    explanation: "Look at the top box alone. Only the box below holds it up, so that push just equals the top box's weight: 3 kg × 10 m/s² = 30 N. The table has to hold up both boxes (80 N), but that is a different contact. Each surface only supports what rests directly on it.",
   },
   {
     id: 'friction-doubles-mass',
@@ -45,6 +69,14 @@ export const INCLINE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     correctIndex: 1,
     hint: 'Friction depends on the normal force N, and N itself depends on weight (mg·cosθ). If you double m, what happens to N first — and then to friction?',
     explanation: 'Friction = μN = μ·mg·cos(θ). Doubling m doubles N, which doubles friction. The coefficient μ does not change — it depends only on the surface materials.',
+  },
+  {
+    id: 'normal-force-steep-limit',
+    question: 'As the incline angle increases toward 90° (a vertical wall), what happens to the normal force?',
+    options: ['It approaches the full weight, mg', 'It approaches zero', 'It stays exactly the same', 'It becomes negative'],
+    correctIndex: 1,
+    hint: 'N = mg·cos(θ). What does cos(θ) approach as θ approaches 90°?',
+    explanation: "N = mg cos θ, and cos 90° = 0, so N shrinks to zero as the slope gets steeper. A block cannot rest on a vertical wall with nothing else holding it there.",
   },
   {
     id: 'critical-angle',
@@ -73,36 +105,28 @@ export const INCLINE_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     explanation: 'The down-slope pull (25 N) is nearly double the maximum available friction (≈13 N), so friction cannot hold the block — it slides. Mass itself never decides this on its own; it\'s always the ratio between the two forces that matters.',
   },
   {
-    id: 'normal-force-steep-limit',
-    question: 'As the incline angle increases toward 90° (a vertical wall), what happens to the normal force?',
-    options: ['It approaches the full weight, mg', 'It approaches zero', 'It stays exactly the same', 'It becomes negative'],
+    id: 'contact-force-blocks',
+    question: 'A 4 kg block and a 6 kg block sit in contact on a frictionless table. A 50 N force pushes on the 4 kg block, driving both blocks forward together. What is the contact force between the two blocks?',
+    options: ['50 N', '30 N', '20 N', '10 N'],
     correctIndex: 1,
-    hint: 'N = mg·cos(θ). What does cos(θ) approach as θ approaches 90°?',
-    explanation: 'N = mg·cos(θ), and cos(90°) = 0, so the normal force shrinks to zero as the surface becomes vertical — a block can\'t rest on a perfectly vertical wall with nothing else holding it there, which matches the formula perfectly.',
+    hint: "First find the acceleration of both blocks together, using F = ma with the total mass. Then look at the 6 kg block alone: what push does it need to get that acceleration?",
+    explanation: "Step 1: treat both blocks as one 10 kg object. Its acceleration is a = F ÷ m = 50 ÷ 10 = 5 m/s². Step 2: look at the 6 kg block alone. The only horizontal force on it is the push from the 4 kg block, so that push is ma = 6 × 5 = 30 N. It is less than 50 N because 20 N is used up accelerating the 4 kg block.",
   },
   {
     id: 'elevator-normal-force',
     question: 'A 60 kg person stands on a scale inside an elevator. When the elevator accelerates upward at 2 m/s², what does the scale read? (g = 10 m/s²)',
     options: ['600 N', '480 N', '720 N', '120 N'],
     correctIndex: 2,
-    hint: 'Draw the FBD for the person alone: weight down (mg), normal force up (N). The net force must equal ma, and the acceleration points the same way the elevator accelerates — upward. Does N need to be BIGGER or SMALLER than mg to produce a net upward force?',
-    explanation: 'Newton\'s Second Law on the person, taking up as positive: N − mg = ma. Solving: N = m(g+a) = 60×(10+2) = 720 N. The scale reads MORE than resting weight (600 N) whenever the elevator accelerates upward — that extra force is what\'s actually accelerating you upward along with the elevator, matching the "heavier at the start of going up" feeling in a real elevator.',
+    hint: "Draw the weight (down) and the normal force (up). The net force must point up, the way the elevator accelerates. Must N be bigger or smaller than mg?",
+    explanation: "Take up as positive and use F = ma on the person: N − mg = ma, so N = m(g + a) = 60 × (10 + 2) = 720 N. The scale reads more than the resting weight of 600 N, because the floor must push up harder to accelerate you upward.",
   },
   {
     id: 'incline-in-elevator',
-    question: 'A block sits on a frictionless incline (angle 30°) inside an elevator. The elevator accelerates DOWNWARD at 2 m/s². What is the block\'s acceleration down the slope, relative to the incline? (g = 10 m/s²)',
+    question: "A block sits on a frictionless 30° slope inside an elevator that accelerates DOWNWARD at 2 m/s². How fast does the block accelerate down the slope? (g = 10 m/s²)",
     options: ['4 m/s²', '5 m/s²', '6 m/s²', '8 m/s²'],
     correctIndex: 0,
-    hint: 'When the elevator accelerates downward, it\'s as if gravity is temporarily "weaker" inside it — swap in an effective gravity g_eff = g − a wherever the usual frictionless-incline formula (a = g·sinθ) uses g.',
-    explanation: 'Inside an accelerating elevator, the incline formula still works if you use an EFFECTIVE gravity: g_eff = g − a for a downward-accelerating elevator (or g + a for upward). Here g_eff = 10 − 2 = 8 m/s², so the block\'s acceleration down the frictionless slope is g_eff·sinθ = 8×sin(30°) = 4 m/s² — slower than it would slide in a stationary elevator (which would give 10×sin(30°) = 5 m/s²), because the downward-accelerating elevator briefly makes everything inside feel lighter.',
-  },
-  {
-    id: 'contact-force-blocks',
-    question: 'A 4 kg block and a 6 kg block sit in contact on a frictionless table. A 50 N force pushes on the 4 kg block, driving both blocks forward together. What is the contact force between the two blocks?',
-    options: ['50 N', '30 N', '20 N', '10 N'],
-    correctIndex: 1,
-    hint: 'First find the acceleration of the WHOLE 10 kg system using F = ma on the combined mass. Then isolate just the 6 kg block by itself — the only horizontal force touching it is the push from the 4 kg block. What force does that block need to accelerate at that same rate?',
-    explanation: 'Treating both blocks as one 10 kg system: a = F/m = 50/10 = 5 m/s². Now isolate the 6 kg block alone — the only thing touching it is the 4 kg block behind it, so that contact force alone must supply F = ma = 6 × 5 = 30 N. It\'s NOT simply the full 50 N: some of the push (20 N) goes into accelerating the 4 kg block itself, and only the remaining 30 N transmits through to the block behind it — Newton\'s Third Law in action, since the 6 kg block pushes back with the same 30 N.',
+    hint: "Swap g for an effective gravity, g_eff = g − a (a is the elevator's downward acceleration). Then use a = g_eff × sin θ.",
+    explanation: "In a downward-accelerating elevator gravity effectively gets weaker: g_eff = 10 − 2 = 8 m/s². On a frictionless slope the acceleration is g_eff × sin 30° = 8 × 0.5 = 4 m/s². In a stationary elevator it would be 5 m/s², so the block slides more slowly.",
   },
 ];
 
@@ -263,7 +287,9 @@ function InclineCanvas({
   const rafRef = useRef<number>(0);
   const [slideT, setSlideT] = useState(0);
 
-  useHiDPICanvas(canvasRef, W, H);
+  // The shared canvas hook clears the picture whenever layout resizes the canvas, so repaint when that happens.
+  const [redrawTick, setRedrawTick] = useState(0);
+  useHiDPICanvas(canvasRef, W, H, () => setRedrawTick((n) => n + 1));
 
   const isSliding = validated && !forces.isStationary;
 
@@ -292,7 +318,7 @@ function InclineCanvas({
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
     drawIncline(ctx, angleDeg, forces, validated, slideT);
-  }, [angleDeg, forces, validated, slideT]);
+  }, [angleDeg, forces, validated, slideT, redrawTick]);
 
   return (
     <>
@@ -324,6 +350,8 @@ export function InclineModule() {
   const [firstAttempt, setFirstAttempt] = useState(true);
   const [vectors, setVectors] = useState(EMPTY_VECTORS);
   const [verifyResult, setVerifyResult] = useState<FBDValidationResult | null>(null);
+  // The student commits to "stay" or "slide" BEFORE seeing any verdict; it is graded in Observe.
+  const [slidePrediction, setSlidePrediction] = useState<'stay' | 'slide' | null>(null);
 
   const inclineParams: InclineParams = { mass, angleDeg, muStatic, muKinetic: muStatic * 0.75 };
   const forces = computeInclineForces(inclineParams);
@@ -380,6 +408,7 @@ export function InclineModule() {
     setVectors(EMPTY_VECTORS);
     setVerifyResult(null);
     setFirstAttempt(true);
+    setSlidePrediction(null);
   };
 
   const handleComplete = (score: number, perfectExplain: boolean) => {
@@ -394,15 +423,15 @@ export function InclineModule() {
       <div className={styles.sliders}>
         <div className="slider-wrap">
           <label className="slider-label" htmlFor="inc-angle">Incline Angle <span className="value">{angleDeg}°</span></label>
-          <input id="inc-angle" type="range" min="5" max="75" step="1" value={angleDeg} onChange={(e) => { setAngleDeg(+e.target.value); setValidated(false); setVerifyResult(null); }} />
+          <input id="inc-angle" type="range" min="5" max="75" step="1" value={angleDeg} onChange={(e) => { setAngleDeg(+e.target.value); setValidated(false); setVerifyResult(null); setSlidePrediction(null); }} />
         </div>
         <div className="slider-wrap">
           <label className="slider-label" htmlFor="inc-mu">Static Friction (μₛ) <span className="value">{muStatic.toFixed(2)}</span></label>
-          <input id="inc-mu" type="range" min="0.1" max="0.9" step="0.05" value={muStatic} onChange={(e) => { setMuStatic(+e.target.value); setValidated(false); setVerifyResult(null); }} />
+          <input id="inc-mu" type="range" min="0.1" max="0.9" step="0.05" value={muStatic} onChange={(e) => { setMuStatic(+e.target.value); setValidated(false); setVerifyResult(null); setSlidePrediction(null); }} />
         </div>
         <div className="slider-wrap">
           <label className="slider-label" htmlFor="inc-mass">Mass (m) <span className="value">{mass} kg</span></label>
-          <input id="inc-mass" type="range" min="1" max="20" step="1" value={mass} onChange={(e) => { setMass(+e.target.value); setValidated(false); setVerifyResult(null); }} />
+          <input id="inc-mass" type="range" min="1" max="20" step="1" value={mass} onChange={(e) => { setMass(+e.target.value); setValidated(false); setVerifyResult(null); setSlidePrediction(null); }} />
         </div>
       </div>
 
@@ -419,17 +448,34 @@ export function InclineModule() {
         <div className={styles.statusRow}>
           <span>Max Static Friction</span><strong className="text-green">{forces.frictionMax.toFixed(1)} N</strong>
         </div>
-        <div className={`${styles.statusRow} ${styles.statusResult}`}>
-          <span>Block will:</span>
-          <strong className={forces.isStationary ? 'text-green' : 'text-amber'}>
-            {forces.isStationary ? '✓ Stay still' : '⚡ Slide down!'}
-          </strong>
+      </div>
+
+      <div className={styles.slideQuestion}>
+        <p className={styles.slideQuestionTitle}>Step 1. Will the block stay still or slide down?</p>
+        <p className={styles.hint}>
+          Compare two numbers from the card above: the pull down the slope (∥ component) and the most friction the surface can give.
+          If the pull is bigger than the friction limit, friction cannot hold the block.
+        </p>
+        <div className={styles.slideChoices} role="radiogroup" aria-label="Predict whether the block slides">
+          {([['stay', '✋ It stays still'], ['slide', '⚡ It slides down']] as const).map(([id, label]) => (
+            <button
+              key={id}
+              className={`${styles.slideChoice} ${slidePrediction === id ? styles.slideChoiceActive : ''}`}
+              onClick={() => setSlidePrediction(id)}
+              role="radio"
+              aria-checked={slidePrediction === id}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className={styles.fbdBuilder}>
         <p className={styles.hint}>
-          🖱️ <strong>Drag each force out from the block</strong> — direction AND length both matter. Use the numbers above to work out what each vector should be, then place it.
+          🖱️ <strong>Step 2. Drag each force out from the block.</strong> Direction AND length both matter, so use the numbers above.
+          Friction points up the slope. If you predicted it stays still, friction exactly cancels the pull down the slope (the ∥ component).
+          If you predicted it slides, friction is the sliding kind, which is 75% of the maximum static friction here.
         </p>
         <InclineFBDPlacer angleDeg={angleDeg} forces={forces} vectors={vectors} onChange={handleVectorChange} />
         <button className="btn btn--secondary" onClick={handleResetVectors} disabled={!allVectorsPlaced && !verifyResult}>
@@ -447,15 +493,31 @@ export function InclineModule() {
         </div>
       )}
 
-      <button className="btn btn--primary" onClick={handleValidate} disabled={!allVectorsPlaced}>
-        ⚡ Verify My FBD
+      <button className="btn btn--primary" onClick={handleValidate} disabled={!allVectorsPlaced || slidePrediction === null}>
+        ⚡ Verify My Prediction and FBD
       </button>
+      {slidePrediction === null && <p className={styles.hint}>First choose whether the block will stay still or slide (Step 1).</p>}
       {!allVectorsPlaced && <p className={styles.hint}>Place all three vectors (W, N, f) before verifying.</p>}
     </div>
   );
 
   const ObservePhase = (
     <div className={styles.observeWrap}>
+      {slidePrediction && (
+        <div className={styles.predictionFeedback}>
+          <p>
+            <strong>Your prediction: {slidePrediction === 'slide' ? 'it slides' : 'it stays still'}. </strong>
+            <strong className={(slidePrediction === 'stay') === forces.isStationary ? 'text-green' : 'text-amber'}>
+              {(slidePrediction === 'stay') === forces.isStationary ? '✓ Correct' : `✗ It actually ${forces.isStationary ? 'stays still' : 'slides'}`}
+            </strong>
+          </p>
+          <p>
+            {forces.isStationary
+              ? `The pull down the slope is ${forces.weightParallel.toFixed(1)} N and the most friction available is ${forces.frictionMax.toFixed(1)} N. Friction can cancel the pull, so the block stays put.`
+              : `The pull down the slope is ${forces.weightParallel.toFixed(1)} N but the most friction available is only ${forces.frictionMax.toFixed(1)} N. Friction cannot cancel the pull, so the block slides.`}
+          </p>
+        </div>
+      )}
       <InclineCanvas angleDeg={angleDeg} forces={forces} validated={validated} />
 
       <div className={styles.legend}>
@@ -504,7 +566,7 @@ export function InclineModule() {
         explainQuestions={INCLINE_EXPLAIN_QUESTIONS}
         onComplete={handleComplete}
         onTryAgain={handleTryAgain}
-        predictHint="Before reading the 'Block will...' readout below, try comparing the two numbers just above it yourself: the ∥ component (pulling the block down the slope) versus the Max Static Friction (the most grip the surface can offer). Whichever one is bigger wins."
+        predictHint="Compare two numbers on the card above: the ∥ component (the pull down the slope) and the Max Static Friction (the most grip the surface can offer). Whichever one is bigger wins. Then draw friction at the length that matches your prediction."
       />
     </div>
   );

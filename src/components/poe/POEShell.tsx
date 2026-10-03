@@ -288,6 +288,15 @@ export function POEShell({
               </div>
             </div>
 
+            <details className={styles.whyPredict}>
+              <summary>Why guess first? What if I am wrong?</summary>
+              <p>
+                Guessing before you see the answer makes the answer stick. When your guess is wrong, your brain notices the surprise and
+                remembers the correction much better than it remembers a fact you were simply told. So a wrong guess is a good thing here:
+                it costs nothing, and you still earn the points for making a prediction. Use the hint if you are stuck, and make your best guess.
+              </p>
+            </details>
+
             {predictHint && (
               <div className={styles.hintBox}>
                 {predictHintOpen ? (

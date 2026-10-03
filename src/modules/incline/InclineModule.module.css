@@ -32,3 +32,13 @@
 .fbdFeedbackHint { margin-top: var(--space-2); font-size: 0.8rem; color: var(--text-muted); }
 
 @media (max-width: 640px) { .moduleHeader { padding: var(--space-4); } .conceptWrap { padding: var(--space-4) var(--space-4) 0; } .canvas { max-width: 100%; } }
+
+.slideQuestion { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-md); max-width: 600px; }
+.slideQuestionTitle { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+.slideChoices { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.slideChoice { flex: 1 1 180px; min-height: 44px; padding: var(--space-3) var(--space-4); background: var(--bg-base); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-secondary); font-family: var(--font-sans); font-size: 0.95rem; cursor: pointer; }
+.slideChoice:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+.slideChoice:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+.slideChoiceActive { border-color: var(--accent-cyan); background: rgba(79,70,229,0.08); color: var(--accent-cyan); font-weight: 600; }
+.predictionFeedback { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: 0.95rem; line-height: 1.55; color: var(--text-secondary); max-width: 600px; }
+.predictionFeedback p { margin: 0; }

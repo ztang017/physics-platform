@@ -146,7 +146,7 @@ export const CIRCULAR_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     ],
     correctIndex: 0,
     hint: 'A force along the direction of motion makes the object go faster or slower. A force at right angles to the motion can only bend its path.',
-    explanation: 'A force along the direction of motion changes the speed, and a force at right angles to the motion changes the direction. In the vertical circle the part of gravity along the path speeds the bucket up or slows it down, while the radial part of the net force (T − mg cos φ) bends the path into a circle and must equal mv²/r.',
+    explanation: "A force along the direction of motion changes the speed. A force at right angles to the motion changes the direction. In the vertical circle, the part of gravity along the path speeds the bucket up or slows it down. The force toward the centre bends the path into a circle, and it must equal mv²/r.",
   },
   {
     id: 'full-loop-bottom-speed',

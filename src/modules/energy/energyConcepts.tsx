@@ -11,9 +11,10 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     id: 'what-is-work',
     icon: '💪',
     title: 'What Is Work?',
+    summary: "Work happens when a force acts while the object moves. Effort that does not move the object does no work on it.",
     body: [
       "In everyday language 'work' means effort. In physics it has a precise meaning: a force does work on an object only when the object MOVES while the force acts on it. Holding a heavy box motionless is tiring, but physically it does zero work on the box, because the box doesn't go anywhere.",
-      "Only the part of the force pointing ALONG the direction of motion counts. Push straight along the motion and all of the force counts (cos 0° = 1). Push at an angle and only the component along the motion counts. Push exactly sideways to the motion (cos 90° = 0) and you do no work at all — which is why carrying a bag at a steady height across a room does zero work on the bag.",
+      "Only the part of the force pointing ALONG the direction of motion counts. Push straight along the motion and all of the force counts (cos 0° = 1). Push at an angle and only the component along the motion counts. Push exactly sideways to the motion (cos 90° = 0) and you do no work at all. That is why carrying a bag at a steady height across a room does zero work on the bag.",
       "Work is a scalar with a sign. Positive work adds energy to the object (the force helps the motion). Negative work removes it (the force opposes the motion — friction always does this). Zero work changes nothing. The unit is the joule: 1 J = 1 N·m.",
     ],
     formulaLatex: 'W = F\\,s\\cos\\theta',
@@ -50,6 +51,7 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     id: 'net-work',
     icon: '➕',
     title: 'Net Work: Adding Up Every Force',
+    summary: "Net work is the work done by all the forces added together.",
     body: [
       'Usually several forces act on an object at once — a push, gravity, friction, the normal force. Each one does its own work, positive or negative. The NET (or total) work is simply the sum of them all, which is the same as the work done by the net force.',
       "Example: you push a crate 4 m across a floor with 50 N while friction pushes back with 30 N. Your push does +200 J and friction does −120 J. Gravity and the normal force are perpendicular to the motion, so they do 0 J. The net work is +200 − 120 = +80 J.",
@@ -66,10 +68,11 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     id: 'work-energy-theorem',
     icon: '🏃',
     title: 'Kinetic Energy and the Work–Energy Theorem',
+    summary: "The net work done on an object equals the change in its kinetic energy (its energy of motion).",
     body: [
       "Kinetic energy (K) is the energy an object has because it is moving: K = ½mv². But don't just memorise the formula — its real meaning is that K is the amount of work it took to get the object up to that speed from rest.",
       'That gives the work-energy theorem: the net work done on an object equals the change in its kinetic energy. Positive net work speeds it up, negative net work slows it down, and zero net work leaves its speed unchanged — even if several large forces are acting at once.',
-      'Because K depends on v², doubling the speed quadruples the kinetic energy. That is why a car at 100 km/h needs roughly four times the braking distance of the same car at 50 km/h: stopping it means removing four times as much energy.',
+      'Because K depends on v², doubling the speed quadruples the kinetic energy. That is why a car at 100 km/h needs about four times the braking distance of the same car at 50 km/h. Stopping it means removing four times as much energy.',
     ],
     formulaLatex: 'W_{net} = \\Delta K = \\tfrac{1}{2}mv_f^2 - \\tfrac{1}{2}mv_i^2',
     symbols: [
@@ -98,6 +101,7 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     id: 'gravitational-pe',
     icon: '⛰️',
     title: 'Gravitational Potential Energy',
+    summary: "Lifting an object stores energy in it. Only the change in height matters, not where you call zero.",
     body: [
       "When you lift an object you do work against gravity. That work isn't lost — it is stored as gravitational potential energy (U), ready to turn back into motion if the object falls.",
       "Near Earth's surface the change in potential energy depends only on the change in height: ΔU = mgΔy. Notice that only the CHANGE matters. You can call 'zero height' the floor, the table, or the top of a building — every choice gives the same ΔU, and so the same physics. Pick whichever makes the problem easiest.",
@@ -130,8 +134,9 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     id: 'elastic-pe',
     icon: '🌀',
     title: 'Springs and Elastic Potential Energy',
+    summary: "A squashed or stretched spring stores energy of ½kx², which grows with the square of how far it is squashed.",
     body: [
-      "Stretch or squash a spring by an amount x from its natural length and it pulls or pushes back with a force F = −kx, where k is the spring constant (a stiffer spring has a bigger k). The minus sign says the force always points back toward the natural length.",
+      "Stretch or squash a spring by an amount x from its natural length and it pushes back with a force F = −kx. Here k is the spring constant: a stiffer spring has a bigger k. The minus sign says the force always points back toward the natural length.",
       "The force grows as you stretch, so the work isn't simply force × distance. It is the AREA of the triangle under the force-against-stretch graph: ½ × x × kx = ½kx². That stored work is the spring's elastic potential energy.",
       "Because x is squared, stretching a spring twice as far stores FOUR times the energy. And x is the extension from the natural length — not the spring's total length.",
     ],
@@ -161,8 +166,9 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     id: 'conservative-forces',
     icon: '🔁',
     title: 'Conservative and Non-Conservative Forces',
+    summary: "Gravity and springs give back the energy you put in. Friction does not: it turns energy into heat.",
     body: [
-      "Forces come in two families. A force is CONSERVATIVE if the work it does moving an object between two points depends only on where the object starts and ends — not on the path it takes. Gravity and spring forces are conservative.",
+      "Forces come in two families. A force is CONSERVATIVE if the work it does between two points depends only on where the object starts and ends. The path it takes does not matter. Gravity and spring forces are conservative.",
       'An equivalent test: a conservative force does zero net work around any closed loop. Carry a book up a hill and back down to where you began, and gravity has given back exactly what it took. Conservative forces are the ones that let us define a potential energy — energy stored that can be fully recovered.',
       "Friction is NON-conservative: the longer the path you drag a box between two points, the more work friction does. Its work can't be stored as potential energy — it becomes thermal energy, warming the surfaces. The energy isn't destroyed; it's just no longer available as motion.",
     ],
@@ -171,10 +177,11 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     id: 'conservation-of-energy',
     icon: '♻️',
     title: 'Conservation of Energy',
+    summary: "Energy changes form but the total never changes. Friction turns some of it into heat.",
     body: [
-      'Now put it together. If only conservative forces do work, the mechanical energy E = K + U never changes: whatever the object loses in potential energy it gains in kinetic energy, and the other way round. A ball thrown upward trades speed for height; a roller coaster trades height for speed.',
+      'Now put it together. If only conservative forces do work, the mechanical energy E = K + U never changes. Whatever the object loses in potential energy it gains in kinetic energy, and the other way round. A ball thrown upward trades speed for height; a roller coaster trades height for speed.',
       "When friction (or any non-conservative force) also does work, mechanical energy changes by exactly that amount: W_nc = ΔK + ΔU. Friction's work is negative, so the mechanical energy drops — and the missing energy shows up as heat. Total energy, counting the heat, is always conserved.",
-      "A puzzle to test your intuition: a pendulum bob swings down and its string is snagged by a bar partway through the swing. How high does it rise on the other side? The same height it was released from (as long as the string stays taut) — the bar changes the PATH, but energy conservation only cares about height, because gravity is conservative.",
+      "A puzzle to test your intuition: a pendulum bob swings down and its string is snagged by a bar partway through the swing. How high does it rise on the other side? The same height it was released from, as long as the string stays taut. The bar changes the PATH, but energy conservation only cares about height, because gravity is conservative.",
     ],
     formulaLatex: 'K_i + U_i + W_{nc} = K_f + U_f',
     symbols: [
@@ -200,9 +207,10 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     id: 'power',
     icon: '⚡',
     title: 'Power: How Fast Energy Is Transferred',
+    summary: "Power is how fast energy is transferred: energy per second, measured in watts.",
     body: [
-      'Power is the rate at which work is done (or energy is transferred): P = W/t. Two people can climb the same staircase — the same work against gravity — but the one who runs up does it with more power, because they do it in less time.',
-      'When a force acts along the direction of motion at speed v, the power is P = Fv. This is why pushing hard at high speed demands so much power: a cyclist fighting air resistance needs far more power at higher speeds, since the drag force itself grows with speed and is then multiplied by the speed again.',
+      'Power is the rate at which work is done (or energy is transferred): P = W/t. Two people climb the same staircase, so they do the same work against gravity. The one who runs up has more power, because they do the work in less time.',
+      'When a force acts along the direction of motion at speed v, the power is P = Fv. This is why pushing hard at high speed takes so much power. A cyclist fighting air resistance needs far more power at higher speeds, because the drag force itself grows with speed and is then multiplied by the speed again.',
       'The unit is the watt: 1 W = 1 J/s. A 100 W light bulb converts 100 joules of electrical energy every second.',
     ],
     formulaLatex: 'P = \\dfrac{W}{t} \\qquad\\qquad P = Fv',
@@ -232,8 +240,9 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     id: 'energy-bar-charts',
     icon: '📊',
     title: 'Energy Bar Charts: Keeping the Books',
+    summary: "An energy bar chart is a snapshot of where the energy is. The bars must add up to the same total every time.",
     body: [
-      "An energy bar chart is a snapshot of where an object's energy is at one moment: one bar each for kinetic energy, gravitational potential energy, spring energy, and heat. Draw a chart for the start of a process and another for the end, and the rule is simple — the bars at the end must add up to the same total as the bars at the start. Energy is only ever moved between bars, never created or lost.",
+      "An energy bar chart is a snapshot of where an object's energy is at one moment: one bar each for kinetic energy, gravitational potential energy, spring energy, and heat. Draw a chart for the start of a process and another for the end. The rule is simple: the bars at the end must add up to the same total as the bars at the start. Energy is only ever moved between bars, never created or lost.",
       "Heat is what makes friction fit the picture. Without it, a block sliding over a rough patch would seem to lose energy. With a heat bar, the kinetic bar shrinks and the heat bar grows by exactly the same amount, so the total stays put.",
       "In the Energy Ramp, the chart at release is one tall gravitational bar. To build the chart for the moment the block first comes to rest, ask two questions: how much has friction already turned into heat? And is any energy left, stored in the spring? Kinetic energy is zero at that moment, because the block is momentarily at rest.",
     ],
@@ -249,6 +258,7 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     id: 'crossing-budget',
     icon: '🎢',
     title: 'Reading the Energy Ramp: The Crossing Budget',
+    summary: "Each crossing of the rough patch costs the same amount of energy. The question is how many crossings the block can afford.",
     body: [
       'The Energy Ramp puts every idea so far into a single scene. The block starts with mgh of gravitational potential energy. Sliding down the smooth ramp just converts that into kinetic energy. Each time the block crosses the rough patch, friction removes exactly μmg·d of it as heat — and, like a budget, that cost is the same every crossing.',
       "So the outcome is simple accounting. If mgh is smaller than one crossing's cost, the block stops on the patch. If it can afford one crossing but not two, it reaches the spring, bounces back, and stops on the way back. If it can afford more than two, it makes it back across and climbs the ramp again — though not as high as it started.",
@@ -284,6 +294,7 @@ export const ENERGY_CONCEPTS: ConceptSection[] = [
     id: 'stopping-distance',
     icon: '🛑',
     title: 'How Far Does Friction Let It Slide?',
+    summary: "A block on a rough floor stops when friction has used up all its energy: s = h ÷ μ.",
     body: [
       'A block released from height h arrives at the foot of the ramp with kinetic energy mgh. On a rough floor it stops only when friction has removed all of that energy. Friction removes μmg of energy for every metre the block slides, so over a distance s it removes μmg × s.',
       'Setting the two equal gives μmg × s = mgh. The m and g cancel, leaving s = h/μ. A block released twice as high slides twice as far, and a rougher floor stops it sooner. A heavier block slides exactly the same distance: it starts with more energy, but friction pushes back on it harder.',
@@ -341,6 +352,7 @@ export const ENERGY_CHALLENGE: ConceptSection[] = [
     id: 'work-as-integral',
     icon: '∫',
     title: 'Work as an Integral',
+    summary: "When the force changes along the way, the work is the area under the force-distance graph, which is an integral.",
     body: [
       "W = Fs only works when the force stays constant. For a force that changes with position — like a spring — chop the path into tiny steps dx, over each of which the force is almost constant, and add up F(x)dx over every step. In the limit this is an integral: W = ∫F(x)dx, which is exactly the area under the force-against-position graph.",
       "Check it on a spring: F = kx, so W = ∫₀ˣ ks ds = ½kx². The '½' in elastic potential energy isn't arbitrary — it is the integral of a straight line. Try a different force: if F = cx², the work from 0 to x is cx³/3.",
@@ -369,6 +381,7 @@ export const ENERGY_CHALLENGE: ConceptSection[] = [
     id: 'work-energy-derivation',
     icon: '📐',
     title: 'Deriving the Work–Energy Theorem',
+    summary: "The work-energy theorem is Newton's second law added up over a distance.",
     body: [
       "Start from Newton's second law in one dimension, F = m dv/dt, and write the work as W = ∫F dx. Substituting gives W = ∫m (dv/dt) dx. Now use the chain rule: dv/dt = (dv/dx)(dx/dt) = v dv/dx, because dx/dt is just the velocity v.",
       "So W = ∫m v (dv/dx) dx = ∫m v dv, which integrates to ½mv_f² − ½mv_i². The ½ in kinetic energy is just ∫v dv = ½v². The work-energy theorem isn't a separate law of nature — it is Newton's second law integrated over distance.",
@@ -382,6 +395,7 @@ export const ENERGY_CHALLENGE: ConceptSection[] = [
     id: 'force-from-potential',
     icon: '📉',
     title: 'Force from Potential Energy: F = −dU/dx',
+    summary: "Force is the negative slope of the potential-energy graph: things get pushed downhill in energy.",
     body: [
       "For any conservative force in one dimension, the force is the NEGATIVE SLOPE of the potential energy curve: F(x) = −dU/dx. A steep U(x) means a strong force, and the minus sign means the force always pushes toward LOWER potential energy — like a ball rolling downhill.",
       "Check it: U = ½kx² gives F = −kx, which is Hooke's law. U = mgy gives F = −mg, gravity pointing down. Reading a U(x) graph: a flat slope means zero force (an equilibrium); the bottom of a dip is a stable equilibrium, where a small push is restored; the top of a hill is unstable, where a small push sends the object away.",
@@ -414,6 +428,7 @@ export const ENERGY_CHALLENGE: ConceptSection[] = [
     id: 'instantaneous-power',
     icon: '⏱️',
     title: 'Instantaneous Power',
+    summary: "Power is the rate at which work is done, P = dW/dt, which works out as force times velocity.",
     body: [
       "Average power is W/t, but what if the rate of doing work changes moment to moment? Take the limit of small time intervals: P = dW/dt. Since dW = F dx, this becomes P = F dx/dt = Fv — the same formula as in the basics, now seen as a derivative.",
       'Going the other way, the work done over a stretch of time is the integral of the power: W = ∫P dt, the area under the power-time graph.',

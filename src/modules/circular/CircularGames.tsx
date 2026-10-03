@@ -102,7 +102,7 @@ function drawBank(ctx: CanvasRenderingContext2D, params: BankedParams, speed: nu
   ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax + 150, ay); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = COLOR.text;
-  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.font = '12px JetBrains Mono, monospace';
   ctx.textAlign = 'left';
   ctx.fillText(`bank angle ${params.angleDeg.toFixed(1)}°`, ax + 70, ay - 6);
 
@@ -137,7 +137,7 @@ function drawBank(ctx: CanvasRenderingContext2D, params: BankedParams, speed: nu
   ctx.beginPath(); ctx.moveTo(60, 60); ctx.lineTo(18, 60); ctx.stroke();
   ctx.setLineDash([]);
   ctx.beginPath(); ctx.moveTo(14, 60); ctx.lineTo(24, 55); ctx.lineTo(24, 65); ctx.closePath(); ctx.fill();
-  ctx.font = 'bold 10px JetBrains Mono, monospace';
+  ctx.font = 'bold 12px JetBrains Mono, monospace';
   ctx.textAlign = 'left';
   ctx.fillText('toward the centre of the bend', 66, 64);
 
@@ -147,7 +147,7 @@ function drawBank(ctx: CanvasRenderingContext2D, params: BankedParams, speed: nu
   ctx.textAlign = 'right';
   ctx.fillText(`v = ${speed.toFixed(1)} m/s`, W - 8, 18);
   ctx.fillStyle = COLOR.text;
-  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.font = '12px JetBrains Mono, monospace';
   ctx.fillText(`a = v²/R = ${forces.centripetal.toFixed(2)} m/s²`, W - 8, 34);
   ctx.fillText('cross-section of the road (forces per kg)', W - 8, 50);
 }
@@ -409,7 +409,7 @@ function drawBucket(ctx: CanvasRenderingContext2D, params: BucketParams, phiDeg:
   ctx.fillStyle = COLOR.car;
   ctx.beginPath(); ctx.arc(sx(phiDeg), sy(tAt(phiDeg)), 5, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = COLOR.text;
-  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.font = '12px JetBrains Mono, monospace';
   ctx.textAlign = 'left';
   ctx.fillText('rope tension T against angle', px, py - 10);
   ctx.fillText('0° (bottom)', px, py + ph + 14);

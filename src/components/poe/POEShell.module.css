@@ -361,3 +361,8 @@
   .phaseStep { padding: var(--space-2) var(--space-3); font-size: 0.78rem; }
   .connector { min-width: var(--space-2); }
 }
+
+.whyPredict { max-width: 640px; padding: var(--space-3) var(--space-4); background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: 0.95rem; color: var(--text-secondary); }
+.whyPredict summary { cursor: pointer; font-weight: 600; color: var(--text-primary); min-height: 24px; }
+.whyPredict summary:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+.whyPredict p { margin: var(--space-2) 0 0; line-height: 1.65; }

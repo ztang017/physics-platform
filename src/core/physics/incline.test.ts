@@ -39,4 +39,64 @@ describe('Incline Engine', () => {
     expect(result.isValid).toBe(false); 
     expect(result.score).toBeLessThan(100);
   });
+
+  describe('validateFBD with a complete diagram', () => {
+    const slider: InclineParams = { mass: 5, angleDeg: 30, muStatic: 0.4, muKinetic: 0.3, g: 9.8 }; // slides
+    const holder: InclineParams = { mass: 5, angleDeg: 20, muStatic: 0.6, muKinetic: 0.45, g: 9.8 }; // stays put
+
+    it('accepts a correct diagram for a block that slides, with kinetic friction UP the slope', () => {
+      const f = computeInclineForces(slider);
+      expect(f.isStationary).toBe(false);
+      const vectors = [
+        { id: 'weight', magnitude: f.weight, angleDeg: 270 },
+        { id: 'normal', magnitude: f.normal, angleDeg: 90 + 30 },
+        { id: 'friction', magnitude: f.frictionKinetic, angleDeg: 30 },
+      ];
+      const result = validateFBD(vectors, f, 30);
+      expect(result.isValid).toBe(true);
+      expect(result.score).toBe(100);
+    });
+
+    it('accepts a correct diagram for a block that stays put, with friction equal to the pull down the slope', () => {
+      const f = computeInclineForces(holder);
+      expect(f.isStationary).toBe(true);
+      const vectors = [
+        { id: 'weight', magnitude: f.weight, angleDeg: 270 },
+        { id: 'normal', magnitude: f.normal, angleDeg: 90 + 20 },
+        { id: 'friction', magnitude: f.weightParallel, angleDeg: 20 },
+      ];
+      expect(validateFBD(vectors, f, 20).isValid).toBe(true);
+    });
+
+    it('rejects friction drawn pointing down the slope or away from the surface', () => {
+      const f = computeInclineForces(slider);
+      const withFriction = (angleDeg: number) => [
+        { id: 'weight', magnitude: f.weight, angleDeg: 270 },
+        { id: 'normal', magnitude: f.normal, angleDeg: 90 + 30 },
+        { id: 'friction', magnitude: f.frictionKinetic, angleDeg },
+      ];
+      expect(validateFBD(withFriction(180 + 30), f, 30).isValid).toBe(false); // down the slope
+      expect(validateFBD(withFriction(180 - 30), f, 30).isValid).toBe(false); // up and away from the ramp
+    });
+
+    it('allows a few pixels of slop on a short friction arrow', () => {
+      const f = computeInclineForces(slider);
+      const vectors = [
+        { id: 'weight', magnitude: f.weight, angleDeg: 270 },
+        { id: 'normal', magnitude: f.normal, angleDeg: 90 + 30 },
+        { id: 'friction', magnitude: f.frictionKinetic + 0.06 * f.weight, angleDeg: 30 + 12 },
+      ];
+      expect(validateFBD(vectors, f, 30).isValid).toBe(true);
+    });
+
+    it('still catches static friction drawn where sliding (kinetic) friction belongs', () => {
+      const f = computeInclineForces(slider);
+      const vectors = [
+        { id: 'weight', magnitude: f.weight, angleDeg: 270 },
+        { id: 'normal', magnitude: f.normal, angleDeg: 90 + 30 },
+        { id: 'friction', magnitude: f.weightParallel, angleDeg: 30 }, // the stay-put length
+      ];
+      expect(validateFBD(vectors, f, 30).isValid).toBe(false);
+    });
+  });
 });

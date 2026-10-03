@@ -8,9 +8,11 @@ export interface WhatsNewItem {
 // whether returning visitors get a fresh popup for genuinely new content
 // (not used for the session gate itself, which always fires once per visit
 // regardless of version).
-export const WHATS_NEW_VERSION = '2026-10-07';
+export const WHATS_NEW_VERSION = '2026-10-08';
 
 export const WHATS_NEW_ITEMS: WhatsNewItem[] = [
+  { icon: '🧰', title: 'Plainer notes, new starting points and diagrams', desc: "Every concept note is now written in shorter, plainer sentences, and each section starts with an 'In plain words' summary. New starter sections cover symbols and units, sine and cosine (with a triangle you can drag), and forces and Newton's laws. Splitting a launch velocity, or gravity on a slope, now has a diagram you can play with." },
+  { icon: '🔮', title: 'Predictions that really count', desc: 'In the Incline module you now decide whether the block slides before you see any verdict. Kinematics and Collisions now tell you whether your prediction was right, and why. The Incline and Collisions quizzes run from easiest to hardest, with gentler opening questions, and the answer explanations are shorter and clearer.' },
   { icon: '🚗', title: 'Circular Motion: banked roads and a bucket loop', desc: "After the turntable, take a banked bend on ice, then on grippy tyres, and work out the safe speeds (Safe Speed Band, with a Safe Driver badge for three first tries). Then swing a bucket on a rope, slide round the circle watching the tension, and find the slowest speed that gets it over the top. Five new questions and notes on banked curves and where a rope goes slack." },
   { icon: '🎡', title: 'New module: Circular Motion', desc: "Spin a turntable up until a coin lets go: predict the speed it slips at (a dial, no multiple choice) and the path it takes, then watch from the room and from the turntable to see why there is no outward force. Includes 15 questions that build up to the cords, puck and bucket problems from the tutorial, and a calculus Challenge section. Earn the No Such Force and Spin Doctor badges." },
   { icon: '🔄', title: 'Updates now arrive by themselves', desc: "When a new version of PhysicsLab is released, your open tab picks it up automatically: straight away on the homepage and Courses, and the moment you leave a module or the Contact page, so you never lose your place or a half-written message." },

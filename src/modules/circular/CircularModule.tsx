@@ -117,7 +117,7 @@ function drawScene(ctx: CanvasRenderingContext2D, params: TurntableParams, state
     ctx.setLineDash([]);
     // Labels sit at the far ends of their lines (clamped into view), with a halo so they stay readable
     const label = (text: string, ex: number, ey: number, color: string) => {
-      ctx.font = 'bold 10px JetBrains Mono, monospace';
+      ctx.font = 'bold 12px JetBrains Mono, monospace';
       const width = ctx.measureText(text).width;
       const x = Math.min(W - width - 6, Math.max(6, ex - width / 2));
       const y = Math.min(H - 8, Math.max(62, ey));
@@ -183,14 +183,14 @@ function drawScene(ctx: CanvasRenderingContext2D, params: TurntableParams, state
   ctx.fillText(`t = ${state.t.toFixed(2)} s`, 8, 18);
   ctx.fillText(`${radPerSecToRpm(state.omega).toFixed(1)} rpm`, 8, 34);
   ctx.fillStyle = COLOR.text;
-  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.font = '12px JetBrains Mono, monospace';
   ctx.fillText(`ω = ${state.omega.toFixed(2)} rad/s`, 8, 50);
   ctx.textAlign = 'right';
   ctx.fillStyle = COLOR.table;
   ctx.font = 'bold 11px JetBrains Mono, monospace';
   ctx.fillText(view === 'room' ? 'Seen from the room' : 'Seen from the turntable', W - 8, 18);
   ctx.fillStyle = COLOR.text;
-  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.font = '12px JetBrains Mono, monospace';
   ctx.fillText('looking down from above', W - 8, 32);
 }
 

@@ -16,9 +16,13 @@
 .notApproachingNotice { padding: var(--space-4); background: rgba(180, 83, 9, 0.08); border: 1px solid rgba(180, 83, 9, 0.3); border-radius: var(--radius-md); color: var(--accent-amber); font-size: 0.9rem; line-height: 1.5; }
 .playRow { display: flex; gap: var(--space-3); margin-bottom: var(--space-2); }
 .scrubberWrap { display: flex; flex-direction: column; gap: var(--space-2); }
-.scrubMarkers { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); }
+.scrubMarkers { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); }
 .readoutsGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: var(--space-2); }
 .readout { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3); background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
-.readout span { font-size: 0.72rem; color: var(--text-muted); }
+.readout span { font-size: 0.8rem; color: var(--text-muted); }
 .readout strong { font-family: var(--font-mono); font-size: 0.9rem; }
 @media (max-width: 640px) { .moduleHeader { padding: var(--space-4); } .conceptWrap { padding: var(--space-4) var(--space-4) 0; } }
+
+.scenario { margin: 0; max-width: 600px; padding: var(--space-3) var(--space-4); background: var(--bg-elevated); border-left: 4px solid var(--accent-cyan); border-radius: var(--radius-md); font-size: 0.95rem; line-height: 1.6; color: var(--text-secondary); }
+.predictionFeedback { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: 0.95rem; line-height: 1.55; color: var(--text-secondary); max-width: 640px; }
+.predictionFeedback p { margin: 0; }

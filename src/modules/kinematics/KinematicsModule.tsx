@@ -5,6 +5,7 @@ import {
   type KinematicsDataPoint,
   scoreGraphMatch,
   predictVelocityShape,
+  predictPositionShape,
   type GraphShape,
 } from '../../core/physics/kinematics';
 import { useAnimationLoop } from '../../components/canvas/useAnimationLoop';
@@ -45,6 +46,22 @@ const COLOR = {
 // ─── Explain Questions ─────────────────────────────────────────────────────────
 export const KINEMATICS_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
   {
+    id: 'displacement-vs-distance',
+    question: "You walk 5 m east and then 5 m back west. What are your distance travelled and your displacement?",
+    options: ["Distance 10 m, displacement 0 m", "Distance 0 m, displacement 10 m", "Distance 10 m, displacement 10 m", "Distance 0 m, displacement 0 m"],
+    correctIndex: 0,
+    hint: "Distance counts every step you take. Displacement only compares where you ended up with where you started.",
+    explanation: "Distance adds up all the ground you covered: 5 + 5 = 10 m. Displacement is the final position minus the starting position. You ended where you began, so it is 0 m.",
+  },
+  {
+    id: 'meaning-of-ms2',
+    question: "An object has an acceleration of 3 m/s². What does that mean?",
+    options: ["Its velocity changes by 3 m/s every second", "It moves 3 metres every second", "It is moving at a steady 3 m/s", "It has travelled 3 metres in total"],
+    correctIndex: 0,
+    hint: "Read the unit as \"metres per second, per second\": a change in velocity (m/s) for every second that passes.",
+    explanation: "m/s² means (m/s) per second. An acceleration of 3 m/s² means the velocity grows by 3 m/s every second: 3, 6, 9 m/s and so on. Moving 3 m each second would be a steady velocity of 3 m/s, which has zero acceleration.",
+  },
+  {
     id: 'slope-meaning',
     question: 'On a velocity-time graph, what does the slope of the line represent?',
     options: [
@@ -68,9 +85,9 @@ export const KINEMATICS_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
       'The object must be at the origin',
     ],
     correctIndex: 2,
-    hint: 'Acceleration is the RATE OF CHANGE of velocity. If that rate is zero, is velocity changing at all — in either direction?',
+    hint: "Acceleration is how fast the velocity changes. If it is zero, is the velocity changing at all?",
     explanation:
-      'Zero acceleration means no change in velocity — the object continues at whatever speed it had. This directly contradicts "impetus theory," which would incorrectly predict the object slows down.',
+      "Zero acceleration means the velocity is not changing, so the object keeps moving at the same speed in the same direction. It does not slow down on its own. It only slows if a force, like friction, acts on it.",
   },
   {
     id: 'xt-curvature',
@@ -99,8 +116,8 @@ export const KINEMATICS_EXPLAIN_QUESTIONS: ExplainQuestion[] = [
     question: 'The area under an acceleration-time graph, between two times, represents:',
     options: ['The displacement', 'The change in velocity (Δv)', 'The average acceleration', 'The final position'],
     correctIndex: 1,
-    hint: 'Area under a graph is (height) × (base). Here the height is acceleration and the base is time — multiply their units together: (m/s²) × (s) = ?',
-    explanation: 'Multiplying acceleration by a time interval gives a change in velocity — so the area under an a-t graph equals Δv over that interval. This is the same idea as area under a v-t graph giving displacement, one level up.',
+    hint: "Area is height × width. Here the height is acceleration and the width is time. What are the units of (m/s²) × s?",
+    explanation: "Area is height × width. On an a-t graph the height is acceleration (m/s²) and the width is time (s), and (m/s²) × s = m/s, which is a change in velocity. So the area under an a-t graph is Δv, in the same way that the area under a v-t graph is a displacement.",
   },
   {
     id: 'rendezvous-calc',
@@ -135,8 +152,11 @@ function SimulationCanvas({
   // never rescales mid-animation.
   const rangesRef = useRef({ x: 60, v: 20, a: 10 });
 
-  useHiDPICanvas(simCanvasRef, CANVAS_W, CANVAS_H);
-  useHiDPICanvas(graphCanvasRef, GRAPH_W * 3 + 20, GRAPH_H);
+  // The shared canvas hook clears the picture whenever layout resizes the canvas, so repaint when that happens.
+  const [redrawTick, setRedrawTick] = useState(0);
+  const bumpRedraw = useCallback(() => setRedrawTick((n) => n + 1), []);
+  useHiDPICanvas(simCanvasRef, CANVAS_W, CANVAS_H, bumpRedraw);
+  useHiDPICanvas(graphCanvasRef, GRAPH_W * 3 + 20, GRAPH_H, bumpRedraw);
 
   // Regenerate series when params change
   useEffect(() => {
@@ -214,7 +234,7 @@ function SimulationCanvas({
     ctx.fillStyle = COLOR.axisLine;
     ctx.fillRect(originX - 1, CANVAS_H / 2 - 20, 2, 40);
     ctx.fillStyle = COLOR.text;
-    ctx.font = '10px JetBrains Mono, monospace';
+    ctx.font = '12px JetBrains Mono, monospace';
     ctx.textAlign = 'center';
     ctx.fillText('0', originX, CANVAS_H - 8);
 
@@ -270,7 +290,7 @@ function SimulationCanvas({
   useEffect(() => {
     drawSimulation(0);
     drawGraphs();
-  }, [drawSimulation, drawGraphs]);
+  }, [drawSimulation, drawGraphs, redrawTick]);
 
   return (
     <div className={styles.simWrap}>
@@ -349,7 +369,7 @@ function drawGraph(
 
   // Label
   ctx.fillStyle = color;
-  ctx.font = 'bold 10px JetBrains Mono, monospace';
+  ctx.font = 'bold 12px JetBrains Mono, monospace';
   ctx.textAlign = 'left';
   ctx.fillText(label, ox + 4, oy + 12);
 
@@ -372,7 +392,7 @@ function drawGraph(
 
   // Axis labels
   ctx.fillStyle = COLOR.text;
-  ctx.font = '9px JetBrains Mono, monospace';
+  ctx.font = '11px JetBrains Mono, monospace';
   ctx.textAlign = 'right';
   const rangeLabel = valueRange >= 10 ? Math.round(valueRange) : Math.round(valueRange * 10) / 10;
   ctx.fillText(`+${rangeLabel}`, gx - 2, gy + 4);
@@ -398,9 +418,9 @@ function drawGraph(
     ctx.restore();
 
     ctx.fillStyle = 'rgba(23,27,38,0.55)';
-    ctx.font = '9px JetBrains Mono, monospace';
+    ctx.font = '11px JetBrains Mono, monospace';
     ctx.textAlign = 'right';
-    ctx.fillText('- - target', gx + gw - 2, gy + 12);
+    ctx.fillText('- - target', gx + gw - 2, gy + gh - 8);
   }
 
   // Plot data
@@ -430,6 +450,25 @@ const SHAPE_OPTIONS: { id: GraphShape; label: string; svgPath: string }[] = [
   { id: 'parabolic-up',      label: 'Curve up',    svgPath: 'M10,90 Q50,10 90,40' },
   { id: 'parabolic-down',    label: 'Curve down',  svgPath: 'M10,10 Q50,90 90,60' },
 ];
+
+function shapeLabel(shape: GraphShape | null): string {
+  return SHAPE_OPTIONS.find((o) => o.id === shape)?.label ?? '(none chosen)';
+}
+
+/** Why the v-t graph has the shape it does, in plain words. */
+function velocityReason(a: number): string {
+  if (a > 0.01) return 'Why: a positive acceleration adds the same amount to the velocity every second, so the v-t graph climbs in a straight line. The slope of that line IS the acceleration.';
+  if (a < -0.01) return 'Why: a negative acceleration takes the same amount off the velocity every second, so the v-t graph falls in a straight line. The slope of that line IS the acceleration.';
+  return 'Why: with zero acceleration the velocity never changes, so the v-t graph is a flat line.';
+}
+
+/** Why the x-t graph has the shape it does, in plain words. */
+function positionReason(v0: number, a: number): string {
+  if (a > 0.01) return 'Why: the velocity keeps growing, so the object covers more ground each second than the second before. That makes the x-t graph curve upward (a parabola).';
+  if (a < -0.01) return 'Why: the velocity keeps shrinking, so the object covers less ground each second than the second before. That makes the x-t graph bend downward (a parabola).';
+  if (Math.abs(v0) <= 0.01) return 'Why: with no velocity and no acceleration the object does not move, so the x-t graph is flat.';
+  return 'Why: the velocity is steady, so the same distance is covered every second. That makes the x-t graph a straight sloping line.';
+}
 
 function GraphShapePicker({
   label,
@@ -489,6 +528,7 @@ export function KinematicsModule() {
 
   const params: KinematicsParams = { x0: 0, v0, a };
   const correctVShape = predictVelocityShape(params);
+  const correctXShape = predictPositionShape(params);
 
   // ─── Predict Submission ──────────────────────────────────────────────────────
   const handlePredictSubmit = () => {
@@ -551,15 +591,19 @@ export function KinematicsModule() {
   const PredictPhase = (
     <div className={styles.predictWrap}>
       <div className={styles.paramsCard}>
-        <h4>Set Simulation Parameters</h4>
-        <p>Choose your initial conditions, then predict what the graphs will look like.</p>
+        <h4>🛒 The scenario: a trolley on a straight track</h4>
+        <p>
+          A trolley starts at the middle of a straight track. You choose how fast it is already moving, and how it is being pushed.
+          Then you predict what two graphs will look like: one for its <strong>velocity</strong> over time, and one for its <strong>position</strong> over time.
+        </p>
 
         <div className={styles.sliders}>
           <div className="slider-wrap">
             <label className="slider-label" htmlFor="slider-v0">
-              Initial Velocity (v₀)
+              Starting velocity (v₀): how fast it is already moving
               <span className="value">{v0 >= 0 ? '+' : ''}{v0} m/s</span>
             </label>
+            <span className={styles.sliderHelp}>Positive means moving right, negative means moving left.</span>
             <input
               id="slider-v0"
               type="range" min="-15" max="15" step="0.5"
@@ -570,9 +614,10 @@ export function KinematicsModule() {
 
           <div className="slider-wrap">
             <label className="slider-label" htmlFor="slider-a">
-              Acceleration (a)
+              Acceleration (a): how its velocity is changing
               <span className="value">{a >= 0 ? '+' : ''}{a} m/s²</span>
             </label>
+            <span className={styles.sliderHelp}>Positive pushes it to the right, negative pushes it to the left. A push against its motion slows it down.</span>
             <input
               id="slider-a"
               type="range" min="-8" max="8" step="0.25"
@@ -611,10 +656,22 @@ export function KinematicsModule() {
     <div className={styles.observeWrap}>
       {predictSubmitted && (
         <div className={styles.predictionFeedback}>
-          <span>Your v-t prediction:</span>
-          <strong className={predictedVShape === correctVShape ? 'text-green' : 'text-amber'}>
-            {predictedVShape} {predictedVShape === correctVShape ? '✓' : '— actual was: ' + correctVShape}
-          </strong>
+          <p className={styles.feedbackLine}>
+            <span>Velocity-time graph, your prediction: </span>
+            <strong>{shapeLabel(predictedVShape)}</strong>{' '}
+            <strong className={predictedVShape === correctVShape ? 'text-green' : 'text-amber'}>
+              {predictedVShape === correctVShape ? '✓ Correct' : `✗ It is actually a ${shapeLabel(correctVShape).toLowerCase()}`}
+            </strong>
+          </p>
+          <p className={styles.feedbackWhy}>{velocityReason(a)}</p>
+          <p className={styles.feedbackLine}>
+            <span>Position-time graph, your prediction: </span>
+            <strong>{shapeLabel(predictedXShape)}</strong>{' '}
+            <strong className={predictedXShape === correctXShape ? 'text-green' : 'text-amber'}>
+              {predictedXShape === correctXShape ? '✓ Correct' : `✗ It is actually a ${shapeLabel(correctXShape).toLowerCase()}`}
+            </strong>
+          </p>
+          <p className={styles.feedbackWhy}>{positionReason(v0, a)}</p>
         </div>
       )}
 
@@ -627,6 +684,16 @@ export function KinematicsModule() {
         }}
         targetSeries={targetSeries}
       />
+
+      <dl className={styles.liveReadout} aria-label="Live values from the simulation">
+        <div><dt>Time</dt><dd>{livePoint.t.toFixed(2)} s</dd></div>
+        <div><dt>Position (x)</dt><dd>{livePoint.x.toFixed(1)} m</dd></div>
+        <div><dt>Velocity (v)</dt><dd>{livePoint.v.toFixed(2)} m/s</dd></div>
+        <div><dt>Acceleration (a)</dt><dd>{livePoint.a.toFixed(2)} m/s²</dd></div>
+      </dl>
+      <p className={styles.sliderHelp}>
+        The three graphs show position (x), velocity (v) and acceleration (a) against time. Watch how the slope of one graph is the height of the next.
+      </p>
 
       <div className={styles.controlRow}>
         <button
@@ -689,6 +756,10 @@ export function KinematicsModule() {
               then check your score. (These are the same sliders as the simulation above — changing
               them updates both.)
             </p>
+            <p className={styles.sliderHelp}>
+              Tip: look at where the dashed line STARTS (that height is the starting velocity v₀), then at whether it slopes up or down
+              (that is the sign of the acceleration a). Fix one slider at a time.
+            </p>
           </div>
         </div>
 
@@ -729,6 +800,11 @@ export function KinematicsModule() {
             {matchScore >= 95 && <span className={styles.badge}>🏆 Perfect Match!</span>}
             {matchScore >= 70 && matchScore < 95 && <span className={styles.badge}>👍 Good Match!</span>}
             {matchScore < 70 && <span className={styles.badge}>📉 Keep Adjusting</span>}
+            {matchScore < 95 && (
+              <span className={styles.sliderHelp}>
+                Hint: match the starting height first (v₀), then the steepness and direction of the slope (a).
+              </span>
+            )}
           </div>
         )}
       </div>
