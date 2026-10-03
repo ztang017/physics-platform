@@ -306,3 +306,94 @@ export function bucketAt({ mass, radius, bottomSpeed }: BucketParams, phiDeg: nu
     height,
   };
 }
+
+// ─── Banked curve: what the car does when it cannot hold the bend ─────────────
+/** Signed acceleration of the car along the slope relative to the circular path
+ *  (m/s², positive = up the slope, negative = down). Zero while friction can hold it.
+ *  This is the part of the friction the car NEEDS that the road CANNOT give. */
+export function bankedSlideAcceleration(params: BankedParams, speed: number): number {
+  const f = bankedForcesAt(params, speed);
+  if (f.status === 'holds') return 0;
+  if (f.status === 'slides-down') return -(f.friction - f.maxFriction);
+  return -f.friction - f.maxFriction;
+}
+
+// ─── Bucket in a vertical circle: motion over time ────────────────────────────
+// Pivot at the origin, y up. The bucket starts at the bottom, (0, −r), moving right.
+// While the rope is taut it follows the pendulum equation φ'' = −(g/r) sin φ. If the
+// tension would drop below zero on the way up, the rope goes slack and the bucket
+// becomes a projectile.
+export interface BucketSample {
+  t: number;
+  x: number;
+  y: number;
+  /** Angle round from the bottom while on the rope, in degrees (0-360 for full loops). */
+  phiDeg: number;
+  onRope: boolean;
+  /** Rope tension (N). Zero once the rope has gone slack. */
+  tension: number;
+  speed: number;
+}
+
+export function generateBucketTimeline(
+  { mass, radius, bottomSpeed }: BucketParams,
+  duration = 6,
+  sampleInterval = 1 / 60,
+): BucketSample[] {
+  const dt = 0.0005;
+  const stepsPerSample = Math.max(1, Math.round(sampleInterval / dt));
+  let phi = 0;
+  let omega = bottomSpeed / radius;
+  let onRope = true;
+  let x = 0, y = -radius, vx = 0, vy = 0;
+  const samples: BucketSample[] = [];
+
+  const snapshot = (t: number): BucketSample => {
+    if (onRope) {
+      const tensionPerKg = radius * omega * omega + G * Math.cos(phi);
+      const deg = ((phi * 180) / Math.PI) % 360;
+      return {
+        t,
+        x: radius * Math.sin(phi),
+        y: -radius * Math.cos(phi),
+        phiDeg: deg < 0 ? deg + 360 : deg,
+        onRope: true,
+        tension: mass * tensionPerKg,
+        speed: Math.abs(radius * omega),
+      };
+    }
+    return { t, x, y, phiDeg: 0, onRope: false, tension: 0, speed: Math.hypot(vx, vy) };
+  };
+
+  samples.push(snapshot(0));
+  const totalSteps = Math.round(duration / dt);
+  for (let i = 1; i <= totalSteps; i++) {
+    if (onRope) {
+      omega += -(G / radius) * Math.sin(phi) * dt;
+      phi += omega * dt;
+      const tensionPerKg = radius * omega * omega + G * Math.cos(phi);
+      if (tensionPerKg < 0) {
+        // The rope would have to push: it goes slack and the bucket flies off along the tangent.
+        onRope = false;
+        x = radius * Math.sin(phi);
+        y = -radius * Math.cos(phi);
+        vx = radius * omega * Math.cos(phi);
+        vy = radius * omega * Math.sin(phi);
+      }
+    } else {
+      vy -= G * dt;
+      x += vx * dt;
+      y += vy * dt;
+    }
+    if (i % stepsPerSample === 0) samples.push(snapshot(i * dt));
+  }
+  return samples;
+}
+
+/** The sample for a given time, with the timeline looping so the motion keeps playing. */
+export function bucketSampleAt(samples: BucketSample[], t: number): BucketSample {
+  const last = samples[samples.length - 1].t;
+  const tt = last > 0 ? t % last : 0;
+  const index = Math.min(samples.length - 1, Math.floor((tt / last) * (samples.length - 1)));
+  return samples[index];
+}

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { CIRCULAR_EXPLAIN_QUESTIONS } from './circularQuestions';
-import { G, bankedBand, bankedForcesAt, designSpeed, minLoopBottomSpeed, minTopSpeed, muFromSlip, rpmToRadPerSec } from '../../core/physics/circular';
+import { G, bankedForcesAt, designSpeed, minLoopBottomSpeed, minTopSpeed, muFromSlip, rpmToRadPerSec } from '../../core/physics/circular';
 
 const byId = (id: string) => {
   const q = CIRCULAR_EXPLAIN_QUESTIONS.find((item) => item.id === id);
@@ -110,11 +110,4 @@ describe('phase 2 numeric Explain answers match the physics', () => {
     expect(correct('bank-friction-slow')).toMatch(/^Up the slope/);
   });
 
-  it('friction widens the band on both sides, as the question says', () => {
-    const ice = bankedBand({ radius: 60, angleDeg: 20, mu: 0 });
-    const grip = bankedBand({ radius: 60, angleDeg: 20, mu: 0.2 });
-    expect(grip.vMin).toBeLessThan(ice.vMin);
-    expect(grip.vMax).toBeGreaterThan(ice.vMax);
-    expect(correct('bank-band-widens')).toMatch(/^It widens it/);
-  });
 });

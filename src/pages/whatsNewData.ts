@@ -8,9 +8,10 @@ export interface WhatsNewItem {
 // whether returning visitors get a fresh popup for genuinely new content
 // (not used for the session gate itself, which always fires once per visit
 // regardless of version).
-export const WHATS_NEW_VERSION = '2026-10-08';
+export const WHATS_NEW_VERSION = '2026-10-09';
 
 export const WHATS_NEW_ITEMS: WhatsNewItem[] = [
+  { icon: '🎡', title: 'Circular Motion is cleaner and now moves', desc: 'The banked-road car now drives round the bend and slides when the speed is wrong, and the bucket really swings, loops, goes slack and flies off. The module is tidier too: the experiments sit in three tabs (Turntable, Banked road, Bucket loop), the notes are about 60% shorter, and the quiz is 15 questions instead of 20.' },
   { icon: '🧰', title: 'Plainer notes, new starting points and diagrams', desc: "Every concept note is now written in shorter, plainer sentences, and each section starts with an 'In plain words' summary. New starter sections cover symbols and units, sine and cosine (with a triangle you can drag), and forces and Newton's laws. Splitting a launch velocity, or gravity on a slope, now has a diagram you can play with." },
   { icon: '🔮', title: 'Predictions that really count', desc: 'In the Incline module you now decide whether the block slides before you see any verdict. Kinematics and Collisions now tell you whether your prediction was right, and why. The Incline and Collisions quizzes run from easiest to hardest, with gentler opening questions, and the answer explanations are shorter and clearer.' },
   { icon: '🚗', title: 'Circular Motion: banked roads and a bucket loop', desc: "After the turntable, take a banked bend on ice, then on grippy tyres, and work out the safe speeds (Safe Speed Band, with a Safe Driver badge for three first tries). Then swing a bucket on a rope, slide round the circle watching the tension, and find the slowest speed that gets it over the top. Five new questions and notes on banked curves and where a rope goes slack." },
