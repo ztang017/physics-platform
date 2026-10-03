@@ -67,6 +67,16 @@ const COURSES: Record<ModuleId, Course> = {
     description: 'Crash carts, scrub through slow-motion impacts, and prove that momentum is always conserved.',
     lecture: 'Lecture 4',
   },
+  circular: {
+    id: 'circular',
+    title: 'Circular Motion Turntable',
+    topic: 'Circular motion',
+    emoji: '🎡',
+    accent: '#2563eb',
+    path: '/module/circular',
+    description: 'Spin a turntable up until a coin lets go, and discover why it flies off straight, not outward, and what really keeps things moving in circles.',
+    lecture: 'Lectures 2 & 5',
+  },
 };
 
 /** Every course, in the order a student should take them. */

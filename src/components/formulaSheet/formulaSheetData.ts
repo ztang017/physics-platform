@@ -188,4 +188,52 @@ export const FORMULA_SHEET: SheetSection[] = [
       },
     ],
   },
+  {
+    moduleId: 'circular',
+    icon: '🎡',
+    title: 'Circular Motion',
+    formulas: [
+      {
+        label: 'Angular velocity and units',
+        latex: '\\omega = \\dfrac{d\\theta}{dt} = 2\\pi f = \\dfrac{2\\pi}{T} \\qquad \\omega\\ (\\text{rad/s}) = \\text{rpm} \\times \\dfrac{2\\pi}{60}',
+        symbols: [
+          { symbol: 'ω', meaning: 'Angular velocity', unit: 'rad/s' },
+          { symbol: 'f, T', meaning: 'Frequency (turns per second) and period (seconds per turn)' },
+        ],
+      },
+      {
+        label: 'Arc length and speed on a circle',
+        latex: 'l = r\\theta \\qquad v = \\omega r',
+        caption: 'True for any point on a turning body. θ must be in radians.',
+        symbols: [{ symbol: 'r', meaning: 'Distance from the axis', unit: 'm' }],
+      },
+      {
+        label: 'Centripetal acceleration and force',
+        latex: 'a_c = \\dfrac{v^2}{r} = \\omega^2 r \\qquad \\Sigma F_{toward\\ centre} = \\dfrac{mv^2}{r}',
+        caption: 'Centripetal is a job done by real forces (tension, friction, normal force, gravity), not a new force.',
+        symbols: [{ symbol: 'a c', meaning: 'Acceleration toward the centre', unit: 'm/s²' }],
+      },
+      {
+        label: 'Coin on a turntable',
+        latex: '\\omega_{max} = \\sqrt{\\dfrac{\\mu_s g}{r}}',
+        caption: 'The mass cancels.',
+        symbols: [{ symbol: 'μₛ', meaning: 'Coefficient of static friction' }],
+      },
+      {
+        label: 'Constant angular acceleration',
+        latex: '\\omega = \\omega_0 + \\alpha t \\qquad \\theta = \\omega_0 t + \\tfrac{1}{2}\\alpha t^2 \\qquad \\omega^2 = \\omega_0^2 + 2\\alpha\\theta',
+        symbols: [{ symbol: 'α', meaning: 'Angular acceleration', unit: 'rad/s²' }],
+      },
+      {
+        label: 'Tangential acceleration',
+        latex: 'a_{tan} = \\alpha r',
+        symbols: [{ symbol: 'a tan', meaning: 'Acceleration along the circle (changes the speed)', unit: 'm/s²' }],
+      },
+      {
+        label: 'Vertical circle (rope)',
+        latex: 'T_{bottom} = mg + \\dfrac{mv^2}{r} \\qquad T_{top} = \\dfrac{mv^2}{r} - mg \\qquad v_{min,\\,top} = \\sqrt{gr}',
+        symbols: [{ symbol: 'T', meaning: 'Tension in the rope', unit: 'N' }],
+      },
+    ],
+  },
 ];

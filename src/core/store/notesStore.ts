@@ -24,6 +24,7 @@ const EMPTY_NOTES: Record<NotesSection, string> = {
   incline: '',
   energy: '',
   collision: '',
+  circular: '',
 };
 
 export const useNotesStore = create<NotesState>()(
